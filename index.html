@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RTTC Library Management System - Google Sheets Edition</title>
-    <!-- Fonts -->
+    <!-- Google Fonts: Kantumruy Pro & Hanuman -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Hanuman:wght@400;700;900&family=Kantumruy+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,7 +19,7 @@
     <style>
         :root {
             --bs-body-font-family: 'Kantumruy Pro', 'Hanuman', sans-serif;
-            --sidebar-width: 260px;
+            --sidebar-width: 270px;
         }
         body { font-family: var(--bs-body-font-family); background-color: #f8fafc; color: #1e293b; }
         .sidebar {
@@ -28,7 +28,7 @@
         }
         .sidebar-brand { padding: 1.25rem 1.5rem; color: #fff; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
         .sidebar-menu { list-style: none; padding: 1rem 0; margin: 0; }
-        .sidebar-menu li a { display: flex; align-items: center; gap: 0.85rem; padding: 0.8rem 1.5rem; color: #94a3b8; text-decoration: none; font-weight: 500; cursor: pointer; border-left: 4px solid transparent; }
+        .sidebar-menu li a { display: flex; align-items: center; gap: 0.85rem; padding: 0.8rem 1.5rem; color: #94a3b8; text-decoration: none; font-weight: 500; cursor: pointer; border-left: 4px solid transparent; transition: all 0.2s; }
         .sidebar-menu li a:hover, .sidebar-menu li.active a { color: #fff; background: rgba(255,255,255,0.08); border-left-color: #38bdf8; }
         .main-content { margin-left: var(--sidebar-width); padding: 2rem; min-height: 100vh; }
         .stat-card { border: none; border-radius: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); background: #fff; }
@@ -50,7 +50,7 @@
         <i class="fas fa-book-reader text-info fs-4"></i>
         <div>
             <div style="font-size: 1rem;">បណ្ណាល័យ គរុកោសល្យ</div>
-            <div style="font-size: 0.72rem; color: #94a3b8; font-weight: 400;">GitHub Pages & Sheets</div>
+            <div style="font-size: 0.72rem; color: #94a3b8; font-weight: 400;">Google Sheets Backend</div>
         </div>
     </a>
     <ul class="sidebar-menu">
@@ -63,8 +63,11 @@
         <li onclick="switchView('addBook', this)">
             <a><i class="fas fa-plus-circle"></i> ចុះឈ្មោះសៀវភៅ (Add Book)</a>
         </li>
+        <li onclick="switchView('categories', this)">
+            <a><i class="fas fa-tags"></i> ប្រភេទសៀវភៅ (Categories)</a>
+        </li>
         <li onclick="switchView('loans', this)">
-            <a><i class="fas fa-exchange-alt"></i> ការខ្ចី-សង (Circulation)</a>
+            <a><i class="fas fa-exchange-alt"></i> ការខ្ចី-សងសៀវភៅ (Circulation)</a>
         </li>
         <li onclick="switchView('members', this)">
             <a><i class="fas fa-user-graduate"></i> សមាជិក/គរុសិស្ស (Members)</a>
@@ -88,7 +91,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;">ផ្ទាំងគ្រប់គ្រងទិន្នន័យបណ្ណាល័យ RTTC</h2>
-                <p class="text-muted mb-0"><i class="fas fa-cloud text-primary me-1"></i> ផ្ទុកលើ Google Sheets | ដំណើរការលើ GitHub Pages</p>
+                <p class="text-muted mb-0"><i class="fas fa-cloud text-primary me-1"></i> Google Sheets Backend | ដំណើរការលើ GitHub Pages</p>
             </div>
             <button class="btn btn-outline-primary" onclick="loadDashboard()"><i class="fas fa-sync-alt me-1"></i> ផ្ទុកឡើងវិញ</button>
         </div>
@@ -161,9 +164,7 @@
                         <thead class="table-light">
                             <tr><th>ID</th><th>ព័ត៌មានសៀវភៅ</th><th>DDC & សារពើភ័ណ្ឌ</th><th>អ្នកនិពន្ធ</th><th>ប្រភេទ & ទីតាំង</th><th>នៅសល់</th><th>សកម្មភាព</th></tr>
                         </thead>
-                        <tbody id="booksTableBody">
-                            <tr><td colspan="7" class="text-center py-4">កំពុងផ្ទុក...</td></tr>
-                        </tbody>
+                        <tbody id="booksTableBody"><tr><td colspan="7" class="text-center py-4">កំពុងផ្ទុក...</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -183,7 +184,13 @@
                 <div class="row g-3">
                     <div class="col-md-6"><label class="form-label fw-bold">ចំណងជើងសៀវភៅ *</label><input type="text" id="f_name" class="form-control" required placeholder="ចំណងជើង"></div>
                     <div class="col-md-6"><label class="form-label fw-bold">ចំណងជើងរង</label><input type="text" id="f_sub" class="form-control"></div>
-                    <div class="col-md-4"><label class="form-label fw-bold">ប្រភេទសៀវភៅ *</label><select id="f_cat" class="form-select" required></select></div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">ប្រភេទសៀវភៅ *</label>
+                        <div class="input-group">
+                            <select id="f_cat" class="form-select" required></select>
+                            <button type="button" class="btn btn-outline-primary" onclick="openAddCategoryModal()"><i class="fas fa-plus"></i></button>
+                        </div>
+                    </div>
                     <div class="col-md-4"><label class="form-label fw-bold">អ្នកនិពន្ធ</label><input type="text" id="f_author" class="form-control"></div>
                     <div class="col-md-4"><label class="form-label fw-bold">រោងពុម្ព</label><input type="text" id="f_publisher" class="form-control"></div>
                     <div class="col-md-4"><label class="form-label fw-bold">ចំណាត់ថ្នាក់ដឺវី (DDC) *</label><input type="text" id="f_ddc" class="form-control" required placeholder="ឧ. 370.71"></div>
@@ -202,21 +209,71 @@
         </div>
     </div>
 
-    <!-- VIEW: LOANS -->
+    <!-- VIEW: CATEGORIES (បន្ថែមប្រភេទបញ្ជីសៀវភៅ-Book Category) -->
+    <div id="view-categories" class="app-view">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;">ប្រភេទបញ្ជីសៀវភៅ (Book Categories)</h2>
+                <p class="text-muted mb-0">គ្រប់គ្រងប្រភេទចំណាត់ថ្នាក់សៀវភៅក្នុងបណ្ណាល័យ (Google Sheet: <code>tbl_category</code>)</p>
+            </div>
+            <button class="btn btn-primary shadow-sm" onclick="openAddCategoryModal()">
+                <i class="fas fa-plus-circle me-1"></i> បន្ថែមប្រភេទថ្មី (Add Category)
+            </button>
+        </div>
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-body p-0">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 70px;">ID</th>
+                            <th>កូដប្រភេទ (Code)</th>
+                            <th>ឈ្មោះប្រភេទសៀវភៅ (Category Name)</th>
+                            <th>ការពិពណ៌នា</th>
+                            <th>ស្ថានភាព</th>
+                            <th class="text-end pe-3">សកម្មភាព</th>
+                        </tr>
+                    </thead>
+                    <tbody id="categoriesTableBody">
+                        <tr><td colspan="6" class="text-center py-4">កំពុងផ្ទុក...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW: LOANS (ការខ្ចី-សង ជាមួយការឆែកស្ថានភាព & ពិន័យ) -->
     <div id="view-loans" class="app-view">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;">ការខ្ចី-សងសៀវភៅ (Circulation)</h2>
-                <p class="text-muted mb-0">កត់ត្រាការខ្ចីជាមួយ Searchable Dropdown</p>
+                <p class="text-muted mb-0">សងសៀវភៅជាមួយការពិនិត្យស្ថានភាព (ធម្មតា, រហែក, បាត់) និងការកំណត់ប្រាក់ពិន័យ</p>
             </div>
-            <button class="btn btn-primary" onclick="openJsLoanModal()"><i class="fas fa-plus me-1"></i> កត់ត្រាការខ្ចីថ្មី</button>
+            <button class="btn btn-primary shadow-sm" onclick="openJsLoanModal()">
+                <i class="fas fa-plus-circle me-1"></i> កត់ត្រាការខ្ចីថ្មី
+            </button>
         </div>
         <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold"><i class="fas fa-list-alt text-primary me-2"></i>ប្រវត្តិប្រតិបត្តិការខ្ចី-សងសៀវភៅ</h6>
+                <input type="text" id="loansTableFilter" class="form-control form-control-sm" style="max-width: 280px;" placeholder="ស្វែងរកក្នុងតារាង..." onkeyup="filterLoansTable()">
+            </div>
             <div class="card-body p-0">
-                <table class="table table-hover align-middle mb-0" id="jsLoansTable">
-                    <thead class="table-light"><tr><th>កូដខ្ចី</th><th>សមាជិក</th><th>Book ID</th><th>ថ្ងៃខ្ចី</th><th>ថ្ងៃសង</th><th>ស្ថានភាព</th><th>សកម្មភាព</th></tr></thead>
-                    <tbody id="loansTableBody"><tr><td colspan="7" class="text-center py-4">កំពុងផ្ទុក...</td></tr></tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="jsLoansTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>កូដខ្ចី</th>
+                                <th>សមាជិក</th>
+                                <th>Book ID</th>
+                                <th>ថ្ងៃខ្ចី & សង</th>
+                                <th>ស្ថានភាព</th>
+                                <th>ស្ថានភាពជាក់ស្តែង & ប្រាក់ពិន័យ</th>
+                                <th class="text-end pe-3">សកម្មភាព</th>
+                            </tr>
+                        </thead>
+                        <tbody id="loansTableBody"><tr><td colspan="7" class="text-center py-4">កំពុងផ្ទុក...</td></tr></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -240,11 +297,11 @@
     </div>
 </div>
 
-<!-- Modal: New Loan -->
+<!-- Modal: Issue New Loan -->
 <div class="modal fade" id="jsLoanModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white"><h5 class="modal-title">កត់ត្រាការខ្ចីសៀវភៅថ្មី</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header bg-primary text-white"><h5 class="modal-title"><i class="fas fa-hand-holding-heart me-2"></i>កត់ត្រាការខ្ចីសៀវភៅថ្មី</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
             <form onsubmit="handleJsSubmitLoan(event)">
                 <div class="modal-body p-4">
                     <div class="mb-3">
@@ -266,6 +323,116 @@
     </div>
 </div>
 
+<!-- Modal: Return Book with Condition & Custom Fine (សងសៀវភៅ ដោយមានការឆែកមើលស្ថានភាពសៀវភៅ) -->
+<div class="modal fade" id="jsReturnModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold"><i class="fas fa-clipboard-check me-2"></i>កត់ត្រាការសងសៀវភៅ & ពិនិត្យស្ថានភាព</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form onsubmit="handleJsSubmitReturn(event)">
+                <input type="hidden" id="ret_js_loan_id">
+                <div class="modal-body p-4">
+                    <div class="alert alert-secondary py-2 px-3 mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span class="small">កូដខ្ចី: <strong id="ret_js_code" class="text-dark"></strong></span>
+                            <span class="small">ថ្ងៃសង: <strong id="ret_js_due"></strong></span>
+                        </div>
+                        <div class="mt-1 small">អ្នកខ្ចី: <strong id="ret_js_member" class="text-primary"></strong></div>
+                        <div id="ret_js_overdue_badge" class="badge bg-danger mt-1 d-none">ហួសកាលកំណត់សង!</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">១. ស្ថានភាពសៀវភៅជាក់ស្តែង (Book Condition) <span class="text-danger">*</span></label>
+                        <div class="d-flex flex-column gap-2">
+                            <div class="form-check p-3 border rounded bg-light">
+                                <input class="form-check-input" type="radio" name="js_book_cond" id="js_c_normal" value="ធម្មតា" checked onchange="handleJsConditionChange()">
+                                <label class="form-check-label fw-bold text-success" for="js_c_normal">
+                                    <i class="fas fa-check-circle me-1"></i> ធម្មតា (Normal / Good)
+                                </label>
+                                <div class="small text-muted ps-4">សៀវភៅស្ថិតក្នុងសភាពល្អ គ្មានការរហែក (អាចដាក់ឱ្យខ្ចីបន្តបាន)</div>
+                            </div>
+                            <div class="form-check p-3 border rounded">
+                                <input class="form-check-input" type="radio" name="js_book_cond" id="js_c_damaged" value="រហែក" onchange="handleJsConditionChange()">
+                                <label class="form-check-label fw-bold text-warning" for="js_c_damaged">
+                                    <i class="fas fa-tools me-1"></i> រហែក / ខូចខាត (Torn / Damaged)
+                                </label>
+                                <div class="small text-muted ps-4">សៀវភៅរហែកក្រប ឬដាច់ទំព័រ (តម្រូវឱ្យជួសជុល ឬពិន័យ)</div>
+                            </div>
+                            <div class="form-check p-3 border rounded">
+                                <input class="form-check-input" type="radio" name="js_book_cond" id="js_c_lost" value="បាត់" onchange="handleJsConditionChange()">
+                                <label class="form-check-label fw-bold text-danger" for="js_c_lost">
+                                    <i class="fas fa-times-circle me-1"></i> បាត់សៀវភៅ (Lost)
+                                </label>
+                                <div class="small text-muted ps-4">សិស្សធ្វើឱ្យបាត់សៀវភៅ (មិនបូកចូលស្តុកវិញទេ និងត្រូវសងថ្លៃសៀវភៅ)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">២. ប្រាក់ពិន័យ (Fine / Penalty Amount)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="fas fa-money-bill-wave text-success"></i></span>
+                            <input type="number" id="ret_js_fine" class="form-control" value="0" min="0" step="500">
+                            <span class="input-group-text">រៀល (KHR)</span>
+                        </div>
+                        <div class="d-flex gap-1 mt-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setJsFine(0)">0៛</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setJsFine(1000)">1,000៛</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setJsFine(2000)">2,000៛</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setJsFine(5000)">5,000៛</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setJsFine(10000)">10,000៛</button>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">៣. កំណត់សម្គាល់បន្ថែម</label>
+                        <textarea id="ret_js_remarks" class="form-control" rows="2" placeholder="ឧ. រហែកក្របខាងមុខ ឬបង់ប្រាក់ពិន័យរួចរាល់..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">បោះបង់</button>
+                    <button type="submit" class="btn btn-success px-4"><i class="fas fa-check me-1"></i> បញ្ជាក់ការសងសៀវភៅ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Add Category (បន្ថែមប្រភេទបញ្ជីសៀវភៅ) -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold"><i class="fas fa-tags me-2"></i>បន្ថែមប្រភេទបញ្ជីសៀវភៅថ្មី</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form onsubmit="handleJsSubmitCategory(event)">
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">ឈ្មោះប្រភេទសៀវភៅ (Category Name) <span class="text-danger">*</span></label>
+                        <input type="text" id="cat_new_name" class="form-control" required placeholder="ឧ. គរុកោសល្យ និងវិធីសាស្ត្របង្រៀន">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">កូដប្រភេទសៀវភៅ (Category Code)</label>
+                        <input type="text" id="cat_new_code" class="form-control" placeholder="ឧ. PEDAGOGY ឬ EDU">
+                        <div class="form-text">ទុកទទេដើម្បីប្រព័ន្ធបង្កើតស្វ័យប្រវត្តិ</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">ការពិពណ៌នា (Description)</label>
+                        <textarea id="cat_new_desc" class="form-control" rows="2" placeholder="សៀវភៅស្តីពី..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">បោះបង់</button>
+                    <button type="submit" class="btn btn-primary px-4"><i class="fas fa-save me-1"></i> រក្សាទុកក្នុង Google Sheet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -273,11 +440,12 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.all.min.js"></script>
 
 <script>
-// Default Web App URL (Can be changed in UI)
 let API_URL = localStorage.getItem("RTTC_API_URL") || "https://script.google.com/macros/s/AKfycby_placeholder_deploy_url/exec";
 
 let allBooks = [];
 let allMembers = [];
+let allCategories = [];
+let allLoans = [];
 
 function switchView(viewName, el) {
     document.querySelectorAll(".app-view").forEach(v => v.classList.remove("active"));
@@ -288,6 +456,7 @@ function switchView(viewName, el) {
     }
     if (viewName === "dashboard") loadDashboard();
     if (viewName === "books") loadBooks();
+    if (viewName === "categories") loadCategories();
     if (viewName === "loans") loadLoans();
     if (viewName === "members") loadMembers();
 }
@@ -320,9 +489,9 @@ async function apiCall(action, params = {}) {
 
 async function apiPost(action, data = {}) {
     data.action = action;
-    const res = await fetch(API_URL, {
+    await fetch(API_URL, {
         method: "POST",
-        mode: "no-cors", // for standard Google Apps Script cross-origin POST
+        mode: "no-cors",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
     });
@@ -352,9 +521,7 @@ async function loadDashboard() {
                 `;
             });
         }
-    } catch (e) {
-        console.error(e);
-    }
+    } catch (e) { console.error(e); }
 }
 
 async function loadBooks() {
@@ -364,9 +531,7 @@ async function loadBooks() {
             allBooks = res.data || [];
             renderBooksTable(allBooks);
         }
-    } catch (e) {
-        console.error(e);
-    }
+    } catch (e) { console.error(e); }
 }
 
 function renderBooksTable(books) {
@@ -404,28 +569,206 @@ function filterBooksTable() {
     renderBooksTable(filtered);
 }
 
-async function loadLoans() {
+// Categories Management
+async function loadCategories() {
     try {
-        const res = await apiCall("getLoans");
-        const tbody = document.getElementById("loansTableBody");
+        const res = await apiCall("getCategories");
+        allCategories = res.data || [];
+        const tbody = document.getElementById("categoriesTableBody");
         tbody.innerHTML = "";
-        (res.data || []).forEach(l => {
-            const isActive = (l.status || "").toLowerCase() === "active";
+        if (allCategories.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">មិនទាន់មានប្រភេទសៀវភៅនៅឡើយទេ</td></tr>`;
+            return;
+        }
+        allCategories.forEach(c => {
             tbody.innerHTML += `
                 <tr>
-                    <td class="fw-bold text-primary">${l.loan_code || "LN-" + l.id}</td>
-                    <td>${l.member_name || "Member #" + l.member_id}</td>
-                    <td><span class="badge bg-light text-dark border">Book: ${l.book_id}</span></td>
-                    <td>${l.loan_date || ""}</td>
-                    <td>${l.due_date || ""}</td>
-                    <td><span class="badge ${isActive ? "bg-warning text-dark" : "bg-success"}">${l.status || ""}</span></td>
-                    <td>
-                        ${isActive ? `<button class="btn btn-sm btn-success" onclick="returnJsLoan(${l.id})">កត់ត្រាសង</button>` : `<span class="small text-muted">រួចរាល់</span>`}
+                    <td>${c.id}</td>
+                    <td><span class="badge bg-secondary-subtle text-secondary border">${c.category_code || "CAT-" + c.id}</span></td>
+                    <td class="fw-bold text-primary">${c.category_name}</td>
+                    <td>${c.description || "-"}</td>
+                    <td><span class="badge bg-success">Active</span></td>
+                    <td class="text-end pe-3">
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteJsCategory(${c.id})"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>
             `;
         });
     } catch(e) { console.error(e); }
+}
+
+function openAddCategoryModal() {
+    document.getElementById("cat_new_name").value = "";
+    document.getElementById("cat_new_code").value = "";
+    document.getElementById("cat_new_desc").value = "";
+    new bootstrap.Modal(document.getElementById("addCategoryModal")).show();
+}
+
+async function handleJsSubmitCategory(e) {
+    e.preventDefault();
+    const name = document.getElementById("cat_new_name").value.trim();
+    const code = document.getElementById("cat_new_code").value.trim();
+    const desc = document.getElementById("cat_new_desc").value.trim();
+
+    Swal.fire({ title: "កំពុងបន្ថែមប្រភេទ...", didOpen: () => Swal.showLoading() });
+    await apiPost("addCategory", { category_name: name, category_code: code, description: desc });
+    bootstrap.Modal.getInstance(document.getElementById("addCategoryModal")).hide();
+    Swal.fire("ជោគជ័យ!", "បានបន្ថែមប្រភេទបញ្ជីសៀវភៅចូល Google Sheets", "success").then(() => {
+        loadCategories();
+        loadDropdowns();
+    });
+}
+
+async function deleteJsCategory(id) {
+    Swal.fire({
+        title: "តើអ្នកប្រាកដជាចង់លុបប្រភេទនេះឬ?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        confirmButtonText: "លុប"
+    }).then(async r => {
+        if (r.isConfirmed) {
+            Swal.fire({ title: "កំពុងលុប...", didOpen: () => Swal.showLoading() });
+            await apiPost("deleteCategory", { id: id });
+            Swal.fire("ជោគជ័យ!", "បានលុបប្រភេទសៀវភៅ", "success").then(() => {
+                loadCategories();
+                loadDropdowns();
+            });
+        }
+    });
+}
+
+// Loans Management
+async function loadLoans() {
+    try {
+        const res = await apiCall("getLoans");
+        allLoans = res.data || [];
+        renderLoansTable(allLoans);
+    } catch(e) { console.error(e); }
+}
+
+function renderLoansTable(loans) {
+    const tbody = document.getElementById("loansTableBody");
+    tbody.innerHTML = "";
+    if (loans.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">មិនទាន់មានប្រតិបត្តិការខ្ចីនៅឡើយទេ</td></tr>`;
+        return;
+    }
+    loans.forEach(l => {
+        const isActive = (l.status || "").toLowerCase() === "active" || (l.status || "").toLowerCase() === "borrowed";
+        const isLost = (l.status || "").toLowerCase() === "lost";
+        let isOverdue = false;
+        if (isActive && l.due_date && new Date(l.due_date) < new Date()) {
+            isOverdue = true;
+        }
+        const fine = Number(l.fine || 0);
+
+        tbody.innerHTML += `
+            <tr>
+                <td class="fw-bold text-primary">${l.loan_code || "LN-" + l.id}</td>
+                <td>
+                    <div class="fw-semibold">${l.member_name || "Member #" + l.member_id}</div>
+                    <div class="small text-muted">ID: ${l.member_id}</div>
+                </td>
+                <td><span class="badge bg-light text-dark border">Book: ${l.book_id}</span></td>
+                <td>
+                    <div><i class="far fa-calendar-alt text-muted me-1"></i>${l.loan_date || ""}</div>
+                    <div class="small ${isOverdue ? "text-danger fw-bold" : "text-muted"}">
+                        សង: ${l.due_date || ""}
+                        ${isOverdue ? `<span class="badge bg-danger ms-1">ហួសកំណត់</span>` : ""}
+                    </div>
+                </td>
+                <td>
+                    ${isActive ? `<span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i> កំពុងខ្ចី</span>` : 
+                      isLost ? `<span class="badge bg-danger"><i class="fas fa-exclamation-triangle me-1"></i> បាត់សៀវភៅ</span>` : 
+                      `<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> បានសង (${l.return_date || ""})</span>`}
+                </td>
+                <td>
+                    <div class="small">${l.remarks || "-"}</div>
+                    ${fine > 0 ? `<span class="badge bg-danger-subtle text-danger border border-danger-subtle"><i class="fas fa-receipt me-1"></i>ពិន័យ: ${fine.toLocaleString()} ៛</span>` : ""}
+                </td>
+                <td class="text-end pe-3">
+                    ${isActive ? `<button class="btn btn-sm btn-success shadow-sm" onclick="openJsReturnModal(${l.id}, '${l.loan_code || ""}', '${l.member_name || ""}', '${l.due_date || ""}', ${isOverdue})"><i class="fas fa-undo-alt me-1"></i> សងសៀវភៅ</button>` : `<span class="small text-muted"><i class="fas fa-check-double text-success"></i> រួចរាល់</span>`}
+                </td>
+            </tr>
+        `;
+    });
+}
+
+function filterLoansTable() {
+    const q = document.getElementById("loansTableFilter").value.toLowerCase();
+    const filtered = allLoans.filter(l => {
+        return (l.loan_code || "").toLowerCase().includes(q) ||
+               (l.member_name || "").toLowerCase().includes(q) ||
+               (l.status || "").toLowerCase().includes(q) ||
+               (l.remarks || "").toLowerCase().includes(q);
+    });
+    renderLoansTable(filtered);
+}
+
+function openJsReturnModal(id, code, member, dueDate, isOverdue) {
+    document.getElementById("ret_js_loan_id").value = id;
+    document.getElementById("ret_js_code").innerText = code;
+    document.getElementById("ret_js_member").innerText = member;
+    document.getElementById("ret_js_due").innerText = dueDate;
+
+    const overdueBadge = document.getElementById("ret_js_overdue_badge");
+    if (isOverdue) {
+        overdueBadge.classList.remove("d-none");
+        document.getElementById("ret_js_fine").value = 2000;
+        document.getElementById("ret_js_remarks").value = "សងហួសកាលកំណត់";
+    } else {
+        overdueBadge.classList.add("d-none");
+        document.getElementById("ret_js_fine").value = 0;
+        document.getElementById("ret_js_remarks").value = "";
+    }
+
+    document.getElementById("js_c_normal").checked = true;
+    new bootstrap.Modal(document.getElementById("jsReturnModal")).show();
+}
+
+function handleJsConditionChange() {
+    const isDamaged = document.getElementById("js_c_damaged").checked;
+    const isLost = document.getElementById("js_c_lost").checked;
+    const fineInput = document.getElementById("ret_js_fine");
+    const remarksInput = document.getElementById("ret_js_remarks");
+
+    if (isDamaged) {
+        if (Number(fineInput.value) === 0) fineInput.value = 5000;
+        if (!remarksInput.value) remarksInput.value = "សៀវភៅរហែក/ខូចខាត";
+    } else if (isLost) {
+        if (Number(fineInput.value) === 0) fineInput.value = 20000;
+        remarksInput.value = "បាត់សៀវភៅ - សងថ្លៃសៀវភៅ";
+    } else {
+        if (document.getElementById("ret_js_overdue_badge").classList.contains("d-none")) {
+            fineInput.value = 0;
+            remarksInput.value = "";
+        }
+    }
+}
+
+function setJsFine(amount) {
+    document.getElementById("ret_js_fine").value = amount;
+}
+
+async function handleJsSubmitReturn(e) {
+    e.preventDefault();
+    const id = document.getElementById("ret_js_loan_id").value;
+    const condition = document.querySelector("input[name='js_book_cond']:checked").value;
+    const fine = Number(document.getElementById("ret_js_fine").value) || 0;
+    const remarks = document.getElementById("ret_js_remarks").value.trim();
+
+    Swal.fire({ title: "កំពុងកត់ត្រាការសង...", didOpen: () => Swal.showLoading() });
+    await apiPost("returnLoan", {
+        loan_id: id,
+        condition: condition,
+        fine: fine,
+        remarks: remarks
+    });
+    bootstrap.Modal.getInstance(document.getElementById("jsReturnModal")).hide();
+    Swal.fire("ជោគជ័យ!", `បានកត់ត្រាសងសៀវភៅ (ស្ថានភាព: ${condition}${fine > 0 ? ", ពិន័យ: " + fine.toLocaleString() + "៛" : ""})`, "success").then(() => {
+        loadLoans();
+    });
 }
 
 async function loadMembers() {
@@ -498,21 +841,6 @@ async function handleJsSubmitLoan(e) {
     });
     bootstrap.Modal.getInstance(document.getElementById("jsLoanModal")).hide();
     Swal.fire("ជោគជ័យ!", "បានកត់ត្រាការខ្ចីសៀវភៅទៅក្នុង Google Sheets", "success").then(() => loadLoans());
-}
-
-async function returnJsLoan(id) {
-    Swal.fire({
-        title: "បញ្ជាក់ការសងសៀវភៅ?",
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonText: "សងរួចរាល់"
-    }).then(async r => {
-        if (r.isConfirmed) {
-            Swal.fire({ title: "កំពុងដំណើរការ...", didOpen: () => Swal.showLoading() });
-            await apiPost("returnLoan", { loan_id: id });
-            Swal.fire("ជោគជ័យ!", "បានកត់ត្រាសងសៀវភៅ", "success").then(() => loadLoans());
-        }
-    });
 }
 
 async function handleJsAddBook(e) {
