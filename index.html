@@ -19,130 +19,201 @@
     <style>
         :root {
             --bs-body-font-family: 'Kantumruy Pro', 'Hanuman', sans-serif;
-            --sidebar-width: 270px;
+            --sidebar-width: 280px;
         }
         body { font-family: var(--bs-body-font-family); background-color: #f8fafc; color: #1e293b; }
         .sidebar {
             width: var(--sidebar-width); background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-            min-height: 100vh; position: fixed; top: 0; left: 0; z-index: 1000;
+            height: 100vh; overflow-y: auto; position: fixed; top: 0; left: 0; z-index: 1000;
         }
-        .sidebar-brand { padding: 1.25rem 1.5rem; color: #fff; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
-        .sidebar-menu { list-style: none; padding: 1rem 0; margin: 0; }
-        .sidebar-menu li a { display: flex; align-items: center; gap: 0.85rem; padding: 0.8rem 1.5rem; color: #94a3b8; text-decoration: none; font-weight: 500; cursor: pointer; border-left: 4px solid transparent; transition: all 0.2s; }
-        .sidebar-menu li a:hover, .sidebar-menu li.active a { color: #fff; background: rgba(255,255,255,0.08); border-left-color: #38bdf8; }
-        .main-content { margin-left: var(--sidebar-width); padding: 2rem; min-height: 100vh; }
+        .sidebar-brand { padding: 1.2rem 1.25rem; color: #fff; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .sidebar-menu { list-style: none; padding: 0.75rem 0; margin: 0; }
+        .sidebar-menu li a { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1.25rem; color: #cbd5e1; text-decoration: none; font-weight: 500; font-size: 0.92rem; cursor: pointer; border-left: 4px solid transparent; transition: all 0.2s; }
+        .sidebar-menu li a .menu-label { display: flex; align-items: center; gap: 0.75rem; }
+        .sidebar-menu li a:hover, .sidebar-menu li.active > a { color: #fff; background: rgba(255,255,255,0.08); border-left-color: #38bdf8; }
+        /* Sub-tree menu styling */
+        .submenu { list-style: none; padding: 0.25rem 0; margin: 0; background: rgba(0, 0, 0, 0.25); display: none; }
+        .submenu.open { display: block; }
+        .submenu li a { padding: 0.6rem 1.25rem 0.6rem 2.8rem; font-size: 0.86rem; color: #94a3b8; border-left: 4px solid transparent; }
+        .submenu li a:hover, .submenu li.active > a { color: #38bdf8; background: rgba(56, 189, 248, 0.08); border-left-color: #38bdf8; font-weight: 600; }
+        .chevron-icon { font-size: 0.75rem; transition: transform 0.2s ease; }
+        .chevron-open { transform: rotate(90deg); }
+
+        .main-content { margin-left: var(--sidebar-width); padding: 1.75rem 2rem; min-height: 100vh; }
         .stat-card { border: none; border-radius: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); background: #fff; }
         .badge-saroper { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-weight: 600; }
         .badge-ddc { background-color: #fef3c7; color: #b45309; border: 1px solid #fde68a; font-weight: 600; }
         .app-view { display: none; }
-        .app-view.active { display: block; animation: fadeIn 0.25s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .app-view.active { display: block; animation: fadeIn 0.2s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* QR Card Grid for Printing */
+        .qr-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+        .qr-badge-card { border: 2px solid #cbd5e1; border-radius: 0.75rem; padding: 1rem; text-align: center; background: #fff; page-break-inside: avoid; }
+        .qr-badge-header { font-size: 0.8rem; font-weight: 700; color: #1e3a8a; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.4rem; margin-bottom: 0.6rem; }
+        .qr-canvas-box { display: flex; justify-content: center; align-items: center; margin: 0.5rem auto; min-height: 128px; }
+        .qr-canvas-box img, .qr-canvas-box canvas { margin: 0 auto; }
+
+        @media print {
+            .sidebar, .no-print, .btn, .modal-footer, .modal-header .btn-close { display: none !important; }
+            .main-content { margin-left: 0 !important; padding: 0 !important; }
+            body { background: #fff !important; }
+            .card { box-shadow: none !important; border: 1px solid #ddd !important; }
+        }
         @media (max-width: 991.98px) {
-            .sidebar { position: static; width: 100%; min-height: auto; }
+            .sidebar { position: static; width: 100%; height: auto; }
             .main-content { margin-left: 0; padding: 1rem; }
         }
     </style>
 </head>
 <body>
 
-<div class="sidebar">
+<div class="sidebar no-print">
     <a href="#" class="sidebar-brand">
         <i class="fas fa-book-reader text-info fs-4"></i>
         <div>
-            <div style="font-size: 1rem;">បណ្ណាល័យ គរុកោសល្យ</div>
-            <div style="font-size: 0.72rem; color: #94a3b8; font-weight: 400;">Google Sheets Backend</div>
+            <div style="font-size: 0.98rem;">បណ្ណាល័យ គរុកោសល្យ</div>
+            <div style="font-size: 0.72rem; color: #94a3b8; font-weight: 400;">RTTC Library System</div>
         </div>
     </a>
     <ul class="sidebar-menu">
-        <li class="active" onclick="switchView('dashboard', this)">
-            <a><i class="fas fa-chart-pie"></i> ផ្ទាំងព័ត៌មាន (Dashboard)</a>
+        <li id="nav-dashboard" class="active" onclick="switchView('dashboard', this)">
+            <a><span class="menu-label"><i class="fas fa-chart-pie text-info"></i> ផ្ទាំងព័ត៌មាន (Dashboard)</span></a>
         </li>
-        <li onclick="switchView('books', this)">
-            <a><i class="fas fa-books"></i> បញ្ជីសៀវភៅ (Books)</a>
+        <li id="nav-books" onclick="switchView('books', this)">
+            <a><span class="menu-label"><i class="fas fa-book text-primary"></i> បញ្ជីសៀវភៅ (Books)</span></a>
         </li>
-        <li onclick="switchView('addBook', this)">
-            <a><i class="fas fa-plus-circle"></i> ចុះឈ្មោះសៀវភៅ (Add Book)</a>
+        <li id="nav-addBook" onclick="switchView('addBook', this)">
+            <a><span class="menu-label"><i class="fas fa-plus-circle text-success"></i> ចុះឈ្មោះសៀវភៅ (Add Book)</span></a>
         </li>
-        <li onclick="switchView('categories', this)">
-            <a><i class="fas fa-tags"></i> ប្រភេទសៀវភៅ (Categories)</a>
+        <li id="nav-categories" onclick="switchView('categories', this)">
+            <a><span class="menu-label"><i class="fas fa-tags text-warning"></i> ប្រភេទសៀវភៅ (Categories)</span></a>
         </li>
-        <li onclick="switchView('loans', this)">
-            <a><i class="fas fa-exchange-alt"></i> ការខ្ចី-សងសៀវភៅ (Circulation)</a>
+
+        <!-- SUB-TREE MENU 1: ការខ្ចី-សងសៀវភៅ (Circulation - 3 Forms) -->
+        <li class="has-submenu">
+            <a onclick="toggleSubmenu('submenu-circulation', 'chev-circulation')">
+                <span class="menu-label"><i class="fas fa-exchange-alt text-info"></i> ការខ្ចី-សងសៀវភៅ (Circulation)</span>
+                <i id="chev-circulation" class="fas fa-chevron-right chevron-icon chevron-open"></i>
+            </a>
+            <ul id="submenu-circulation" class="submenu open">
+                <li id="nav-loan-borrow" onclick="switchView('loan-borrow', this)">
+                    <a><span class="menu-label"><i class="fas fa-hand-holding-heart"></i> ១. ខ្ចីសៀវភៅ (Borrow Form)</span></a>
+                </li>
+                <li id="nav-loan-return" onclick="switchView('loan-return', this)">
+                    <a><span class="menu-label"><i class="fas fa-undo-alt"></i> ២. សងសៀវភៅ (Return Form)</span></a>
+                </li>
+                <li id="nav-loan-list" onclick="switchView('loan-list', this)">
+                    <a><span class="menu-label"><i class="fas fa-list-check"></i> ៣. បញ្ជីពិនិត្យព័ត៌មានខ្ចី-សង</span></a>
+                </li>
+            </ul>
         </li>
-        <li onclick="switchView('members', this)">
-            <a><i class="fas fa-user-graduate"></i> សមាជិក/គរុសិស្ស (Members)</a>
+
+        <!-- សមាជិកបណ្ណាល័យ (Members + QR Code) -->
+        <li id="nav-members" onclick="switchView('members', this)">
+            <a><span class="menu-label"><i class="fas fa-user-graduate text-success"></i> សមាជិកបណ្ណាល័យ & QR</span></a>
         </li>
-        <li class="mt-4 pt-3 border-top border-secondary">
+
+        <!-- សម្រង់វត្តមានរបស់បណ្ណារក្ស (Librarian Attendance) -->
+        <li id="nav-attendance" onclick="switchView('attendance', this)">
+            <a><span class="menu-label"><i class="fas fa-user-clock text-warning"></i> សម្រង់វត្តមានបណ្ណារក្ស</span></a>
+        </li>
+
+        <!-- SUB-TREE MENU 2: របាយការណ៍ (Reports - 3 Sub-menus) -->
+        <li class="has-submenu">
+            <a onclick="toggleSubmenu('submenu-reports', 'chev-reports')">
+                <span class="menu-label"><i class="fas fa-chart-bar text-danger"></i> របាយការណ៍ (Reports)</span>
+                <i id="chev-reports" class="fas fa-chevron-right chevron-icon chevron-open"></i>
+            </a>
+            <ul id="submenu-reports" class="submenu open">
+                <li id="nav-report-loans" onclick="switchView('report-loans', this)">
+                    <a><span class="menu-label"><i class="fas fa-file-invoice"></i> ១. របាយការណ៍ ខ្ចី-សង</span></a>
+                </li>
+                <li id="nav-report-books" onclick="switchView('report-books', this)">
+                    <a><span class="menu-label"><i class="fas fa-book-open"></i> ២. របាយការណ៍ បញ្ជីសៀវភៅ</span></a>
+                </li>
+                <li id="nav-report-visits" onclick="switchView('report-visits', this)">
+                    <a><span class="menu-label"><i class="fas fa-users"></i> ៣. សិស្សចូលបណ្ណាល័យ</span></a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="mt-3 pt-2 border-top border-secondary">
             <a href="https://docs.google.com/spreadsheets/d/13uiO2EIpeiVtUQAzv5ph46ziMy1d3m5dcVY7lxgMqVA/edit" target="_blank" class="text-warning">
-                <i class="fas fa-external-link-alt"></i> Google Sheet DB
+                <span class="menu-label"><i class="fas fa-external-link-alt"></i> បើក Google Sheet DB</span>
             </a>
         </li>
         <li>
-            <a href="#" onclick="openSettingsModal()" class="text-info">
-                <i class="fas fa-cog"></i> កំណត់ API Web App
+            <a onclick="openSettingsModal()" class="text-info">
+                <span class="menu-label"><i class="fas fa-cog"></i> កំណត់ API Web App</span>
             </a>
         </li>
     </ul>
 </div>
 
 <div class="main-content">
-    <!-- VIEW: DASHBOARD -->
+    <!-- ==================== VIEW: DASHBOARD ==================== -->
     <div id="view-dashboard" class="app-view active">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;">ផ្ទាំងគ្រប់គ្រងទិន្នន័យបណ្ណាល័យ RTTC</h2>
-                <p class="text-muted mb-0"><i class="fas fa-cloud text-primary me-1"></i> Google Sheets Backend | ដំណើរការលើ GitHub Pages</p>
+                <p class="text-muted mb-0"><i class="fas fa-cloud text-primary me-1"></i> Google Sheets Backend | ប្រព័ន្ធគ្រប់គ្រងបណ្ណាល័យទំនើប</p>
             </div>
-            <button class="btn btn-outline-primary" onclick="loadDashboard()"><i class="fas fa-sync-alt me-1"></i> ផ្ទុកឡើងវិញ</button>
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary btn-sm" onclick="switchView('loan-borrow')"><i class="fas fa-hand-holding-heart me-1"></i> ខ្ចីសៀវភៅ</button>
+                <button class="btn btn-success btn-sm" onclick="switchView('loan-return')"><i class="fas fa-undo-alt me-1"></i> សងសៀវភៅ</button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="loadDashboard()"><i class="fas fa-sync-alt"></i></button>
+            </div>
         </div>
 
         <div class="row g-3 mb-4">
             <div class="col-md-3">
-                <div class="card stat-card p-3">
-                    <span class="text-muted small">ចំណងជើងសៀវភៅ</span>
-                    <h3 class="fw-bold my-1 text-primary" id="kpi-titles">...</h3>
+                <div class="card stat-card p-3 border-start border-primary border-4">
+                    <span class="text-muted small">ចំណងជើងសៀវភៅសរុប</span>
+                    <h3 class="fw-bold my-1 text-primary" id="kpi-titles">0</h3>
                     <span class="small text-secondary">Total Book Titles</span>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card stat-card p-3">
+                <div class="card stat-card p-3 border-start border-info border-4">
                     <span class="text-muted small">ក្បាលសៀវភៅសរុប</span>
-                    <h3 class="fw-bold my-1 text-info" id="kpi-copies">...</h3>
+                    <h3 class="fw-bold my-1 text-info" id="kpi-copies">0</h3>
                     <span class="small text-secondary">Total Copies</span>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card stat-card p-3">
+                <div class="card stat-card p-3 border-start border-warning border-4">
                     <span class="text-muted small">សៀវភៅកំពុងខ្ចី</span>
-                    <h3 class="fw-bold my-1 text-warning" id="kpi-loans">...</h3>
+                    <h3 class="fw-bold my-1 text-warning" id="kpi-loans">0</h3>
                     <span class="small text-secondary">Active Circulation</span>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card stat-card p-3">
+                <div class="card stat-card p-3 border-start border-success border-4">
                     <span class="text-muted small">សមាជិក/គរុសិស្ស</span>
-                    <h3 class="fw-bold my-1 text-success" id="kpi-members">...</h3>
-                    <span class="small text-secondary">Registered Patrons</span>
+                    <h3 class="fw-bold my-1 text-success" id="kpi-members">0</h3>
+                    <span class="small text-secondary">Registered Members</span>
                 </div>
             </div>
         </div>
 
         <div class="card border-0 shadow-sm rounded-3">
-            <div class="card-header bg-white py-3">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                 <h6 class="mb-0 fw-bold"><i class="fas fa-book text-primary me-2"></i>សៀវភៅទើបបញ្ចូលថ្មីក្នុង Google Sheets</h6>
+                <button class="btn btn-sm btn-outline-primary" onclick="switchView('books')">មើលទាំងអស់ &rarr;</button>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0" id="dashBooksTable">
-                        <thead class="table-light"><tr><th>ចំណងជើងសៀវភៅ</th><th>DDC & សារពើភ័ណ្ឌ</th><th>អ្នកនិពន្ធ</th><th>នៅសល់</th></tr></thead>
-                        <tbody><tr><td colspan="4" class="text-center py-4 text-muted">កំពុងទាញយកទិន្នន័យពី Google Sheets...</td></tr></tbody>
+                        <thead class="table-light"><tr><th>ចំណងជើងសៀវភៅ</th><th>DDC & សារពើភ័ណ្ឌ</th><th>អ្នកនិពន្ធ</th><th>ស្ថានភាពស្តុក</th></tr></thead>
+                        <tbody></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- VIEW: BOOKS -->
+    <!-- ==================== VIEW: BOOKS ==================== -->
     <div id="view-books" class="app-view">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
@@ -154,35 +225,36 @@
         <div class="card border-0 shadow-sm rounded-3 mb-3 p-3">
             <div class="input-group">
                 <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
-                <input type="text" id="bookSearchInput" class="form-control border-start-0" placeholder="វាយស្វែងរកសៀវភៅ (ខ្មែរ/English/DDC)..." onkeyup="filterBooksTable()">
+                <input type="text" id="bookSearchInput" class="form-control border-start-0" placeholder="វាយស្វែងរកសៀវភៅ (ខ្មែរ/English/DDC/សារពើភ័ណ្ឌ)..." onkeyup="filterBooksTable()">
             </div>
         </div>
         <div class="card border-0 shadow-sm rounded-3">
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0" id="booksMainTable">
+                    <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
-                            <tr><th>ID</th><th>ព័ត៌មានសៀវភៅ</th><th>DDC & សារពើភ័ណ្ឌ</th><th>អ្នកនិពន្ធ</th><th>ប្រភេទ & ទីតាំង</th><th>នៅសល់</th><th>សកម្មភាព</th></tr>
+                            <tr><th>ID</th><th>ព័ត៌មានសៀវភៅ</th><th>DDC & សារពើភ័ណ្ឌ</th><th>អ្នកនិពន្ធ</th><th>ប្រភេទ & ទីតាំង</th><th>ស្ថានភាពស្តុក</th><th class="text-end pe-3">សកម្មភាព</th></tr>
                         </thead>
-                        <tbody id="booksTableBody"><tr><td colspan="7" class="text-center py-4">កំពុងផ្ទុក...</td></tr></tbody>
+                        <tbody id="booksTableBody"></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- VIEW: ADD BOOK -->
+    <!-- ==================== VIEW: ADD BOOK ==================== -->
     <div id="view-addBook" class="app-view">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;">ចុះឈ្មោះសៀវភៅថ្មី (Add Book)</h2>
-                <p class="text-muted mb-0">កត់ត្រាចូលទៅក្នុង Google Sheet ផ្ទាល់</p>
+                <p class="text-muted mb-0">កត់ត្រាសៀវភៅថ្មីចូលទៅក្នុង Google Sheet (<code>tbl_book</code>)</p>
             </div>
+            <button class="btn btn-outline-secondary" onclick="switchView('books')"><i class="fas fa-arrow-left me-1"></i> បញ្ជីសៀវភៅ</button>
         </div>
         <div class="card border-0 shadow-sm rounded-3 p-4">
             <form id="jsAddBookForm" onsubmit="handleJsAddBook(event)">
                 <div class="row g-3">
-                    <div class="col-md-6"><label class="form-label fw-bold">ចំណងជើងសៀវភៅ *</label><input type="text" id="f_name" class="form-control" required placeholder="ចំណងជើង"></div>
+                    <div class="col-md-6"><label class="form-label fw-bold">ចំណងជើងសៀវភៅ *</label><input type="text" id="f_name" class="form-control" required placeholder="ចំណងជើងសៀវភៅ"></div>
                     <div class="col-md-6"><label class="form-label fw-bold">ចំណងជើងរង</label><input type="text" id="f_sub" class="form-control"></div>
                     <div class="col-md-4">
                         <label class="form-label fw-bold">ប្រភេទសៀវភៅ *</label>
@@ -194,12 +266,12 @@
                     <div class="col-md-4"><label class="form-label fw-bold">អ្នកនិពន្ធ</label><input type="text" id="f_author" class="form-control"></div>
                     <div class="col-md-4"><label class="form-label fw-bold">រោងពុម្ព</label><input type="text" id="f_publisher" class="form-control"></div>
                     <div class="col-md-4"><label class="form-label fw-bold">ចំណាត់ថ្នាក់ដឺវី (DDC) *</label><input type="text" id="f_ddc" class="form-control" required placeholder="ឧ. 370.71"></div>
-                    <div class="col-md-4"><label class="form-label fw-bold">លេខបញ្ជីសារពើភ័ណ្ឌ (Number Saroper) *</label><input type="text" id="f_saroper" class="form-control" required placeholder="ឧ. SP-2024-001"></div>
+                    <div class="col-md-4"><label class="form-label fw-bold">លេខបញ្ជីសារពើភ័ណ្ឌ (Number Saroper) *</label><input type="text" id="f_saroper" class="form-control" required placeholder="ឧ. SP-2024-004"></div>
                     <div class="col-md-4"><label class="form-label fw-bold">ISBN</label><input type="text" id="f_isbn" class="form-control"></div>
                     <div class="col-md-4"><label class="form-label fw-bold">ទីតាំង/ជួរ</label><select id="f_place" class="form-select"></select></div>
                     <div class="col-md-4"><label class="form-label fw-bold">លេខធ្នើរ</label><input type="text" id="f_shelf" class="form-control" placeholder="ធ្នើរ 01"></div>
                     <div class="col-md-4"><label class="form-label fw-bold">ចំនួនក្បាលសៀវភៅ *</label><input type="number" id="f_qty" class="form-control" value="1" min="1" required></div>
-                    <div class="col-md-6"><label class="form-label fw-bold">ប្រភពសៀវភៅ (ក្រអយក)</label><input type="text" id="f_resource" class="form-control" placeholder="ជំនួយ / ក្រសួង"></div>
+                    <div class="col-md-6"><label class="form-label fw-bold">ប្រភពសៀវភៅ (ក្រអយក)</label><input type="text" id="f_resource" class="form-control" placeholder="ក្រអយក / អង្គការឧបត្ថម្ភ"></div>
                     <div class="col-md-6"><label class="form-label fw-bold">URL ក្របសៀវភៅ</label><input type="url" id="f_cover" class="form-control" placeholder="https://..."></div>
                     <div class="col-12 mt-4 text-end">
                         <button type="submit" class="btn btn-primary px-4"><i class="fas fa-save me-1"></i> រក្សាទុកក្នុង Google Sheet</button>
@@ -209,7 +281,7 @@
         </div>
     </div>
 
-    <!-- VIEW: CATEGORIES -->
+    <!-- ==================== VIEW: CATEGORIES ==================== -->
     <div id="view-categories" class="app-view">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
@@ -224,98 +296,117 @@
             <div class="card-body p-0">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
-                        <tr>
-                            <th style="width: 70px;">ID</th>
-                            <th>កូដប្រភេទ (Code)</th>
-                            <th>ឈ្មោះប្រភេទសៀវភៅ (Category Name)</th>
-                            <th>ការពិពណ៌នា</th>
-                            <th>ស្ថានភាព</th>
-                            <th class="text-end pe-3">សកម្មភាព</th>
-                        </tr>
+                        <tr><th>ID</th><th>កូដប្រភេទ</th><th>ឈ្មោះប្រភេទសៀវភៅ</th><th>ការពិពណ៌នា</th><th>ស្ថានភាព</th><th class="text-end pe-3">សកម្មភាព</th></tr>
                     </thead>
-                    <tbody id="categoriesTableBody">
-                        <tr><td colspan="6" class="text-center py-4">កំពុងផ្ទុក...</td></tr>
-                    </tbody>
+                    <tbody id="categoriesTableBody"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- VIEW: LOANS (ការខ្ចី-សងសៀវភៅ ជាមួយ Form សម្រាប់សងសៀវភៅ) -->
-    <div id="view-loans" class="app-view">
+    <!-- ==================== CIRCULATION SUB-VIEW 1: ខ្ចីសៀវភៅ (BORROW FORM) ==================== -->
+    <div id="view-loan-borrow" class="app-view">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;">ការខ្ចី-សងសៀវភៅ (Circulation & Book Return)</h2>
-                <p class="text-muted mb-0">បែបបទកត់ត្រាការខ្ចីសៀវភៅ និងបែបបទសងសៀវភៅ (បើសភាពសៀវភៅនៅល្អ មិនមានពិន័យ តែបើមានរហែក បណ្ណារក្សវាយបញ្ចូលទឹកប្រាក់ពិន័យ)</p>
+                <h2 class="fw-bold mb-1 text-primary" style="font-family: 'Hanuman', serif;"><i class="fas fa-hand-holding-heart me-2"></i>ផ្នែកទី១៖ បែបបទខ្ចីសៀវភៅ (Borrow Book Form)</h2>
+                <p class="text-muted mb-0">ជ្រើសរើសសមាជិក និងសៀវភៅដើម្បីកត់ត្រាការខ្ចីចេញពីបណ្ណាល័យ</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-success btn-sm" onclick="switchView('loan-return')"><i class="fas fa-undo-alt me-1"></i> ទៅកាន់ Form សងសៀវភៅ</button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="switchView('loan-list')"><i class="fas fa-list me-1"></i> បញ្ជីពិនិត្យខ្ចី-សង</button>
             </div>
         </div>
 
-        <!-- Two Dedicated Forms Side-by-Side: 1. ខ្ចីសៀវភៅ (Borrow Form) & 2. សងសៀវភៅ (Return Form) -->
-        <div class="row g-4 mb-4">
-            <!-- FORM 1: បែបបទខ្ចីសៀវភៅ (Borrow Book Form) -->
-            <div class="col-lg-6">
-                <div class="card border-0 shadow-sm rounded-3 h-100">
-                    <div class="card-header bg-primary text-white py-3 d-flex align-items-center justify-content-between">
-                        <h5 class="mb-0 fw-bold" style="font-family: 'Hanuman', serif;">
-                            <i class="fas fa-hand-holding-heart me-2"></i>១. បែបបទខ្ចីសៀវភៅ (Borrow Book Form)
-                        </h5>
-                        <span class="badge bg-white text-primary">ខ្ចីចេញ</span>
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm rounded-3 border-top border-primary border-4">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold text-primary"><i class="fas fa-file-signature me-2"></i>បំពេញព័ត៌មានខ្ចីសៀវភៅ</h5>
+                        <button type="button" class="btn btn-sm btn-light border" onclick="initCirculationView(true)"><i class="fas fa-sync-alt me-1"></i> ទាញបញ្ជីសៀវភៅឡើងវិញ</button>
                     </div>
                     <div class="card-body p-4">
                         <form onsubmit="handleJsSubmitLoan(event)">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">ជ្រើសរើសសិស្ស / គរុសិស្ស <span class="text-danger">*</span></label>
-                                <select id="inline_member_select" class="form-select select2-inline" style="width:100%" required></select>
+                                <label class="form-label fw-bold">១. ជ្រើសរើសសិស្ស / គរុសិស្សដែលខ្ចី <span class="text-danger">*</span></label>
+                                <select id="inline_member_select" class="form-select" style="width:100%" required></select>
+                                <div class="form-text">វាយឈ្មោះ ឬលេខកូដសមាជិក (ឧ. RTTC-STU-001)</div>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-bold">ជ្រើសរើសសៀវភៅដែលត្រូវខ្ចី <span class="text-danger">*</span></label>
-                                <select id="inline_book_select" class="form-select select2-inline" style="width:100%" required></select>
+                                <label class="form-label fw-bold">២. ជ្រើសរើសសៀវភៅដែលត្រូវខ្ចី <span class="text-danger">*</span></label>
+                                <select id="inline_book_select" class="form-select" style="width:100%" required></select>
+                                <div class="form-text">វាយចំណងជើងសៀវភៅ, លេខ DDC, ឬលេខបញ្ជីសារពើភ័ណ្ឌ (SP-...)</div>
                             </div>
-                            <div class="row g-2 mb-3">
-                                <div class="col-6">
-                                    <label class="form-label fw-semibold">ថ្ងៃខ្ចីសៀវភៅ</label>
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">៣. កាលបរិច្ឆេទខ្ចី</label>
                                     <input type="date" id="inline_loan_date" class="form-control" required>
                                 </div>
-                                <div class="col-6">
-                                    <label class="form-label fw-semibold">ថ្ងៃកំណត់សង (១៤ថ្ងៃ)</label>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">៤. កាលបរិច្ឆេទកំណត់សង (១៤ថ្ងៃ)</label>
                                     <input type="date" id="inline_due_date" class="form-control" required>
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">កំណត់សម្គាល់ពេលខ្ចី</label>
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">៥. កំណត់សម្គាល់ពេលខ្ចី</label>
                                 <input type="text" id="inline_loan_remarks" class="form-control" placeholder="ឧ. សៀវភៅស្ថិតក្នុងសភាពល្អ">
                             </div>
                             <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">
-                                <i class="fas fa-check-circle me-1"></i> កត់ត្រាការខ្ចីសៀវភៅ
+                                <i class="fas fa-check-circle me-1"></i> បញ្ជាក់ការខ្ចីសៀវភៅ
                             </button>
                         </form>
                     </div>
                 </div>
             </div>
 
-            <!-- FORM 2: បែបបទសងសៀវភៅ (Return Book Form - សិស្សយកសៀវភៅមកសង) -->
-            <div class="col-lg-6" id="jsReturnFormCard">
-                <div class="card border-0 shadow-sm rounded-3 h-100 border-top border-success border-4">
-                    <div class="card-header bg-success text-white py-3 d-flex align-items-center justify-content-between">
-                        <h5 class="mb-0 fw-bold" style="font-family: 'Hanuman', serif;">
-                            <i class="fas fa-undo-alt me-2"></i>២. បែបបទសងសៀវភៅ (Book Return Form)
-                        </h5>
-                        <span class="badge bg-white text-success">សិស្សយកសៀវភៅមកសង</span>
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm rounded-3 h-100">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="mb-0 fw-bold"><i class="fas fa-clock text-warning me-2"></i>សៀវភៅដែលកំពុងខ្ចីថ្មីៗ (Active Loans)</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 small">
+                                <thead class="table-light"><tr><th>កូដ</th><th>អ្នកខ្ចី & សៀវភៅ</th><th>ថ្ងៃសង</th><th></th></tr></thead>
+                                <tbody id="miniActiveLoansBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== CIRCULATION SUB-VIEW 2: សងសៀវភៅ (RETURN FORM) ==================== -->
+    <div id="view-loan-return" class="app-view">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1 text-success" style="font-family: 'Hanuman', serif;"><i class="fas fa-undo-alt me-2"></i>ផ្នែកទី២៖ បែបបទសងសៀវភៅ (Return Book Form)</h2>
+                <p class="text-muted mb-0">សិស្សយកសៀវភៅមកសង៖ បើសភាពសៀវភៅនៅល្អ មិនមានពិន័យ (0 ៛) តែបើមានរហែក បណ្ណារក្សវាយបញ្ចូលទឹកប្រាក់ពិន័យ</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary btn-sm" onclick="switchView('loan-borrow')"><i class="fas fa-hand-holding-heart me-1"></i> ទៅកាន់ Form ខ្ចីសៀវភៅ</button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="switchView('loan-list')"><i class="fas fa-list me-1"></i> បញ្ជីពិនិត្យខ្ចី-សង</button>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-7" id="jsReturnFormCard">
+                <div class="card border-0 shadow-sm rounded-3 border-top border-success border-4">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold text-success"><i class="fas fa-clipboard-check me-2"></i>ពិនិត្យសភាពសៀវភៅ និងទទួលសៀវភៅសង</h5>
+                        <span class="badge bg-success-subtle text-success border">Return Verification</span>
                     </div>
                     <div class="card-body p-4">
                         <form onsubmit="handleJsSubmitReturn(event)">
-                            <!-- Step 1: Select Active Borrowed Loan -->
                             <div class="mb-3">
                                 <label class="form-label fw-bold">១. ជ្រើសរើសសិស្ស / លេខកូដខ្ចីដែលយកសៀវភៅមកសង <span class="text-danger">*</span></label>
-                                <select id="ret_js_loan_select" class="form-select select2-inline" style="width:100%" required></select>
-                                <div class="form-text">អាចវាយស្វែងរកឈ្មោះសិស្ស ឬចុចប៊ូតុង <strong>«ជ្រើសរើសសង»</strong> ពីតារាងខាងក្រោម</div>
+                                <select id="ret_js_loan_select" class="form-select" style="width:100%" required></select>
+                                <div class="form-text">វាយឈ្មោះសិស្ស ឬចុចប៊ូតុង <strong>«ជ្រើសរើសសង»</strong> ពីតារាងខាងស្តាំដៃ</div>
                             </div>
 
-                            <!-- Step 2: Check Book Condition -->
                             <div class="mb-3">
-                                <label class="form-label fw-bold">២. ពិនិត្យសភាពសៀវភៅពេលសិស្សយកមកសង <span class="text-danger">*</span></label>
+                                <label class="form-label fw-bold">២. ពិនិត្យសភាពសៀវភៅជាក់ស្តែង <span class="text-danger">*</span></label>
                                 <div class="row g-2">
-                                    <!-- នៅល្អ (មិនមានពិន័យ) -->
                                     <div class="col-md-4">
                                         <input type="radio" class="btn-check" name="js_book_cond" id="js_c_good" value="នៅល្អ" checked onchange="toggleJsFineSection()">
                                         <label class="btn btn-outline-success w-100 p-2 text-start h-100" for="js_c_good">
@@ -323,7 +414,6 @@
                                             <div class="small opacity-75">មិនមានពិន័យ (0 ៛)</div>
                                         </label>
                                     </div>
-                                    <!-- រហែក (មានការពិន័យ) -->
                                     <div class="col-md-4">
                                         <input type="radio" class="btn-check" name="js_book_cond" id="js_c_torn" value="រហែក" onchange="toggleJsFineSection()">
                                         <label class="btn btn-outline-warning text-dark w-100 p-2 text-start h-100" for="js_c_torn">
@@ -331,7 +421,6 @@
                                             <div class="small">វាយបញ្ចូលប្រាក់ពិន័យ</div>
                                         </label>
                                     </div>
-                                    <!-- បាត់ (សងថ្លៃសៀវភៅ) -->
                                     <div class="col-md-4">
                                         <input type="radio" class="btn-check" name="js_book_cond" id="js_c_lost" value="បាត់" onchange="toggleJsFineSection()">
                                         <label class="btn btn-outline-danger w-100 p-2 text-start h-100" for="js_c_lost">
@@ -342,7 +431,7 @@
                                 </div>
                             </div>
 
-                            <!-- Dynamic Section A: នៅល្អ (No Fine Banner) -->
+                            <!-- Dynamic Section A: នៅល្អ -->
                             <div id="jsNoFineBanner" class="alert alert-success d-flex align-items-center py-2 px-3 mb-3">
                                 <i class="fas fa-shield-alt fs-4 me-2 text-success"></i>
                                 <div>
@@ -351,7 +440,7 @@
                                 </div>
                             </div>
 
-                            <!-- Dynamic Section B: រហែក / បាត់ (Fine Input Box for Librarian) -->
+                            <!-- Dynamic Section B: រហែក / បាត់ -->
                             <div id="jsFineInputSection" class="p-3 border border-warning rounded-3 bg-warning-subtle mb-3 d-none">
                                 <label class="form-label fw-bold text-danger">
                                     <i class="fas fa-coins me-1"></i> ៣. វាយបញ្ចូលទឹកប្រាក់ពិន័យ (Fine Amount) <span class="text-danger">*</span>
@@ -382,13 +471,49 @@
                     </div>
                 </div>
             </div>
+
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm rounded-3 h-100">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="mb-0 fw-bold"><i class="fas fa-hand-point-left text-success me-2"></i>ចុចជ្រើសរើសសិស្សដែលកំពុងខ្ចីដើម្បីសង</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 small">
+                                <thead class="table-light"><tr><th>កូដ</th><th>សិស្ស & សៀវភៅ</th><th>ថ្ងៃសង</th><th class="text-end pe-2">ជ្រើសរើស</th></tr></thead>
+                                <tbody id="returnSelectLoansBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== CIRCULATION SUB-VIEW 3: បញ្ជីពិនិត្យព័ត៌មានខ្ចី-សង (CIRCULATION LIST) ==================== -->
+    <div id="view-loan-list" class="app-view">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;"><i class="fas fa-list-check text-primary me-2"></i>ផ្នែកទី៣៖ បញ្ជីពិនិត្យមើលព័ត៌មានខ្ចី-សងសៀវភៅ</h2>
+                <p class="text-muted mb-0">ពិនិត្យមើលប្រវត្តិខ្ចី-សង ស្ថានភាពសៀវភៅ និងប្រាក់ពិន័យទាំងអស់</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary btn-sm" onclick="switchView('loan-borrow')"><i class="fas fa-plus me-1"></i> ខ្ចីសៀវភៅថ្មី</button>
+                <button class="btn btn-success btn-sm" onclick="switchView('loan-return')"><i class="fas fa-undo-alt me-1"></i> សងសៀវភៅ</button>
+            </div>
         </div>
 
-        <!-- Loans Table -->
         <div class="card border-0 shadow-sm rounded-3">
-            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                <h6 class="mb-0 fw-bold"><i class="fas fa-list-alt text-primary me-2"></i>បញ្ជីតាមដានប្រតិបត្តិការខ្ចី-សងសៀវភៅទាំងអស់</h6>
-                <input type="text" id="loansTableFilter" class="form-control form-control-sm" style="max-width: 280px;" placeholder="ស្វែងរកកូដ, ឈ្មោះសិស្ស, ឬស្ថានភាព..." onkeyup="filterLoansTable()">
+            <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div class="d-flex gap-2">
+                    <select id="loanStatusFilter" class="form-select form-select-sm" style="width: 180px;" onchange="filterLoansTable()">
+                        <option value="">-- ស្ថានភាពទាំងអស់ --</option>
+                        <option value="active">កំពុងខ្ចី (Active)</option>
+                        <option value="returned">បានសងរួច (Returned)</option>
+                        <option value="lost">បាត់សៀវភៅ (Lost)</option>
+                    </select>
+                </div>
+                <input type="text" id="loansTableFilter" class="form-control form-control-sm" style="max-width: 300px;" placeholder="ស្វែងរកកូដ, ឈ្មោះសិស្ស, ឬស្ថានភាព..." onkeyup="filterLoansTable()">
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -397,33 +522,442 @@
                             <tr>
                                 <th>កូដខ្ចី</th>
                                 <th>សិស្ស / គរុសិស្ស</th>
-                                <th>Book ID</th>
+                                <th>សៀវភៅ</th>
                                 <th>ថ្ងៃខ្ចី & កំណត់សង</th>
                                 <th>ស្ថានភាពខ្ចី-សង</th>
                                 <th>សភាពសៀវភៅ & ទឹកប្រាក់ពិន័យ</th>
                                 <th class="text-end pe-3">សកម្មភាព</th>
                             </tr>
                         </thead>
-                        <tbody id="loansTableBody"><tr><td colspan="7" class="text-center py-4">កំពុងផ្ទុក...</td></tr></tbody>
+                        <tbody id="loansTableBody"></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- VIEW: MEMBERS -->
+    <!-- ==================== VIEW: MEMBERS (FORM ON TOP + ACTION EDIT/DELETE + QR CODE) ==================== -->
     <div id="view-members" class="app-view">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
             <div>
-                <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;">សមាជិកបណ្ណាល័យ (Members)</h2>
-                <p class="text-muted mb-0">បញ្ជីគរុសិស្ស និងគ្រូបង្រៀន</p>
+                <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;">សមាជិកបណ្ណាល័យ & បង្កើត QR Code (Members)</h2>
+                <p class="text-muted mb-0">បែបបទចុះឈ្មោះ/កែប្រែសមាជិក និងបង្កើតកាត QR Code សម្រាប់សិស្សម្នាក់ៗ ឬទាំងអស់</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-dark shadow-sm" onclick="generateBatchQrCodes(false)">
+                    <i class="fas fa-qrcode me-1 text-info"></i> បង្កើត QR តាមការជ្រើសរើស
+                </button>
+                <button class="btn btn-primary shadow-sm" onclick="generateBatchQrCodes(true)">
+                    <i class="fas fa-id-card me-1"></i> បង្កើត QR សិស្សទាំងអស់
+                </button>
             </div>
         </div>
+
+        <!-- Inline Form for Add / Edit Member on Top of the List -->
+        <div class="card border-0 shadow-sm rounded-3 mb-4 border-top border-primary border-4" id="memberFormCard">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-primary" id="memberFormTitle">
+                    <i class="fas fa-user-plus me-2"></i>បែបបទបន្ថែមសមាជិកថ្មី (Add New Member)
+                </h5>
+                <button type="button" id="cancelEditMemberBtn" class="btn btn-sm btn-outline-secondary d-none" onclick="resetMemberForm()">
+                    <i class="fas fa-times me-1"></i> បោះបង់ការកែប្រែ
+                </button>
+            </div>
+            <div class="card-body p-4">
+                <form id="memberInlineForm" onsubmit="handleSaveMember(event)">
+                    <input type="hidden" id="mem_edit_id" value="">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">ឈ្មោះពេញ (Full Name) <span class="text-danger">*</span></label>
+                            <input type="text" id="mem_full_name" class="form-control" required placeholder="ឧ. គង់ ពិសិដ្ឋ">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">លេខកូដ (Member Code)</label>
+                            <input type="text" id="mem_code" class="form-control" placeholder="RTTC-STU-005">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">ភេទ (Gender)</label>
+                            <select id="mem_gender" class="form-select">
+                                <option value="ប្រុស (Male)">ប្រុស (Male)</option>
+                                <option value="ស្រី (Female)">ស្រី (Female)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">ប្រភេទសមាជិក</label>
+                            <select id="mem_type" class="form-select">
+                                <option value="គរុសិស្ស (Student)">គរុសិស្ស (Student)</option>
+                                <option value="គ្រូបង្រៀន (Teacher)">គ្រូបង្រៀន (Teacher)</option>
+                                <option value="បុគ្គលិក (Staff)">បុគ្គលិក (Staff)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">លេខទូរស័ព្ទ (Phone)</label>
+                            <input type="text" id="mem_phone" class="form-control" placeholder="012 345 678">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">អ៊ីមែល (Email)</label>
+                            <input type="email" id="mem_email" class="form-control" placeholder="student@rttc.edu.kh">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">ស្ថានភាព</label>
+                            <select id="mem_status" class="form-select">
+                                <option value="សកម្ម (Active)">សកម្ម (Active)</option>
+                                <option value="ផ្អាក (Inactive)">ផ្អាក (Inactive)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5 text-end">
+                            <button type="submit" id="memberSubmitBtn" class="btn btn-primary px-4 fw-bold shadow-sm">
+                                <i class="fas fa-save me-1"></i> រក្សាទុកសមាជិក
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Members List Table with Checkboxes, QR Code, Edit, Delete -->
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold"><i class="fas fa-users text-primary me-2"></i>បញ្ជីសមាជិកបណ្ណាល័យទាំងអស់</h6>
+                <input type="text" id="memberSearchInput" class="form-control form-control-sm" style="max-width: 280px;" placeholder="ស្វែងរកឈ្មោះ ឬលេខកូដ..." onkeyup="filterMembersTable()">
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 40px;"><input type="checkbox" class="form-check-input" id="selectAllMembersCheckbox" onchange="toggleSelectAllMembers(this)"></th>
+                                <th>អត្តលេខគណនី (ID)</th>
+                                <th>លេខកូដសមាជិក</th>
+                                <th>ឈ្មោះពេញ</th>
+                                <th>ភេទ</th>
+                                <th>ប្រភេទ</th>
+                                <th>លេខទូរស័ព្ទ</th>
+                                <th>QR Code</th>
+                                <th class="text-end pe-3">សកម្មភាព (Action)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="membersTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== VIEW: LIBRARIAN ATTENDANCE (សម្រង់វត្តមានរបស់បណ្ណារក្ស) ==================== -->
+    <div id="view-attendance" class="app-view">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;"><i class="fas fa-user-clock text-warning me-2"></i>សម្រង់វត្តមានរបស់បណ្ណារក្ស (Librarian Attendance)</h2>
+                <p class="text-muted mb-0">កត់ត្រាម៉ោងចូល-ចេញវេនព្រឹក និងវេនរសៀលរបស់បណ្ណារក្សប្រចាំថ្ងៃ (Google Sheet: <code>tbl_librarian_attendance</code>)</p>
+            </div>
+        </div>
+
+        <!-- Librarian Attendance Form -->
+        <div class="card border-0 shadow-sm rounded-3 mb-4 border-top border-warning border-4" id="attFormCard">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-dark" id="attFormTitle">
+                    <i class="fas fa-calendar-check text-warning me-2"></i>បែបបទសម្រង់វត្តមានបណ្ណារក្ស (ព្រឹកចូល-ចេញ និង រសៀលចូល-ចេញ)
+                </h5>
+                <button type="button" id="cancelEditAttBtn" class="btn btn-sm btn-outline-secondary d-none" onclick="resetAttendanceForm()">
+                    <i class="fas fa-times me-1"></i> បោះបង់ការកែប្រែ
+                </button>
+            </div>
+            <div class="card-body p-4">
+                <form onsubmit="handleSaveAttendance(event)">
+                    <input type="hidden" id="att_edit_id" value="">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">ឈ្មោះបណ្ណារក្ស (Librarian Name) <span class="text-danger">*</span></label>
+                            <input type="text" id="att_name" class="form-control" required placeholder="ឧ. សុខ សម្បត្តិ">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">អត្តលេខបណ្ណារក្ស (Staff ID)</label>
+                            <input type="text" id="att_code" class="form-control" placeholder="ឧ. LIB-001">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">កាលបរិច្ឆេទ (Date) <span class="text-danger">*</span></label>
+                            <input type="date" id="att_date" class="form-control" required>
+                        </div>
+
+                        <!-- Morning Shift -->
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded-3 bg-light">
+                                <div class="fw-bold text-primary mb-2"><i class="fas fa-sun me-1 text-warning"></i> វេនព្រឹក (Morning Shift)</div>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold">ម៉ោងចូលព្រឹក (Morning In)</label>
+                                        <div class="input-group input-group-sm">
+                                            <input type="time" id="att_m_in" class="form-control" value="07:30">
+                                            <button type="button" class="btn btn-outline-primary" onclick="setNowTime('att_m_in')" title="ម៉ោងបច្ចុប្បន្ន"><i class="fas fa-clock"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold">ម៉ោងចេញព្រឹក (Morning Out)</label>
+                                        <div class="input-group input-group-sm">
+                                            <input type="time" id="att_m_out" class="form-control" value="11:30">
+                                            <button type="button" class="btn btn-outline-primary" onclick="setNowTime('att_m_out')" title="ម៉ោងបច្ចុប្បន្ន"><i class="fas fa-clock"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Afternoon Shift -->
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded-3 bg-light">
+                                <div class="fw-bold text-info mb-2"><i class="fas fa-cloud-sun me-1 text-info"></i> វេនរសៀល (Afternoon Shift)</div>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold">ម៉ោងចូលរសៀល (Afternoon In)</label>
+                                        <div class="input-group input-group-sm">
+                                            <input type="time" id="att_a_in" class="form-control" value="13:30">
+                                            <button type="button" class="btn btn-outline-info" onclick="setNowTime('att_a_in')" title="ម៉ោងបច្ចុប្បន្ន"><i class="fas fa-clock"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold">ម៉ោងចេញរសៀល (Afternoon Out)</label>
+                                        <div class="input-group input-group-sm">
+                                            <input type="time" id="att_a_out" class="form-control" value="17:00">
+                                            <button type="button" class="btn btn-outline-info" onclick="setNowTime('att_a_out')" title="ម៉ោងបច្ចុប្បន្ន"><i class="fas fa-clock"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">ស្ថានភាពវត្តមាន</label>
+                            <select id="att_status" class="form-select">
+                                <option value="វត្តមានពេញម៉ោង (Present)">វត្តមានពេញម៉ោង (Present)</option>
+                                <option value="វត្តមាន១ពេល (Half-Day)">វត្តមាន១ពេល (Half-Day)</option>
+                                <option value="ច្បាប់ឈប់សម្រាក (Leave)">ច្បាប់ឈប់សម្រាក (Leave)</option>
+                                <option value="បេសកកម្ម (Mission)">បេសកកម្ម (Mission)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold">កំណត់សម្គាល់ (Remarks)</label>
+                            <input type="text" id="att_remarks" class="form-control" placeholder="ឧ. វេនប្រចាំការធម្មតា">
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" id="attSubmitBtn" class="btn btn-warning w-100 fw-bold shadow-sm">
+                                <i class="fas fa-save me-1"></i> កត់ត្រាវត្តមានបណ្ណារក្ស
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Librarian Attendance Table -->
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold"><i class="fas fa-list-ul text-warning me-2"></i>តារាងសម្រង់វត្តមានបណ្ណារក្សប្រចាំថ្ងៃ</h6>
+                <button class="btn btn-sm btn-outline-dark" onclick="window.print()"><i class="fas fa-print me-1"></i> បោះពុម្ពតារាងវត្តមាន</button>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>កាលបរិច្ឆេទ</th>
+                                <th>បណ្ណារក្ស</th>
+                                <th class="text-center bg-warning-subtle">ព្រឹកចូល - ព្រឹកចេញ</th>
+                                <th class="text-center bg-info-subtle">រសៀលចូល - រសៀលចេញ</th>
+                                <th>ស្ថានភាព & កំណត់សម្គាល់</th>
+                                <th class="text-end pe-3 no-print">សកម្មភាព</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== REPORT SUB-VIEW 1: របាយការណ៍ ខ្ចី-សង (LOAN & RETURN REPORT) ==================== -->
+    <div id="view-report-loans" class="app-view">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;"><i class="fas fa-file-invoice text-primary me-2"></i>របាយការណ៍៖ ការខ្ចី-សងសៀវភៅ (Loan & Return Report)</h2>
+                <p class="text-muted mb-0">របាយការណ៍សរុបនៃការខ្ចីសៀវភៅ ការសងសៀវភៅ និងទឹកប្រាក់ពិន័យ</p>
+            </div>
+            <div class="d-flex gap-2 no-print">
+                <button class="btn btn-outline-success" onclick="exportTableToCSV('reportLoansTable', 'RTTC_Loan_Report.csv')"><i class="fas fa-file-csv me-1"></i> ទាញយក CSV/Excel</button>
+                <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print me-1"></i> បោះពុម្ពរបាយការណ៍</button>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card border-0 shadow-sm rounded-3 p-3 mb-4 no-print">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold">ចាប់ពីថ្ងៃទី (From Date)</label>
+                    <input type="date" id="rep_loan_from" class="form-control form-control-sm" onchange="renderLoanReport()">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold">ដល់ថ្ងៃទី (To Date)</label>
+                    <input type="date" id="rep_loan_to" class="form-control form-control-sm" onchange="renderLoanReport()">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold">ស្ថានភាព (Status)</label>
+                    <select id="rep_loan_status" class="form-select form-select-sm" onchange="renderLoanReport()">
+                        <option value="">-- ទាំងអស់ --</option>
+                        <option value="active">កំពុងខ្ចី (Active)</option>
+                        <option value="returned">បានសងរួច (Returned)</option>
+                        <option value="fined">មានការពិន័យ (Fined > 0 ៛)</option>
+                        <option value="lost">បាត់សៀវភៅ (Lost)</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-sm btn-secondary w-100" onclick="resetLoanReportFilter()"><i class="fas fa-redo me-1"></i> បង្ហាញទាំងអស់</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary KPIs -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3"><div class="card stat-card p-3"><span class="small text-muted">ប្រតិបត្តិការខ្ចីសរុប</span><h4 class="fw-bold text-primary mb-0" id="rep_l_total">0</h4></div></div>
+            <div class="col-md-3"><div class="card stat-card p-3"><span class="small text-muted">បានសងរួចរាល់</span><h4 class="fw-bold text-success mb-0" id="rep_l_returned">0</h4></div></div>
+            <div class="col-md-3"><div class="card stat-card p-3"><span class="small text-muted">កំពុងខ្ចីមិនទាន់សង</span><h4 class="fw-bold text-warning mb-0" id="rep_l_active">0</h4></div></div>
+            <div class="col-md-3"><div class="card stat-card p-3"><span class="small text-muted">ទឹកប្រាក់ពិន័យសរុប</span><h4 class="fw-bold text-danger mb-0" id="rep_l_fine">0 ៛</h4></div></div>
+        </div>
+
         <div class="card border-0 shadow-sm rounded-3">
             <div class="card-body p-0">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light"><tr><th>ID</th><th>កូដសមាជិក</th><th>ឈ្មោះ</th><th>ភេទ</th><th>ប្រភេទ</th><th>លេខទូរស័ព្ទ</th></tr></thead>
-                    <tbody id="membersTableBody"><tr><td colspan="6" class="text-center py-4">កំពុងផ្ទុក...</td></tr></tbody>
+                <table class="table table-bordered table-hover align-middle mb-0" id="reportLoansTable">
+                    <thead class="table-light">
+                        <tr><th>ល.រ</th><th>កូដខ្ចី</th><th>ឈ្មោះសិស្ស/គរុសិស្ស</th><th>ចំណងជើងសៀវភៅ</th><th>ថ្ងៃខ្ចី</th><th>ថ្ងៃកំណត់សង</th><th>ថ្ងៃសងជាក់ស្តែង</th><th>ស្ថានភាព</th><th>ប្រាក់ពិន័យ (៛)</th><th>កំណត់សម្គាល់</th></tr>
+                    </thead>
+                    <tbody id="reportLoansBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== REPORT SUB-VIEW 2: របាយការណ៍ បញ្ជីសៀវភៅ (BOOK INVENTORY REPORT) ==================== -->
+    <div id="view-report-books" class="app-view">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;"><i class="fas fa-book-open text-success me-2"></i>របាយការណ៍៖ បញ្ជីសារពើភ័ណ្ឌសៀវភៅ (Book Inventory Report)</h2>
+                <p class="text-muted mb-0">របាយការណ៍បញ្ជីសៀវភៅតាមប្រភេទ លេខសារពើភ័ណ្ឌ ចំណាត់ថ្នាក់ដឺវី (DDC) និងចំនួនក្បាលសៀវភៅ</p>
+            </div>
+            <div class="d-flex gap-2 no-print">
+                <button class="btn btn-outline-success" onclick="exportTableToCSV('reportBooksTable', 'RTTC_Book_Inventory_Report.csv')"><i class="fas fa-file-csv me-1"></i> ទាញយក CSV/Excel</button>
+                <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print me-1"></i> បោះពុម្ពរបាយការណ៍</button>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-3 p-3 mb-4 no-print">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label small fw-bold">ជ្រើសរើសប្រភេទសៀវភៅ (Category)</label>
+                    <select id="rep_book_cat" class="form-select form-select-sm" onchange="renderBookReport()"></select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">ស្វែងរកតាមពាក្យគន្លឹះ</label>
+                    <input type="text" id="rep_book_q" class="form-control form-control-sm" placeholder="ចំណងជើង, លេខសារពើភ័ណ្ឌ, ឬ DDC..." onkeyup="renderBookReport()">
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-sm btn-secondary w-100" onclick="document.getElementById('rep_book_cat').value=''; document.getElementById('rep_book_q').value=''; renderBookReport();"><i class="fas fa-redo me-1"></i> បង្ហាញទាំងអស់</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-4"><div class="card stat-card p-3"><span class="small text-muted">ចំនួនចំណងជើងសៀវភៅ</span><h4 class="fw-bold text-primary mb-0" id="rep_b_titles">0</h4></div></div>
+            <div class="col-md-4"><div class="card stat-card p-3"><span class="small text-muted">ចំនួនក្បាលសៀវភៅសរុប</span><h4 class="fw-bold text-success mb-0" id="rep_b_copies">0 ក្បាល</h4></div></div>
+            <div class="col-md-4"><div class="card stat-card p-3"><span class="small text-muted">ចំនួនប្រភេទសៀវភៅ</span><h4 class="fw-bold text-info mb-0" id="rep_b_cats">0</h4></div></div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-body p-0">
+                <table class="table table-bordered table-hover align-middle mb-0" id="reportBooksTable">
+                    <thead class="table-light">
+                        <tr><th>ល.រ</th><th>លេខសារពើភ័ណ្ឌ</th><th>លេខ DDC</th><th>ចំណងជើងសៀវភៅ</th><th>អ្នកនិពន្ធ</th><th>ប្រភេទសៀវភៅ</th><th>ទីតាំង/ធ្នើរ</th><th>ប្រភព (ក្រអយក)</th><th>ចំនួនសរុប</th><th>ស្ថានភាព</th></tr>
+                    </thead>
+                    <tbody id="reportBooksBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== REPORT SUB-VIEW 3: របាយការណ៍ សិស្សចូលបណ្ណាល័យ (STUDENT LIBRARY VISITS REPORT) ==================== -->
+    <div id="view-report-visits" class="app-view">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;"><i class="fas fa-users text-info me-2"></i>របាយការណ៍៖ សិស្សចូលបណ្ណាល័យ (Student Library Visit Report)</h2>
+                <p class="text-muted mb-0">កត់ត្រាវត្តមានសិស្សចូលអាន/ស្រាវជ្រាវក្នុងបណ្ណាល័យ (តាម QR Code ឬឈ្មោះ) និងរបាយការណ៍សរុប</p>
+            </div>
+            <div class="d-flex gap-2 no-print">
+                <button class="btn btn-outline-success" onclick="exportTableToCSV('reportVisitsTable', 'RTTC_Student_Visits_Report.csv')"><i class="fas fa-file-csv me-1"></i> ទាញយក CSV/Excel</button>
+                <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print me-1"></i> បោះពុម្ពរបាយការណ៍</button>
+            </div>
+        </div>
+
+        <!-- Quick Check-in Form for Student Entering Library (Supports QR Code String or Dropdown) -->
+        <div class="card border-0 shadow-sm rounded-3 mb-4 border-top border-info border-4 no-print">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold text-primary"><i class="fas fa-qrcode me-2"></i>កត់ត្រាសិស្សចូលបណ្ណាល័យថ្មី (Scan QR Code ឬជ្រើសរើសឈ្មោះសិស្ស)</h6>
+            </div>
+            <div class="card-body p-3">
+                <form onsubmit="handleAddStudentVisit(event)">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">ស្កេន QR Code ឬវាយលេខកូដសិស្ស</label>
+                            <input type="text" id="visit_qr_input" class="form-control form-control-sm" placeholder="ឧ. RTTC-STU-001 ឬ ID:1|CODE:..." oninput="handleQrScanInput(this.value)">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">ជ្រើសរើសសិស្ស / គរុសិស្ស *</label>
+                            <select id="visit_member_select" class="form-select form-select-sm" required></select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold">កាលបរិច្ឆេទ</label>
+                            <input type="date" id="visit_date" class="form-control form-control-sm" required>
+                        </div>
+                        <div class="col-md-1">
+                            <label class="form-label small fw-bold">ម៉ោងចូល</label>
+                            <input type="time" id="visit_time_in" class="form-control form-control-sm" value="08:00" required>
+                        </div>
+                        <div class="col-md-1">
+                            <label class="form-label small fw-bold">ម៉ោងចេញ</label>
+                            <input type="time" id="visit_time_out" class="form-control form-control-sm" value="10:00">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold">គោលបំណង</label>
+                            <select id="visit_purpose" class="form-select form-select-sm">
+                                <option value="អានសៀវភៅ (Reading)">អានសៀវភៅ</option>
+                                <option value="ស្រាវជ្រាវកិច្ចការសាលា (Research)">ស្រាវជ្រាវ</option>
+                                <option value="ខ្ចី-សងសៀវភៅ (Borrow/Return)">ខ្ចី-សងសៀវភៅ</option>
+                                <option value="ប្រើប្រាស់កុំព្យូទ័រ (Computer)">ប្រើកុំព្យូទ័រ</option>
+                            </select>
+                        </div>
+                        <div class="col-md-9">
+                            <input type="text" id="visit_remarks" class="form-control form-control-sm" placeholder="កំណត់សម្គាល់បន្ថែម (ឧ. អានសៀវភៅប្រវត្តិសាស្ត្រខ្មែរ)...">
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-sm btn-info text-white w-100 fw-bold"><i class="fas fa-plus-circle me-1"></i> កត់ត្រាចូលបណ្ណាល័យ</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Summary KPIs -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4"><div class="card stat-card p-3"><span class="small text-muted">ចំនួនសិស្សចូលបណ្ណាល័យសរុប</span><h4 class="fw-bold text-primary mb-0" id="rep_v_total">0 នាក់</h4></div></div>
+            <div class="col-md-4"><div class="card stat-card p-3"><span class="small text-muted">គរុសិស្ស (Students)</span><h4 class="fw-bold text-success mb-0" id="rep_v_students">0 នាក់</h4></div></div>
+            <div class="col-md-4"><div class="card stat-card p-3"><span class="small text-muted">គ្រូបង្រៀន / បុគ្គលិក</span><h4 class="fw-bold text-info mb-0" id="rep_v_teachers">0 នាក់</h4></div></div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-body p-0">
+                <table class="table table-bordered table-hover align-middle mb-0" id="reportVisitsTable">
+                    <thead class="table-light">
+                        <tr><th>ល.រ</th><th>កាលបរិច្ឆេទ</th><th>អត្តលេខគណនី</th><th>លេខកូដសមាជិក</th><th>ឈ្មោះសិស្ស / គរុសិស្ស</th><th>ភេទ</th><th>ប្រភេទ</th><th>ម៉ោងចូល - ចេញ</th><th>គោលបំណង</th><th>កំណត់សម្គាល់</th><th class="no-print text-end">លុប</th></tr>
+                    </thead>
+                    <tbody id="reportVisitsBody"></tbody>
                 </table>
             </div>
         </div>
@@ -447,18 +981,38 @@
                     <div class="mb-3">
                         <label class="form-label fw-bold">កូដប្រភេទសៀវភៅ (Category Code)</label>
                         <input type="text" id="cat_new_code" class="form-control" placeholder="ឧ. PEDAGOGY ឬ EDU">
-                        <div class="form-text">ទុកទទេដើម្បីប្រព័ន្ធបង្កើតស្វ័យប្រវត្តិ</div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold">ការពិពណ៌នា (Description)</label>
-                        <textarea id="cat_new_desc" class="form-control" rows="2" placeholder="សៀវភៅស្តីពី..."></textarea>
+                        <textarea id="cat_new_desc" class="form-control" rows="2"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">បោះបង់</button>
-                    <button type="submit" class="btn btn-primary px-4"><i class="fas fa-save me-1"></i> រក្សាទុកក្នុង Google Sheet</button>
+                    <button type="submit" class="btn btn-primary px-4"><i class="fas fa-save me-1"></i> រក្សាទុក</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: QR Code Generator (Single Student or Batch All Students) -->
+<div class="modal fade" id="qrCodeModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-bold" id="qrModalTitle">
+                    <i class="fas fa-qrcode text-info me-2"></i>កាត QR Code សមាជិកបណ្ណាល័យ (មានអត្តលេខគណនី និងលេខកូដ)
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4" id="qrPrintableArea">
+                <div id="qrCardsContainer" class="qr-card-grid"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">បិទ</button>
+                <button type="button" class="btn btn-primary px-4" onclick="printQrCodes()"><i class="fas fa-print me-1"></i> បោះពុម្ព QR Code (Print)</button>
+            </div>
         </div>
     </div>
 </div>
@@ -468,27 +1022,132 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.all.min.js"></script>
+<!-- QRCode.js for Client-Side QR Code Generation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <script>
 let API_URL = localStorage.getItem("RTTC_API_URL") || "https://script.google.com/macros/s/AKfycby_placeholder_deploy_url/exec";
 
-let allBooks = [];
-let allMembers = [];
-let allCategories = [];
-let allLoans = [];
+const INITIAL_DB = {
+    books: [
+        { id: 1, isbnno: "978-99950-0-123-4", ddc_no: "005.133", book_name: "មូលដ្ឋានគ្រឹះនៃការសរសេរកម្មវិធីកុំព្យូទ័រ", book_sub: "Fundamentals of Computer Programming", category: "វិទ្យាសាស្ត្រកុំព្យូទ័រ (Computer Science)", author: "បណ្ឌិត សេង សុភាព (Dr. Seng Sopheap)", publisher: "វិទ្យាស្ថានជាតិបច្ចេកវិទ្យា (NIPTICT)", book_amount: 5, place: "ជួរ A (Aisle A)", location_shelf: "ធ្នើរ 01 (Shelf 01)", book_resource: "ក្រអយក (MoEYS)", number_saroper: "SP-2024-001", availability: "មាន (Available)" },
+        { id: 2, isbnno: "978-99950-0-567-8", ddc_no: "658.872", book_name: "យុទ្ធសាស្ត្រទីផ្សារឌីជីថល និងពាណិជ្ជកម្មអេឡិចត្រូនិច", book_sub: "Digital Marketing & E-Commerce Strategies", category: "គ្រប់គ្រង និងពាណិជ្ជកម្ម (Management & Business)", author: "ចាន់ សុខា (Chan Sokha)", publisher: "សាកលវិទ្យាល័យភូមិន្ទភ្នំពេញ (RUPP Press)", book_amount: 3, place: "ជួរ A (Aisle A)", location_shelf: "ធ្នើរ 02 (Shelf 02)", book_resource: "ក្រអយក (MoEYS)", number_saroper: "SP-2024-002", availability: "មាន (Available)" },
+        { id: 3, isbnno: "978-99950-0-891-2", ddc_no: "959.6", book_name: "ប្រវត្តិសាស្ត្រខ្មែរ និងអារ្យធម៌អង្គរ", book_sub: "History of Cambodia & Angkor Civilization", category: "ប្រវត្តិសាស្ត្រ និងភូមិសាស្ត្រ (History & Geography)", author: "សាស្ត្រាចារ្យ រស់ ចន្ត្រាបុត្រ (Ros Chantrabot)", publisher: "វិទ្យាស្ថានពុទ្ធសាសនបណ្ឌិត្យ (Buddhist Institute)", book_amount: 4, place: "ជួរ B (Aisle B)", location_shelf: "ធ្នើរ 01 (Shelf 01)", book_resource: "ក្រអយក (MoEYS)", number_saroper: "SP-2024-003", availability: "មាន (Available)" }
+    ],
+    categories: [
+        { id: 1, category_name: "វិទ្យាសាស្ត្រកុំព្យូទ័រ (Computer Science)", category_code: "CS-000", description: "កម្មវិធីកុំព្យូទ័រ បណ្តាញ និងប្រព័ន្ធព័ត៌មានវិទ្យា", status: "សកម្ម (Active)" },
+        { id: 2, category_name: "គ្រប់គ្រង និងពាណិជ្ជកម្ម (Management & Business)", category_code: "MG-600", description: "ការគ្រប់គ្រង ទីផ្សារ គណនេយ្យ និងសហគ្រិនភាព", status: "សកម្ម (Active)" },
+        { id: 3, category_name: "ប្រវត្តិសាស្ត្រ និងភូមិសាស្ត្រ (History & Geography)", category_code: "HIS-900", description: "ប្រវត្តិសាស្ត្រខ្មែរ អាស៊ី និងសកលលោក", status: "សកម្ម (Active)" },
+        { id: 4, category_name: "អក្សរសាស្ត្រខ្មែរ និងវប្បធម៌ (Khmer Literature & Culture)", category_code: "LIT-800", description: "កម្រងអក្សរសិល្ប៍ វប្បធម៌ និងទំនៀមទម្លាប់ខ្មែរ", status: "សកម្ម (Active)" },
+        { id: 5, category_name: "គរុកោសល្យ និងវិធីសាស្ត្របង្រៀន (Pedagogy & Education)", category_code: "EDU-370", description: "ឯកសារបណ្តុះបណ្តាលគ្រូបង្រៀន និងគរុកោសល្យ", status: "សកម្ម (Active)" }
+    ],
+    places: [
+        { id: 1, place_name: "ជួរ A (Aisle A)", place_shelf: "ធ្នើរ 01 (Shelf 01)", description: "ផ្នែកវិទ្យាសាស្ត្រ និងបច្ចេកវិទ្យា" },
+        { id: 2, place_name: "ជួរ A (Aisle A)", place_shelf: "ធ្នើរ 02 (Shelf 02)", description: "ផ្នែកសេដ្ឋកិច្ច និងគ្រប់គ្រង" },
+        { id: 3, place_name: "ជួរ B (Aisle B)", place_shelf: "ធ្នើរ 01 (Shelf 01)", description: "ផ្នែកប្រវត្តិសាស្ត្រ និងសង្គម" },
+        { id: 4, place_name: "ជួរ B (Aisle B)", place_shelf: "ធ្នើរ 02 (Shelf 02)", description: "ផ្នែកអក្សរសាស្ត្រ និងភាសា" }
+    ],
+    members: [
+        { id: 1, member_code: "RTTC-STU-001", full_name: "គង់ ពិសិដ្ឋ (Kong Piseth)", gender: "ប្រុស (Male)", phone: "012 345 678", email: "piseth.kong@rttc.edu.kh", member_type: "គរុសិស្ស (Student)", status: "សកម្ម (Active)" },
+        { id: 2, member_code: "RTTC-STU-002", full_name: "សុខ ធីតា (Sok Thida)", gender: "ស្រី (Female)", phone: "098 765 432", email: "thida.sok@rttc.edu.kh", member_type: "គរុសិស្ស (Student)", status: "សកម្ម (Active)" },
+        { id: 3, member_code: "RTTC-TCH-001", full_name: "លោកគ្រូ កែវ វិបុល (Keo Vibol)", gender: "ប្រុស (Male)", phone: "017 888 999", email: "vibol.keo@rttc.edu.kh", member_type: "គ្រូបង្រៀន (Teacher)", status: "សកម្ម (Active)" },
+        { id: 4, member_code: "RTTC-TCH-002", full_name: "អ្នកគ្រូ ម៉េង ស្រីពៅ (Meng Sreypov)", gender: "ស្រី (Female)", phone: "085 222 333", email: "sreypov.meng@rttc.edu.kh", member_type: "គ្រូបង្រៀន (Teacher)", status: "សកម្ម (Active)" }
+    ],
+    loans: [
+        { id: 1, loan_code: "LN-2024-001", book_id: 1, copy_id: 2, member_id: 1, member_name: "គង់ ពិសិដ្ឋ (Kong Piseth)", loan_date: "2024-03-01", due_date: "2024-03-15", return_date: "", status: "កំពុងខ្ចី (Active)", fine: 0, remarks: "ខ្ចីស្រាវជ្រាវ (Research loan)" },
+        { id: 2, loan_code: "LN-2024-002", book_id: 3, copy_id: 6, member_id: 3, member_name: "លោកគ្រូ កែវ វិបុល (Keo Vibol)", loan_date: "2024-02-10", due_date: "2024-02-24", return_date: "2024-02-22", status: "បានសងរួច (Returned)", fine: 0, remarks: "សភាពសៀវភៅ: នៅល្អ" },
+        { id: 3, loan_code: "LN-2024-003", book_id: 2, copy_id: 4, member_id: 2, member_name: "សុខ ធីតា (Sok Thida)", loan_date: "2024-02-01", due_date: "2024-02-15", return_date: "2024-02-18", status: "បានសងរួច (Returned)", fine: 1500, remarks: "ស្ថានភាព: រហែក | ពិន័យ: 1,500៛" }
+    ],
+    attendance: [
+        { id: 1, librarian_code: "LIB-001", librarian_name: "សុខ សម្បត្តិ", attendance_date: "2024-03-01", morning_in: "07:30", morning_out: "11:30", afternoon_in: "13:30", afternoon_out: "17:00", status: "វត្តមានពេញម៉ោង (Present)", remarks: "វេនប្រចាំការព្រឹក-រសៀល" },
+        { id: 2, librarian_code: "LIB-002", librarian_name: "ចាន់ មុនីរតន៍", attendance_date: "2024-03-01", morning_in: "07:30", morning_out: "11:30", afternoon_in: "13:30", afternoon_out: "17:00", status: "វត្តមានពេញម៉ោង (Present)", remarks: "ទទួលបន្ទុកផ្នែកខ្ចី-សង" }
+    ],
+    visits: [
+        { id: 1, visit_date: "2024-03-01", member_id: 1, member_code: "RTTC-STU-001", full_name: "គង់ ពិសិដ្ឋ (Kong Piseth)", gender: "ប្រុស (Male)", member_type: "គរុសិស្ស (Student)", time_in: "08:15", time_out: "09:45", purpose: "ស្រាវជ្រាវកិច្ចការសាលា (Research)", remarks: "សិក្សាឯកសារវិទ្យាសាស្ត្រកុំព្យូទ័រ" },
+        { id: 2, visit_date: "2024-03-01", member_id: 2, member_code: "RTTC-STU-002", full_name: "សុខ ធីតា (Sok Thida)", gender: "ស្រី (Female)", member_type: "គរុសិស្ស (Student)", time_in: "10:00", time_out: "11:15", purpose: "អានសៀវភៅ (Reading)", remarks: "អានសៀវភៅប្រវត្តិសាស្ត្រខ្មែរ" },
+        { id: 3, visit_date: "2024-03-01", member_id: 3, member_code: "RTTC-TCH-001", full_name: "លោកគ្រូ កែវ វិបុល (Keo Vibol)", gender: "ប្រុស (Male)", member_type: "គ្រូបង្រៀន (Teacher)", time_in: "14:00", time_out: "14:45", purpose: "ខ្ចី-សងសៀវភៅ (Borrow/Return)", remarks: "ខ្ចីសៀវភៅយុទ្ធសាស្ត្រទីផ្សារឌីជីថល" }
+    ]
+};
+
+function getLocalStore(key) {
+    const raw = localStorage.getItem("RTTC_DB_" + key);
+    if (raw) {
+        try { return JSON.parse(raw); } catch(e) {}
+    }
+    localStorage.setItem("RTTC_DB_" + key, JSON.stringify(INITIAL_DB[key]));
+    return JSON.parse(JSON.stringify(INITIAL_DB[key]));
+}
+
+function saveLocalStore(key, data) {
+    localStorage.setItem("RTTC_DB_" + key, JSON.stringify(data));
+}
+
+let allBooks = getLocalStore("books");
+let allMembers = getLocalStore("members");
+let allCategories = getLocalStore("categories");
+let allPlaces = getLocalStore("places");
+let allLoans = getLocalStore("loans");
+let allAttendance = getLocalStore("attendance");
+let allVisits = getLocalStore("visits");
+
+function isBookAvailable(b) {
+    if (!b) return false;
+    const raw = String(b.availability !== undefined && b.availability !== null ? b.availability : "").trim();
+    const num = parseInt(raw, 10);
+    if (!isNaN(num)) return num > 0;
+    const lower = raw.toLowerCase();
+    if (lower.includes("available") || lower.includes("មាន") || lower.includes("នៅទំនេរ")) return true;
+    const amt = parseInt(b.book_amount, 10);
+    return (!isNaN(amt) && amt > 0 && raw !== "0" && !lower.includes("អស់"));
+}
+
+function formatBookAvailability(b) {
+    const raw = String(b.availability !== undefined && b.availability !== null ? b.availability : "").trim();
+    const num = parseInt(raw, 10);
+    if (!isNaN(num)) return `នៅសល់ ${num} ក្បាល`;
+    if (raw) return `${raw} (${b.book_amount || 1} ក្បាល)`;
+    return `${b.book_amount || 1} ក្បាល`;
+}
+
+function isLoanActive(l) {
+    if (!l) return false;
+    const st = String(l.status || "").toLowerCase();
+    return st.includes("active") || st.includes("borrowed") || st.includes("កំពុងខ្ចី");
+}
+
+function isApiConfigured() {
+    return API_URL && !API_URL.includes("placeholder_deploy_url");
+}
+
+function toggleSubmenu(submenuId, chevId) {
+    const sub = document.getElementById(submenuId);
+    const chev = document.getElementById(chevId);
+    if (sub) sub.classList.toggle("open");
+    if (chev) chev.classList.toggle("chevron-open");
+}
 
 function switchView(viewName, el) {
     document.querySelectorAll(".app-view").forEach(v => v.classList.remove("active"));
-    document.getElementById("view-" + viewName).classList.add("active");
+    const target = document.getElementById("view-" + viewName);
+    if (target) target.classList.add("active");
+
+    document.querySelectorAll(".sidebar-menu li").forEach(l => l.classList.remove("active"));
     if (el) {
-        document.querySelectorAll(".sidebar-menu li").forEach(l => l.classList.remove("active"));
         el.classList.add("active");
+    } else {
+        const navItem = document.getElementById("nav-" + viewName);
+        if (navItem) navItem.classList.add("active");
     }
+
     if (viewName === "dashboard") loadDashboard();
     if (viewName === "books") loadBooks();
     if (viewName === "categories") loadCategories();
-    if (viewName === "loans") initCirculationView();
+    if (viewName === "loan-borrow" || viewName === "loan-return" || viewName === "loan-list") initCirculationView();
     if (viewName === "members") loadMembers();
+    if (viewName === "attendance") loadAttendance();
+    if (viewName === "report-loans") renderLoanReport();
+    if (viewName === "report-books") initBookReport();
+    if (viewName === "report-visits") initVisitReport();
 }
 
 function openSettingsModal() {
@@ -496,7 +1155,8 @@ function openSettingsModal() {
         title: "កំណត់ Google Apps Script Web App URL",
         input: "url",
         inputLabel: "បញ្ចូល URL ដែលបាន Deploy ចេញពី Apps Script:",
-        inputValue: API_URL,
+        inputValue: isApiConfigured() ? API_URL : "",
+        inputPlaceholder: "https://script.google.com/macros/s/.../exec",
         showCancelButton: true,
         confirmButtonText: "រក្សាទុក",
         cancelButtonText: "បោះបង់"
@@ -510,62 +1170,296 @@ function openSettingsModal() {
 }
 
 async function apiCall(action, params = {}) {
-    params.action = action;
-    const url = new URL(API_URL);
-    Object.keys(params).forEach(k => url.searchParams.append(k, params[k]));
-    const res = await fetch(url);
-    return await res.json();
+    if (isApiConfigured()) {
+        try {
+            params.action = action;
+            const url = new URL(API_URL);
+            Object.keys(params).forEach(k => url.searchParams.append(k, params[k]));
+            const res = await fetch(url);
+            const json = await res.json();
+            if (json && json.success) {
+                if (action === "getBooks" && json.data) { allBooks = json.data; saveLocalStore("books", allBooks); }
+                if (action === "getMembers" && json.data) { allMembers = json.data; saveLocalStore("members", allMembers); }
+                if (action === "getCategories" && json.data) { allCategories = json.data; saveLocalStore("categories", allCategories); }
+                if (action === "getPlaces" && json.data) { allPlaces = json.data; saveLocalStore("places", allPlaces); }
+                if (action === "getLoans" && json.data) { allLoans = json.data; saveLocalStore("loans", allLoans); }
+                if (action === "getLibrarianAttendance" && json.data) { allAttendance = json.data; saveLocalStore("attendance", allAttendance); }
+                if (action === "getStudentVisits" && json.data) { allVisits = json.data; saveLocalStore("visits", allVisits); }
+                return json;
+            }
+        } catch (err) {
+            console.warn("Using local synced dataset:", err);
+        }
+    }
+
+    if (action === "getBooks") return { success: true, data: getLocalStore("books") };
+    if (action === "getMembers") return { success: true, data: getLocalStore("members") };
+    if (action === "getCategories") return { success: true, data: getLocalStore("categories") };
+    if (action === "getPlaces") return { success: true, data: getLocalStore("places") };
+    if (action === "getLoans") return { success: true, data: getLocalStore("loans") };
+    if (action === "getLibrarianAttendance") return { success: true, data: getLocalStore("attendance") };
+    if (action === "getStudentVisits") return { success: true, data: getLocalStore("visits") };
+    if (action === "getDashboard") {
+        const bks = getLocalStore("books");
+        const lns = getLocalStore("loans");
+        const mems = getLocalStore("members");
+        const totalCopies = bks.reduce((acc, b) => acc + (parseInt(b.book_amount, 10) || 1), 0);
+        const activeLns = lns.filter(isLoanActive);
+        return {
+            success: true,
+            data: {
+                total_titles: bks.length,
+                total_copies: totalCopies,
+                active_loans: activeLns.length,
+                total_members: mems.length,
+                recent_books: bks.slice(-5).reverse()
+            }
+        };
+    }
+    return { success: true, data: [] };
 }
 
 async function apiPost(action, data = {}) {
-    data.action = action;
-    await fetch(API_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-    });
+    if (action === "addBook") {
+        const bks = getLocalStore("books");
+        const nextId = bks.length > 0 ? Math.max(...bks.map(b => Number(b.id) || 0)) + 1 : 1;
+        bks.push({
+            id: nextId,
+            book_name: data.book_name,
+            book_sub: data.book_sub,
+            category: data.category,
+            author: data.author,
+            publisher: data.publisher,
+            ddc_no: data.ddc_no,
+            number_saroper: data.number_saroper,
+            isbnno: data.isbnno,
+            place: data.place,
+            location_shelf: data.location_shelf,
+            book_amount: Number(data.book_amount) || 1,
+            availability: Number(data.book_amount) || 1,
+            book_resource: data.book_resource,
+            cover_url: data.cover_url
+        });
+        saveLocalStore("books", bks);
+        allBooks = bks;
+    } else if (action === "deleteBook") {
+        let bks = getLocalStore("books").filter(b => String(b.id) !== String(data.id));
+        saveLocalStore("books", bks);
+        allBooks = bks;
+    } else if (action === "addCategory") {
+        const cats = getLocalStore("categories");
+        const nextId = cats.length > 0 ? Math.max(...cats.map(c => Number(c.id) || 0)) + 1 : 1;
+        cats.push({
+            id: nextId,
+            category_name: data.category_name,
+            category_code: data.category_code || ("CAT-" + nextId),
+            description: data.description || "",
+            status: "សកម្ម (Active)"
+        });
+        saveLocalStore("categories", cats);
+        allCategories = cats;
+    } else if (action === "deleteCategory") {
+        let cats = getLocalStore("categories").filter(c => String(c.id) !== String(data.id));
+        saveLocalStore("categories", cats);
+        allCategories = cats;
+    } else if (action === "addMember") {
+        const mems = getLocalStore("members");
+        const nextId = mems.length > 0 ? Math.max(...mems.map(m => Number(m.id) || 0)) + 1 : 1;
+        mems.push({
+            id: nextId,
+            member_code: data.member_code || ("RTTC-STU-" + String(nextId).padStart(3, "0")),
+            full_name: data.full_name,
+            gender: data.gender || "ប្រុស (Male)",
+            member_type: data.member_type || "គរុសិស្ស (Student)",
+            phone: data.phone || "",
+            email: data.email || "",
+            status: data.status || "សកម្ម (Active)"
+        });
+        saveLocalStore("members", mems);
+        allMembers = mems;
+    } else if (action === "updateMember") {
+        const mems = getLocalStore("members");
+        mems.forEach(m => {
+            if (String(m.id) === String(data.id)) {
+                m.full_name = data.full_name;
+                m.member_code = data.member_code;
+                m.gender = data.gender;
+                m.member_type = data.member_type;
+                m.phone = data.phone;
+                m.email = data.email;
+                m.status = data.status;
+            }
+        });
+        saveLocalStore("members", mems);
+        allMembers = mems;
+    } else if (action === "deleteMember") {
+        let mems = getLocalStore("members").filter(m => String(m.id) !== String(data.id));
+        saveLocalStore("members", mems);
+        allMembers = mems;
+    } else if (action === "issueLoan") {
+        const lns = getLocalStore("loans");
+        const nextId = lns.length > 0 ? Math.max(...lns.map(l => Number(l.id) || 0)) + 1 : 1;
+        const code = "LN-" + new Date().toISOString().slice(0,10).replace(/-/g,"") + "-" + String(nextId).padStart(3, "0");
+        lns.unshift({
+            id: nextId,
+            loan_code: code,
+            book_id: data.book_id,
+            member_id: data.member_id,
+            member_name: data.member_name,
+            loan_date: data.loan_date,
+            due_date: data.due_date,
+            return_date: "",
+            status: "កំពុងខ្ចី (Active)",
+            fine: 0,
+            remarks: data.remarks || "ខ្ចីពីបណ្ណាល័យ"
+        });
+        saveLocalStore("loans", lns);
+        allLoans = lns;
+    } else if (action === "returnLoan") {
+        const lns = getLocalStore("loans");
+        const today = new Date().toISOString().split("T")[0];
+        lns.forEach(l => {
+            if (String(l.id) === String(data.loan_id)) {
+                l.return_date = today;
+                l.status = data.condition === "បាត់" ? "បាត់សៀវភៅ (Lost)" : "បានសងរួច (Returned)";
+                l.fine = Number(data.fine) || 0;
+                let rem = `សភាពសៀវភៅ: ${data.condition}`;
+                if (l.fine > 0) rem += ` | ពិន័យ: ${l.fine.toLocaleString()} ៛`;
+                if (data.remarks) rem += ` | ${data.remarks}`;
+                l.remarks = rem;
+            }
+        });
+        saveLocalStore("loans", lns);
+        allLoans = lns;
+    } else if (action === "addLibrarianAttendance") {
+        const atts = getLocalStore("attendance");
+        const nextId = atts.length > 0 ? Math.max(...atts.map(a => Number(a.id) || 0)) + 1 : 1;
+        atts.unshift({
+            id: nextId,
+            librarian_code: data.librarian_code || ("LIB-" + String(nextId).padStart(3, "0")),
+            librarian_name: data.librarian_name,
+            attendance_date: data.attendance_date,
+            morning_in: data.morning_in,
+            morning_out: data.morning_out,
+            afternoon_in: data.afternoon_in,
+            afternoon_out: data.afternoon_out,
+            status: data.status,
+            remarks: data.remarks
+        });
+        saveLocalStore("attendance", atts);
+        allAttendance = atts;
+    } else if (action === "updateLibrarianAttendance") {
+        const atts = getLocalStore("attendance");
+        atts.forEach(a => {
+            if (String(a.id) === String(data.id)) {
+                a.librarian_name = data.librarian_name;
+                a.librarian_code = data.librarian_code;
+                a.attendance_date = data.attendance_date;
+                a.morning_in = data.morning_in;
+                a.morning_out = data.morning_out;
+                a.afternoon_in = data.afternoon_in;
+                a.afternoon_out = data.afternoon_out;
+                a.status = data.status;
+                a.remarks = data.remarks;
+            }
+        });
+        saveLocalStore("attendance", atts);
+        allAttendance = atts;
+    } else if (action === "deleteLibrarianAttendance") {
+        let atts = getLocalStore("attendance").filter(a => String(a.id) !== String(data.id));
+        saveLocalStore("attendance", atts);
+        allAttendance = atts;
+    } else if (action === "addStudentVisit") {
+        const vsts = getLocalStore("visits");
+        const nextId = vsts.length > 0 ? Math.max(...vsts.map(v => Number(v.id) || 0)) + 1 : 1;
+        vsts.unshift({
+            id: nextId,
+            visit_date: data.visit_date,
+            member_id: data.member_id,
+            member_code: data.member_code,
+            full_name: data.full_name,
+            gender: data.gender,
+            member_type: data.member_type,
+            time_in: data.time_in,
+            time_out: data.time_out,
+            purpose: data.purpose,
+            remarks: data.remarks
+        });
+        saveLocalStore("visits", vsts);
+        allVisits = vsts;
+    } else if (action === "deleteStudentVisit") {
+        let vsts = getLocalStore("visits").filter(v => String(v.id) !== String(data.id));
+        saveLocalStore("visits", vsts);
+        allVisits = vsts;
+    }
+
+    if (isApiConfigured()) {
+        try {
+            data.action = action;
+            await fetch(API_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+        } catch (err) {
+            console.warn("POST sync warning:", err);
+        }
+    }
     return { success: true };
 }
 
-async function loadDashboard() {
-    try {
-        const res = await apiCall("getDashboard");
-        if (res.success) {
-            const d = res.data;
-            document.getElementById("kpi-titles").innerText = d.total_titles || 0;
-            document.getElementById("kpi-copies").innerText = d.total_copies || 0;
-            document.getElementById("kpi-loans").innerText = d.active_loans || 0;
-            document.getElementById("kpi-members").innerText = d.total_members || 0;
-
-            const tbody = document.querySelector("#dashBooksTable tbody");
-            tbody.innerHTML = "";
-            (d.recent_books || []).forEach(b => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong>${b.book_name || ""}</strong><div class="small text-muted">${b.book_sub || ""}</div></td>
-                        <td><span class="badge badge-ddc">DDC: ${b.ddc_no || "N/A"}</span> <span class="badge badge-saroper">${b.number_saroper || "N/A"}</span></td>
-                        <td>${b.author || "N/A"}</td>
-                        <td><span class="badge bg-success">${b.availability || 0}</span></td>
-                    </tr>
-                `;
-            });
-        }
-    } catch (e) { console.error(e); }
+function initOrRefreshSelect2(selector, placeholderText) {
+    const $el = $(selector);
+    if ($el.length === 0) return;
+    if ($el.hasClass("select2-hidden-accessible")) {
+        $el.select2("destroy");
+    }
+    $el.select2({
+        theme: "bootstrap-5",
+        width: "100%",
+        placeholder: placeholderText || "ស្វែងរក និងជ្រើសរើស...",
+        allowClear: true
+    });
 }
 
+// ==================== DASHBOARD ====================
+async function loadDashboard() {
+    const res = await apiCall("getDashboard");
+    if (res.success) {
+        const d = res.data;
+        document.getElementById("kpi-titles").innerText = d.total_titles || 0;
+        document.getElementById("kpi-copies").innerText = d.total_copies || 0;
+        document.getElementById("kpi-loans").innerText = d.active_loans || 0;
+        document.getElementById("kpi-members").innerText = d.total_members || 0;
+
+        const tbody = document.querySelector("#dashBooksTable tbody");
+        tbody.innerHTML = "";
+        (d.recent_books || []).forEach(b => {
+            tbody.innerHTML += `
+                <tr>
+                    <td><strong>${b.book_name || ""}</strong><div class="small text-muted">${b.book_sub || ""}</div></td>
+                    <td><span class="badge badge-ddc">DDC: ${b.ddc_no || "N/A"}</span> <span class="badge badge-saroper">${b.number_saroper || "N/A"}</span></td>
+                    <td>${b.author || "N/A"}</td>
+                    <td><span class="badge bg-success">${formatBookAvailability(b)}</span></td>
+                </tr>
+            `;
+        });
+    }
+}
+
+// ==================== BOOKS ====================
 async function loadBooks() {
-    try {
-        const res = await apiCall("getBooks");
-        if (res.success) {
-            allBooks = res.data || [];
-            renderBooksTable(allBooks);
-        }
-    } catch (e) { console.error(e); }
+    const res = await apiCall("getBooks");
+    if (res.success) {
+        allBooks = res.data || [];
+        renderBooksTable(allBooks);
+    }
 }
 
 function renderBooksTable(books) {
     const tbody = document.getElementById("booksTableBody");
+    if (!tbody) return;
     tbody.innerHTML = "";
     if (books.length === 0) {
         tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">មិនមានទិន្នន័យ</td></tr>`;
@@ -579,8 +1473,8 @@ function renderBooksTable(books) {
                 <td><span class="badge badge-ddc">DDC: ${b.ddc_no || "N/A"}</span> <span class="badge badge-saroper">${b.number_saroper || "N/A"}</span></td>
                 <td>${b.author || "N/A"}</td>
                 <td><span class="badge bg-secondary">${b.category || "N/A"}</span><div class="small text-muted">${b.place || ""} (${b.location_shelf || ""})</div></td>
-                <td><span class="badge bg-success">${b.availability || 0}</span></td>
-                <td>
+                <td><span class="badge bg-success">${formatBookAvailability(b)}</span></td>
+                <td class="text-end pe-3">
                     <button class="btn btn-sm btn-outline-danger" onclick="deleteJsBook(${b.id})"><i class="fas fa-trash"></i></button>
                 </td>
             </tr>
@@ -599,32 +1493,67 @@ function filterBooksTable() {
     renderBooksTable(filtered);
 }
 
-// Categories Management
-async function loadCategories() {
-    try {
-        const res = await apiCall("getCategories");
-        allCategories = res.data || [];
-        const tbody = document.getElementById("categoriesTableBody");
-        tbody.innerHTML = "";
-        if (allCategories.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">មិនទាន់មានប្រភេទសៀវភៅនៅឡើយទេ</td></tr>`;
-            return;
+async function deleteJsBook(id) {
+    Swal.fire({
+        title: "លុបសៀវភៅនេះឬ?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        confirmButtonText: "លុប"
+    }).then(async r => {
+        if (r.isConfirmed) {
+            await apiPost("deleteBook", { id: id });
+            Swal.fire("ជោគជ័យ!", "បានលុបសៀវភៅ", "success").then(() => loadBooks());
         }
-        allCategories.forEach(c => {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${c.id}</td>
-                    <td><span class="badge bg-secondary-subtle text-secondary border">${c.category_code || "CAT-" + c.id}</span></td>
-                    <td class="fw-bold text-primary">${c.category_name}</td>
-                    <td>${c.description || "-"}</td>
-                    <td><span class="badge bg-success">Active</span></td>
-                    <td class="text-end pe-3">
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteJsCategory(${c.id})"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
-            `;
-        });
-    } catch(e) { console.error(e); }
+    });
+}
+
+async function handleJsAddBook(e) {
+    e.preventDefault();
+    const payload = {
+        book_name: document.getElementById("f_name").value,
+        book_sub: document.getElementById("f_sub").value,
+        category: document.getElementById("f_cat").value,
+        author: document.getElementById("f_author").value,
+        publisher: document.getElementById("f_publisher").value,
+        ddc_no: document.getElementById("f_ddc").value,
+        number_saroper: document.getElementById("f_saroper").value,
+        isbnno: document.getElementById("f_isbn").value,
+        place: document.getElementById("f_place").value,
+        location_shelf: document.getElementById("f_shelf").value,
+        book_amount: document.getElementById("f_qty").value,
+        book_resource: document.getElementById("f_resource").value,
+        cover_url: document.getElementById("f_cover").value
+    };
+    Swal.fire({ title: "កំពុងរក្សាទុកក្នុង Google Sheets...", didOpen: () => Swal.showLoading() });
+    await apiPost("addBook", payload);
+    Swal.fire("ជោគជ័យ!", "បានកត់ត្រាសៀវភៅថ្មីចូល Google Sheets", "success").then(() => {
+        document.getElementById("jsAddBookForm").reset();
+        switchView("books");
+    });
+}
+
+// ==================== CATEGORIES ====================
+async function loadCategories() {
+    const res = await apiCall("getCategories");
+    allCategories = res.data || [];
+    const tbody = document.getElementById("categoriesTableBody");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+    allCategories.forEach(c => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${c.id}</td>
+                <td><span class="badge bg-secondary-subtle text-secondary border">${c.category_code || "CAT-" + c.id}</span></td>
+                <td class="fw-bold text-primary">${c.category_name}</td>
+                <td>${c.description || "-"}</td>
+                <td><span class="badge bg-success">Active</span></td>
+                <td class="text-end pe-3">
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteJsCategory(${c.id})"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `;
+    });
 }
 
 function openAddCategoryModal() {
@@ -639,108 +1568,135 @@ async function handleJsSubmitCategory(e) {
     const name = document.getElementById("cat_new_name").value.trim();
     const code = document.getElementById("cat_new_code").value.trim();
     const desc = document.getElementById("cat_new_desc").value.trim();
-
-    Swal.fire({ title: "កំពុងបន្ថែមប្រភេទ...", didOpen: () => Swal.showLoading() });
     await apiPost("addCategory", { category_name: name, category_code: code, description: desc });
     bootstrap.Modal.getInstance(document.getElementById("addCategoryModal")).hide();
-    Swal.fire("ជោគជ័យ!", "បានបន្ថែមប្រភេទបញ្ជីសៀវភៅចូល Google Sheets", "success").then(() => {
+    Swal.fire("ជោគជ័យ!", "បានបន្ថែមប្រភេទបញ្ជីសៀវភៅ", "success").then(() => {
         loadCategories();
         loadDropdowns();
     });
 }
 
 async function deleteJsCategory(id) {
-    Swal.fire({
-        title: "តើអ្នកប្រាកដជាចង់លុបប្រភេទនេះឬ?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        confirmButtonText: "លុប"
-    }).then(async r => {
+    Swal.fire({ title: "លុបប្រភេទនេះឬ?", icon: "warning", showCancelButton: true, confirmButtonColor: "#d33", confirmButtonText: "លុប" }).then(async r => {
         if (r.isConfirmed) {
-            Swal.fire({ title: "កំពុងលុប...", didOpen: () => Swal.showLoading() });
             await apiPost("deleteCategory", { id: id });
-            Swal.fire("ជោគជ័យ!", "បានលុបប្រភេទសៀវភៅ", "success").then(() => {
-                loadCategories();
-                loadDropdowns();
-            });
+            loadCategories();
+            loadDropdowns();
         }
     });
 }
 
-// Circulation View Initialization (Borrow Form + Return Form + Loans Table)
-async function initCirculationView() {
-    if (allMembers.length === 0) await loadMembers();
-    if (allBooks.length === 0) await loadBooks();
-    await loadLoans();
+// ==================== CIRCULATION (3 SUB-VIEWS: BORROW, RETURN, LIST) ====================
+async function initCirculationView(forceReload = false) {
+    if (forceReload || allMembers.length === 0) {
+        const mRes = await apiCall("getMembers");
+        allMembers = mRes.data || [];
+    }
+    if (forceReload || allBooks.length === 0) {
+        const bRes = await apiCall("getBooks");
+        allBooks = bRes.data || [];
+    }
+    const lRes = await apiCall("getLoans");
+    allLoans = lRes.data || [];
 
-    // Populate Borrow Form Dropdowns
+    // 1. Populate Member Select in Borrow Form
     const mSelect = document.getElementById("inline_member_select");
-    mSelect.innerHTML = `<option value=""></option>`;
-    allMembers.forEach(m => {
-        mSelect.innerHTML += `<option value="${m.id}" data-name="${m.full_name}">${m.member_code} - ${m.full_name} (${m.phone || "គ្មានលេខ"})</option>`;
-    });
+    if (mSelect) {
+        mSelect.innerHTML = `<option value=""></option>`;
+        allMembers.forEach(m => {
+            mSelect.innerHTML += `<option value="${m.id}" data-name="${m.full_name}">${m.member_code} - ${m.full_name} (${m.phone || "គ្មានលេខ"})</option>`;
+        });
+        initOrRefreshSelect2("#inline_member_select", "ស្វែងរកឈ្មោះសិស្ស ឬលេខកូដ...");
+    }
 
+    // 2. Populate Book Select in Borrow Form
     const bSelect = document.getElementById("inline_book_select");
-    bSelect.innerHTML = `<option value=""></option>`;
-    allBooks.filter(b => (b.availability || 0) > 0).forEach(b => {
-        bSelect.innerHTML += `<option value="${b.id}">[DDC: ${b.ddc_no}] ${b.book_name} | សារពើភ័ណ្ឌ: ${b.number_saroper} (សល់: ${b.availability})</option>`;
-    });
+    if (bSelect) {
+        bSelect.innerHTML = `<option value=""></option>`;
+        let selectableBooks = allBooks.filter(isBookAvailable);
+        if (selectableBooks.length === 0) selectableBooks = allBooks;
+        selectableBooks.forEach(b => {
+            bSelect.innerHTML += `<option value="${b.id}">[DDC: ${b.ddc_no || "N/A"}] ${b.book_name} | សារពើភ័ណ្ឌ: ${b.number_saroper || "N/A"} (${formatBookAvailability(b)})</option>`;
+        });
+        initOrRefreshSelect2("#inline_book_select", "ស្វែងរកចំណងជើងសៀវភៅ, DDC, ឬលេខសារពើភ័ណ្ឌ...");
+    }
 
     const today = new Date().toISOString().split("T")[0];
     const dueDate = new Date(Date.now() + 14 * 86400000).toISOString().split("T")[0];
-    document.getElementById("inline_loan_date").value = today;
-    document.getElementById("inline_due_date").value = dueDate;
+    if (document.getElementById("inline_loan_date")) document.getElementById("inline_loan_date").value = today;
+    if (document.getElementById("inline_due_date")) document.getElementById("inline_due_date").value = dueDate;
 
-    // Populate Return Form Active Loans Dropdown
+    // 3. Populate Return Form Active Loans Dropdown & Side Helper Tables
     populateReturnLoanDropdown();
-
-    $(".select2-inline").select2({
-        theme: "bootstrap-5",
-        width: "100%",
-        placeholder: "ស្វែងរក និងជ្រើសរើស...",
-        allowClear: true
-    });
+    renderMiniActiveLoans();
+    renderLoansTable(allLoans);
 }
 
 function populateReturnLoanDropdown() {
     const retSelect = document.getElementById("ret_js_loan_select");
     if (!retSelect) return;
     retSelect.innerHTML = `<option value=""></option>`;
-    const activeLoans = allLoans.filter(l => {
-        const st = (l.status || "").toLowerCase();
-        return st === "active" || st === "borrowed";
-    });
+    const activeLoans = allLoans.filter(isLoanActive);
     activeLoans.forEach(l => {
         const code = l.loan_code || ("LN-" + l.id);
-        retSelect.innerHTML += `<option value="${l.id}">${code} | ${l.member_name || "Member #" + l.member_id} (Book ID: ${l.book_id})</option>`;
+        const bookObj = allBooks.find(b => String(b.id) === String(l.book_id));
+        const bookTitle = bookObj ? bookObj.book_name : ("Book ID #" + l.book_id);
+        retSelect.innerHTML += `<option value="${l.id}">${code} | ${l.member_name || "Member #" + l.member_id} — ${bookTitle}</option>`;
     });
+    initOrRefreshSelect2("#ret_js_loan_select", "ស្វែងរកឈ្មោះសិស្ស ឬលេខកូដខ្ចីដែលយកសៀវភៅមកសង...");
 }
 
-async function loadLoans() {
-    try {
-        const res = await apiCall("getLoans");
-        allLoans = res.data || [];
-        renderLoansTable(allLoans);
-        populateReturnLoanDropdown();
-    } catch(e) { console.error(e); }
+function renderMiniActiveLoans() {
+    const activeLoans = allLoans.filter(isLoanActive);
+    const body1 = document.getElementById("miniActiveLoansBody");
+    const body2 = document.getElementById("returnSelectLoansBody");
+    if (body1) body1.innerHTML = "";
+    if (body2) body2.innerHTML = "";
+
+    if (activeLoans.length === 0) {
+        const emptyRow = `<tr><td colspan="4" class="text-center py-3 text-muted">មិនមានសៀវភៅកំពុងខ្ចីទេ</td></tr>`;
+        if (body1) body1.innerHTML = emptyRow;
+        if (body2) body2.innerHTML = emptyRow;
+        return;
+    }
+
+    activeLoans.forEach(l => {
+        const bookObj = allBooks.find(b => String(b.id) === String(l.book_id));
+        const bName = bookObj ? bookObj.book_name : ("Book #" + l.book_id);
+        const rowHtml = `
+            <tr>
+                <td class="fw-bold text-primary">${l.loan_code || "LN-" + l.id}</td>
+                <td><div class="fw-bold">${l.member_name}</div><div class="text-muted">${bName}</div></td>
+                <td>${l.due_date || ""}</td>
+                <td class="text-end pe-2">
+                    <button class="btn btn-xs btn-sm btn-success" onclick="selectJsLoanForReturn(${l.id})">ជ្រើសរើសសង</button>
+                </td>
+            </tr>
+        `;
+        if (body1) body1.innerHTML += rowHtml;
+        if (body2) body2.innerHTML += rowHtml;
+    });
 }
 
 function renderLoansTable(loans) {
     const tbody = document.getElementById("loansTableBody");
+    if (!tbody) return;
     tbody.innerHTML = "";
     if (loans.length === 0) {
         tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">មិនទាន់មានប្រតិបត្តិការខ្ចីនៅឡើយទេ</td></tr>`;
         return;
     }
     loans.forEach(l => {
-        const isActive = (l.status || "").toLowerCase() === "active" || (l.status || "").toLowerCase() === "borrowed";
-        const isLost = (l.status || "").toLowerCase() === "lost";
+        const isActive = isLoanActive(l);
+        const stLower = String(l.status || "").toLowerCase();
+        const isLost = stLower.includes("lost") || stLower.includes("បាត់");
         let isOverdue = false;
         if (isActive && l.due_date && new Date(l.due_date) < new Date()) {
             isOverdue = true;
         }
-        const fine = Number(l.fine || 0);
+        const fine = parseFloat(String(l.fine || "0").replace(/,/g, "")) || 0;
+        const bookObj = allBooks.find(b => String(b.id) === String(l.book_id));
+        const bookLabel = bookObj ? `${bookObj.book_name} <span class="badge badge-saroper ms-1">${bookObj.number_saroper || ""}</span>` : `<span class="badge bg-light text-dark border">Book ID: ${l.book_id}</span>`;
 
         tbody.innerHTML += `
             <tr>
@@ -749,7 +1705,7 @@ function renderLoansTable(loans) {
                     <div class="fw-semibold">${l.member_name || "Member #" + l.member_id}</div>
                     <div class="small text-muted">ID: ${l.member_id}</div>
                 </td>
-                <td><span class="badge bg-light text-dark border">Book: ${l.book_id}</span></td>
+                <td><div class="small fw-semibold">${bookLabel}</div></td>
                 <td>
                     <div><i class="far fa-calendar-alt text-muted me-1"></i>${l.loan_date || ""}</div>
                     <div class="small ${isOverdue ? "text-danger fw-bold" : "text-muted"}">
@@ -769,7 +1725,7 @@ function renderLoansTable(loans) {
                     ` : `<span class="text-muted small">មិនទាន់សង</span>`}
                 </td>
                 <td class="text-end pe-3">
-                    ${isActive ? `<button class="btn btn-sm btn-success shadow-sm" onclick="selectJsLoanForReturn(${l.id})"><i class="fas fa-hand-point-up me-1"></i> ជ្រើសរើសសង</button>` : `<span class="small text-muted"><i class="fas fa-check-double text-success"></i> បានសងរួច</span>`}
+                    ${isActive ? `<button class="btn btn-sm btn-success shadow-sm" onclick="selectJsLoanForReturn(${l.id})"><i class="fas fa-undo-alt me-1"></i> សងសៀវភៅ</button>` : `<span class="small text-muted"><i class="fas fa-check-double text-success"></i> បានសងរួច</span>`}
                 </td>
             </tr>
         `;
@@ -777,19 +1733,27 @@ function renderLoansTable(loans) {
 }
 
 function filterLoansTable() {
-    const q = document.getElementById("loansTableFilter").value.toLowerCase();
+    const q = (document.getElementById("loansTableFilter")?.value || "").toLowerCase();
+    const stFilter = (document.getElementById("loanStatusFilter")?.value || "").toLowerCase();
     const filtered = allLoans.filter(l => {
-        return (l.loan_code || "").toLowerCase().includes(q) ||
-               (l.member_name || "").toLowerCase().includes(q) ||
-               (l.status || "").toLowerCase().includes(q) ||
-               (l.remarks || "").toLowerCase().includes(q);
+        const matchQ = (l.loan_code || "").toLowerCase().includes(q) ||
+                       (l.member_name || "").toLowerCase().includes(q) ||
+                       (l.status || "").toLowerCase().includes(q) ||
+                       (l.remarks || "").toLowerCase().includes(q);
+        if (!stFilter) return matchQ;
+        if (stFilter === "active") return matchQ && isLoanActive(l);
+        if (stFilter === "returned") return matchQ && !isLoanActive(l) && !String(l.status || "").toLowerCase().includes("lost") && !String(l.status || "").toLowerCase().includes("បាត់");
+        if (stFilter === "lost") return matchQ && (String(l.status || "").toLowerCase().includes("lost") || String(l.status || "").toLowerCase().includes("បាត់"));
+        return matchQ;
     });
     renderLoansTable(filtered);
 }
 
 function selectJsLoanForReturn(loanId) {
-    $("#ret_js_loan_select").val(String(loanId)).trigger("change");
-    document.getElementById("jsReturnFormCard").scrollIntoView({ behavior: "smooth", block: "center" });
+    switchView("loan-return");
+    setTimeout(() => {
+        $("#ret_js_loan_select").val(String(loanId)).trigger("change");
+    }, 100);
 }
 
 function toggleJsFineSection() {
@@ -828,6 +1792,32 @@ function setJsFine(amount) {
     document.getElementById("ret_js_fine").value = amount;
 }
 
+async function handleJsSubmitLoan(e) {
+    e.preventDefault();
+    const memberId = $("#inline_member_select").val();
+    const memberName = $("#inline_member_select").find(":selected").data("name");
+    const bookId = $("#inline_book_select").val();
+    const loanDate = document.getElementById("inline_loan_date").value;
+    const dueDate = document.getElementById("inline_due_date").value;
+    const remarks = document.getElementById("inline_loan_remarks").value;
+
+    if (!memberId || !bookId) {
+        Swal.fire("ព្រមាន!", "សូមជ្រើសរើសសិស្ស និងសៀវភៅដែលត្រូវខ្ចី!", "warning");
+        return;
+    }
+
+    Swal.fire({ title: "កំពុងកត់ត្រាការខ្ចី...", didOpen: () => Swal.showLoading() });
+    await apiPost("issueLoan", {
+        member_id: memberId,
+        member_name: memberName,
+        book_id: bookId,
+        loan_date: loanDate,
+        due_date: dueDate,
+        remarks: remarks
+    });
+    Swal.fire("ជោគជ័យ!", "បានកត់ត្រាការខ្ចីសៀវភៅទៅក្នុង Google Sheets", "success").then(() => initCirculationView());
+}
+
 async function handleJsSubmitReturn(e) {
     e.preventDefault();
     const id = $("#ret_js_loan_select").val();
@@ -855,76 +1845,579 @@ async function handleJsSubmitReturn(e) {
     });
 }
 
+// ==================== MEMBERS (ADD/EDIT FORM + DELETE + QR CODE) ====================
 async function loadMembers() {
-    try {
-        const res = await apiCall("getMembers");
-        allMembers = res.data || [];
-        const tbody = document.getElementById("membersTableBody");
-        tbody.innerHTML = "";
-        allMembers.forEach(m => {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${m.id}</td>
-                    <td><span class="badge bg-primary-subtle text-primary border">${m.member_code}</span></td>
-                    <td class="fw-bold">${m.full_name}</td>
-                    <td>${m.gender || "M"}</td>
-                    <td><span class="badge bg-info">${m.member_type || ""}</span></td>
-                    <td>${m.phone || ""}</td>
-                </tr>
-            `;
-        });
-    } catch(e) { console.error(e); }
+    const res = await apiCall("getMembers");
+    allMembers = res.data || [];
+    renderMembersTable(allMembers);
 }
 
-async function handleJsSubmitLoan(e) {
-    e.preventDefault();
-    const memberId = $("#inline_member_select").val();
-    const memberName = $("#inline_member_select").find(":selected").data("name");
-    const bookId = $("#inline_book_select").val();
-    const loanDate = document.getElementById("inline_loan_date").value;
-    const dueDate = document.getElementById("inline_due_date").value;
-    const remarks = document.getElementById("inline_loan_remarks").value;
+function renderMembersTable(members) {
+    const tbody = document.getElementById("membersTableBody");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+    if (members.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted">មិនទាន់មានសមាជិកនៅឡើយទេ</td></tr>`;
+        return;
+    }
+    members.forEach(m => {
+        tbody.innerHTML += `
+            <tr>
+                <td><input type="checkbox" class="form-check-input member-row-check" value="${m.id}"></td>
+                <td class="fw-bold text-secondary">#${m.id}</td>
+                <td><span class="badge bg-primary-subtle text-primary border">${m.member_code || "RTTC-" + m.id}</span></td>
+                <td class="fw-bold">${m.full_name}</td>
+                <td>${m.gender || "ប្រុស (Male)"}</td>
+                <td><span class="badge bg-info-subtle text-info border">${m.member_type || ""}</span></td>
+                <td>${m.phone || "-"}</td>
+                <td>
+                    <button class="btn btn-sm btn-dark" onclick="openSingleMemberQr(${m.id})" title="បង្កើត QR Code សម្រាប់សិស្សនេះ">
+                        <i class="fas fa-qrcode text-info me-1"></i> QR
+                    </button>
+                </td>
+                <td class="text-end pe-3">
+                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editMemberRow(${m.id})" title="កែប្រែ">
+                        <i class="fas fa-edit"></i> កែប្រែ
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteMemberRow(${m.id})" title="លុប">
+                        <i class="fas fa-trash"></i> លុប
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+}
 
-    if (!memberId || !bookId) {
-        Swal.fire("ព្រមាន!", "សូមជ្រើសរើសសិស្ស និងសៀវភៅដែលត្រូវខ្ចី!", "warning");
+function filterMembersTable() {
+    const q = (document.getElementById("memberSearchInput")?.value || "").toLowerCase();
+    const filtered = allMembers.filter(m => {
+        return (m.full_name || "").toLowerCase().includes(q) ||
+               (m.member_code || "").toLowerCase().includes(q) ||
+               (m.phone || "").toLowerCase().includes(q) ||
+               String(m.id).includes(q);
+    });
+    renderMembersTable(filtered);
+}
+
+function editMemberRow(id) {
+    const m = allMembers.find(item => String(item.id) === String(id));
+    if (!m) return;
+    document.getElementById("mem_edit_id").value = m.id;
+    document.getElementById("mem_full_name").value = m.full_name || "";
+    document.getElementById("mem_code").value = m.member_code || "";
+    document.getElementById("mem_gender").value = m.gender || "ប្រុស (Male)";
+    document.getElementById("mem_type").value = m.member_type || "គរុសិស្ស (Student)";
+    document.getElementById("mem_phone").value = m.phone || "";
+    document.getElementById("mem_email").value = m.email || "";
+    document.getElementById("mem_status").value = m.status || "សកម្ម (Active)";
+
+    document.getElementById("memberFormTitle").innerHTML = `<i class="fas fa-user-edit me-2 text-warning"></i>កែប្រែព័ត៌មានសមាជិក (អត្តលេខគណនី #${m.id})`;
+    document.getElementById("memberSubmitBtn").innerHTML = `<i class="fas fa-check me-1"></i> រក្សាទុកការកែប្រែ`;
+    document.getElementById("memberSubmitBtn").className = "btn btn-warning px-4 fw-bold shadow-sm";
+    document.getElementById("cancelEditMemberBtn").classList.remove("d-none");
+    document.getElementById("memberFormCard").scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function resetMemberForm() {
+    document.getElementById("memberInlineForm").reset();
+    document.getElementById("mem_edit_id").value = "";
+    document.getElementById("memberFormTitle").innerHTML = `<i class="fas fa-user-plus me-2"></i>បែបបទបន្ថែមសមាជិកថ្មី (Add New Member)`;
+    document.getElementById("memberSubmitBtn").innerHTML = `<i class="fas fa-save me-1"></i> រក្សាទុកសមាជិក`;
+    document.getElementById("memberSubmitBtn").className = "btn btn-primary px-4 fw-bold shadow-sm";
+    document.getElementById("cancelEditMemberBtn").classList.add("d-none");
+}
+
+async function handleSaveMember(e) {
+    e.preventDefault();
+    const editId = document.getElementById("mem_edit_id").value;
+    const payload = {
+        id: editId,
+        full_name: document.getElementById("mem_full_name").value.trim(),
+        member_code: document.getElementById("mem_code").value.trim(),
+        gender: document.getElementById("mem_gender").value,
+        member_type: document.getElementById("mem_type").value,
+        phone: document.getElementById("mem_phone").value.trim(),
+        email: document.getElementById("mem_email").value.trim(),
+        status: document.getElementById("mem_status").value
+    };
+
+    if (editId) {
+        await apiPost("updateMember", payload);
+        Swal.fire("ជោគជ័យ!", "បានកែប្រែព័ត៌មានសមាជិករួចរាល់", "success");
+    } else {
+        await apiPost("addMember", payload);
+        Swal.fire("ជោគជ័យ!", "បានបន្ថែមសមាជិកថ្មីរួចរាល់", "success");
+    }
+    resetMemberForm();
+    loadMembers();
+}
+
+async function deleteMemberRow(id) {
+    const m = allMembers.find(item => String(item.id) === String(id));
+    Swal.fire({
+        title: "តើអ្នកប្រាកដជាចង់លុបសមាជិកនេះឬ?",
+        text: m ? `${m.member_code} - ${m.full_name}` : `ID #${id}`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        confirmButtonText: "បាទ/ចាស, លុប!",
+        cancelButtonText: "បោះបង់"
+    }).then(async r => {
+        if (r.isConfirmed) {
+            await apiPost("deleteMember", { id: id });
+            Swal.fire("បានលុប!", "សមាជិកត្រូវបានលុបចេញពីបញ្ជី", "success");
+            loadMembers();
+        }
+    });
+}
+
+function toggleSelectAllMembers(masterCheckbox) {
+    document.querySelectorAll(".member-row-check").forEach(cb => {
+        cb.checked = masterCheckbox.checked;
+    });
+}
+
+// ==================== QR CODE GENERATOR FOR STUDENTS (SINGLE & ALL) ====================
+function renderQrCardsIntoModal(membersList, titleText) {
+    document.getElementById("qrModalTitle").innerHTML = `<i class="fas fa-qrcode text-info me-2"></i>${titleText}`;
+    const container = document.getElementById("qrCardsContainer");
+    container.innerHTML = "";
+
+    membersList.forEach(m => {
+        const accId = m.id;
+        const memCode = m.member_code || ("RTTC-STU-" + String(accId).padStart(3, "0"));
+        const qrPayload = `ID:${accId}|CODE:${memCode}`;
+        const domId = `qrcode_box_${accId}`;
+
+        const card = document.createElement("div");
+        card.className = "qr-badge-card";
+        card.innerHTML = `
+            <div class="qr-badge-header">បណ្ណាល័យ គរុកោសល្យភូមិភាគ (RTTC)</div>
+            <div id="${domId}" class="qr-canvas-box"></div>
+            <div class="fw-bold text-dark mt-2" style="font-size: 0.95rem;">${m.full_name}</div>
+            <div class="badge bg-primary mt-1">លេខកូដ: ${memCode}</div>
+            <div class="small text-muted mt-1">អត្តលេខគណនី (Account ID): <strong>#${accId}</strong></div>
+            <div class="small text-secondary">${m.member_type || "គរុសិស្ស"}</div>
+        `;
+        container.appendChild(card);
+
+        setTimeout(() => {
+            const box = document.getElementById(domId);
+            if (box && typeof QRCode !== "undefined") {
+                new QRCode(box, {
+                    text: qrPayload,
+                    width: 125,
+                    height: 125,
+                    colorDark: "#0f172a",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+            }
+        }, 50);
+    });
+
+    new bootstrap.Modal(document.getElementById("qrCodeModal")).show();
+}
+
+function openSingleMemberQr(id) {
+    const m = allMembers.find(item => String(item.id) === String(id));
+    if (!m) return;
+    renderQrCardsIntoModal([m], `កាត QR Code សម្រាប់៖ ${m.full_name} (${m.member_code})`);
+}
+
+function generateBatchQrCodes(generateAll = true) {
+    if (generateAll) {
+        if (allMembers.length === 0) {
+            Swal.fire("ព្រមាន!", "មិនទាន់មានទិន្នន័យសមាជិកឡើយ", "warning");
+            return;
+        }
+        renderQrCardsIntoModal(allMembers, `កាត QR Code សម្រាប់សមាជិកទាំងអស់ (${allMembers.length} នាក់)`);
+    } else {
+        const checkedIds = Array.from(document.querySelectorAll(".member-row-check:checked")).map(cb => String(cb.value));
+        if (checkedIds.length === 0) {
+            Swal.fire("សូមជ្រើសរើសសិស្ស!", "សូមធីកប្រអប់ខាងមុខឈ្មោះសិស្សក្នុងតារាង ដើម្បីបង្កើត QR Code តាមការជ្រើសរើស ឬចុច «បង្កើត QR សិស្សទាំងអស់»។", "info");
+            return;
+        }
+        const selectedMembers = allMembers.filter(m => checkedIds.includes(String(m.id)));
+        renderQrCardsIntoModal(selectedMembers, `កាត QR Code សម្រាប់សមាជិកដែលបានជ្រើសរើស (${selectedMembers.length} នាក់)`);
+    }
+}
+
+function printQrCodes() {
+    window.print();
+}
+
+// ==================== LIBRARIAN ATTENDANCE (សម្រង់វត្តមានរបស់បណ្ណារក្ស) ====================
+function setNowTime(inputId) {
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2, "0");
+    const mm = String(now.getMinutes()).padStart(2, "0");
+    document.getElementById(inputId).value = `${hh}:${mm}`;
+}
+
+async function loadAttendance() {
+    const res = await apiCall("getLibrarianAttendance");
+    allAttendance = res.data || [];
+    const today = new Date().toISOString().split("T")[0];
+    if (!document.getElementById("att_date").value) {
+        document.getElementById("att_date").value = today;
+    }
+    renderAttendanceTable(allAttendance);
+}
+
+function renderAttendanceTable(records) {
+    const tbody = document.getElementById("attendanceTableBody");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+    if (records.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">មិនទាន់មានទិន្នន័យសម្រង់វត្តមានបណ្ណារក្សនៅឡើយទេ</td></tr>`;
+        return;
+    }
+    records.forEach(a => {
+        tbody.innerHTML += `
+            <tr>
+                <td class="fw-bold text-secondary">#${a.id}</td>
+                <td><i class="far fa-calendar-alt text-muted me-1"></i>${a.attendance_date || ""}</td>
+                <td>
+                    <div class="fw-bold text-primary">${a.librarian_name}</div>
+                    <div class="small text-muted">កូដ: ${a.librarian_code || "LIB-" + a.id}</div>
+                </td>
+                <td class="text-center">
+                    <span class="badge bg-success-subtle text-success border me-1">ចូល: ${a.morning_in || "--:--"}</span>
+                    <span class="badge bg-secondary-subtle text-secondary border">ចេញ: ${a.morning_out || "--:--"}</span>
+                </td>
+                <td class="text-center">
+                    <span class="badge bg-info-subtle text-info border me-1">ចូល: ${a.afternoon_in || "--:--"}</span>
+                    <span class="badge bg-secondary-subtle text-secondary border">ចេញ: ${a.afternoon_out || "--:--"}</span>
+                </td>
+                <td>
+                    <span class="badge bg-primary">${a.status || "វត្តមានពេញម៉ោង"}</span>
+                    <div class="small text-muted mt-1">${a.remarks || ""}</div>
+                </td>
+                <td class="text-end pe-3 no-print">
+                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editAttendanceRow(${a.id})"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteAttendanceRow(${a.id})"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+function editAttendanceRow(id) {
+    const a = allAttendance.find(item => String(item.id) === String(id));
+    if (!a) return;
+    document.getElementById("att_edit_id").value = a.id;
+    document.getElementById("att_name").value = a.librarian_name || "";
+    document.getElementById("att_code").value = a.librarian_code || "";
+    document.getElementById("att_date").value = a.attendance_date || "";
+    document.getElementById("att_m_in").value = a.morning_in || "07:30";
+    document.getElementById("att_m_out").value = a.morning_out || "11:30";
+    document.getElementById("att_a_in").value = a.afternoon_in || "13:30";
+    document.getElementById("att_a_out").value = a.afternoon_out || "17:00";
+    document.getElementById("att_status").value = a.status || "វត្តមានពេញម៉ោង (Present)";
+    document.getElementById("att_remarks").value = a.remarks || "";
+
+    document.getElementById("attFormTitle").innerHTML = `<i class="fas fa-edit text-primary me-2"></i>កែប្រែសម្រង់វត្តមានបណ្ណារក្ស #${a.id}`;
+    document.getElementById("attSubmitBtn").innerHTML = `<i class="fas fa-check me-1"></i> រក្សាទុកការកែប្រែ`;
+    document.getElementById("cancelEditAttBtn").classList.remove("d-none");
+}
+
+function resetAttendanceForm() {
+    document.getElementById("att_edit_id").value = "";
+    document.getElementById("att_name").value = "";
+    document.getElementById("att_code").value = "";
+    document.getElementById("att_date").value = new Date().toISOString().split("T")[0];
+    document.getElementById("att_m_in").value = "07:30";
+    document.getElementById("att_m_out").value = "11:30";
+    document.getElementById("att_a_in").value = "13:30";
+    document.getElementById("att_a_out").value = "17:00";
+    document.getElementById("att_remarks").value = "";
+    document.getElementById("attFormTitle").innerHTML = `<i class="fas fa-calendar-check text-warning me-2"></i>បែបបទសម្រង់វត្តមានបណ្ណារក្ស (ព្រឹកចូល-ចេញ និង រសៀលចូល-ចេញ)`;
+    document.getElementById("attSubmitBtn").innerHTML = `<i class="fas fa-save me-1"></i> កត់ត្រាវត្តមានបណ្ណារក្ស`;
+    document.getElementById("cancelEditAttBtn").classList.add("d-none");
+}
+
+async function handleSaveAttendance(e) {
+    e.preventDefault();
+    const editId = document.getElementById("att_edit_id").value;
+    const payload = {
+        id: editId,
+        librarian_name: document.getElementById("att_name").value.trim(),
+        librarian_code: document.getElementById("att_code").value.trim(),
+        attendance_date: document.getElementById("att_date").value,
+        morning_in: document.getElementById("att_m_in").value,
+        morning_out: document.getElementById("att_m_out").value,
+        afternoon_in: document.getElementById("att_a_in").value,
+        afternoon_out: document.getElementById("att_a_out").value,
+        status: document.getElementById("att_status").value,
+        remarks: document.getElementById("att_remarks").value.trim()
+    };
+
+    if (editId) {
+        await apiPost("updateLibrarianAttendance", payload);
+        Swal.fire("ជោគជ័យ!", "បានកែប្រែសម្រង់វត្តមានបណ្ណារក្ស", "success");
+    } else {
+        await apiPost("addLibrarianAttendance", payload);
+        Swal.fire("ជោគជ័យ!", "បានកត់ត្រាសម្រង់វត្តមានបណ្ណារក្សរួចរាល់", "success");
+    }
+    resetAttendanceForm();
+    loadAttendance();
+}
+
+async function deleteAttendanceRow(id) {
+    Swal.fire({ title: "លុបកំណត់ត្រាវត្តមាននេះឬ?", icon: "warning", showCancelButton: true, confirmButtonColor: "#d33", confirmButtonText: "លុប" }).then(async r => {
+        if (r.isConfirmed) {
+            await apiPost("deleteLibrarianAttendance", { id: id });
+            loadAttendance();
+        }
+    });
+}
+
+// ==================== REPORTS (1. LOANS, 2. BOOKS, 3. STUDENT VISITS) ====================
+async function renderLoanReport() {
+    if (allLoans.length === 0) await apiCall("getLoans");
+    if (allBooks.length === 0) await apiCall("getBooks");
+
+    const fromDate = document.getElementById("rep_loan_from")?.value || "";
+    const toDate = document.getElementById("rep_loan_to")?.value || "";
+    const stFilter = document.getElementById("rep_loan_status")?.value || "";
+
+    let filtered = allLoans.filter(l => {
+        if (fromDate && l.loan_date && l.loan_date < fromDate) return false;
+        if (toDate && l.loan_date && l.loan_date > toDate) return false;
+        const fine = parseFloat(String(l.fine || "0").replace(/,/g, "")) || 0;
+        const stLower = String(l.status || "").toLowerCase();
+        if (stFilter === "active") return isLoanActive(l);
+        if (stFilter === "returned") return !isLoanActive(l) && !stLower.includes("lost") && !stLower.includes("បាត់");
+        if (stFilter === "fined") return fine > 0;
+        if (stFilter === "lost") return stLower.includes("lost") || stLower.includes("បាត់");
+        return true;
+    });
+
+    let activeCount = 0;
+    let returnedCount = 0;
+    let totalFine = 0;
+
+    const tbody = document.getElementById("reportLoansBody");
+    tbody.innerHTML = "";
+
+    filtered.forEach((l, idx) => {
+        const active = isLoanActive(l);
+        if (active) activeCount++; else returnedCount++;
+        const fine = parseFloat(String(l.fine || "0").replace(/,/g, "")) || 0;
+        totalFine += fine;
+        const bObj = allBooks.find(b => String(b.id) === String(l.book_id));
+        const bTitle = bObj ? bObj.book_name : ("Book #" + l.book_id);
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${idx + 1}</td>
+                <td class="fw-bold">${l.loan_code || "LN-" + l.id}</td>
+                <td>${l.member_name}</td>
+                <td>${bTitle}</td>
+                <td>${l.loan_date || ""}</td>
+                <td>${l.due_date || ""}</td>
+                <td>${l.return_date || "-"}</td>
+                <td>${l.status || ""}</td>
+                <td class="fw-bold ${fine > 0 ? "text-danger" : "text-success"}">${fine.toLocaleString()} ៛</td>
+                <td class="small">${l.remarks || ""}</td>
+            </tr>
+        `;
+    });
+
+    document.getElementById("rep_l_total").innerText = filtered.length;
+    document.getElementById("rep_l_returned").innerText = returnedCount;
+    document.getElementById("rep_l_active").innerText = activeCount;
+    document.getElementById("rep_l_fine").innerText = totalFine.toLocaleString() + " ៛";
+}
+
+function resetLoanReportFilter() {
+    document.getElementById("rep_loan_from").value = "";
+    document.getElementById("rep_loan_to").value = "";
+    document.getElementById("rep_loan_status").value = "";
+    renderLoanReport();
+}
+
+async function initBookReport() {
+    if (allBooks.length === 0) await apiCall("getBooks");
+    if (allCategories.length === 0) await apiCall("getCategories");
+
+    const catSel = document.getElementById("rep_book_cat");
+    if (catSel && catSel.options.length <= 1) {
+        catSel.innerHTML = `<option value="">-- គ្រប់ប្រភេទសៀវភៅទាំងអស់ --</option>`;
+        allCategories.forEach(c => {
+            catSel.innerHTML += `<option value="${c.category_name}">${c.category_name}</option>`;
+        });
+    }
+    renderBookReport();
+}
+
+function renderBookReport() {
+    const cat = document.getElementById("rep_book_cat")?.value || "";
+    const q = (document.getElementById("rep_book_q")?.value || "").toLowerCase();
+
+    const filtered = allBooks.filter(b => {
+        if (cat && b.category !== cat) return false;
+        if (q) {
+            return (b.book_name || "").toLowerCase().includes(q) ||
+                   (b.number_saroper || "").toLowerCase().includes(q) ||
+                   (b.ddc_no || "").toLowerCase().includes(q) ||
+                   (b.author || "").toLowerCase().includes(q);
+        }
+        return true;
+    });
+
+    let totalCopies = 0;
+    const tbody = document.getElementById("reportBooksBody");
+    tbody.innerHTML = "";
+
+    filtered.forEach((b, idx) => {
+        const amt = parseInt(b.book_amount, 10) || 1;
+        totalCopies += amt;
+        tbody.innerHTML += `
+            <tr>
+                <td>${idx + 1}</td>
+                <td class="fw-bold text-primary">${b.number_saroper || ""}</td>
+                <td>${b.ddc_no || ""}</td>
+                <td class="fw-bold">${b.book_name}</td>
+                <td>${b.author || ""}</td>
+                <td>${b.category || ""}</td>
+                <td>${b.place || ""} (${b.location_shelf || ""})</td>
+                <td>${b.book_resource || "ក្រអយក"}</td>
+                <td class="text-center fw-bold">${amt}</td>
+                <td>${formatBookAvailability(b)}</td>
+            </tr>
+        `;
+    });
+
+    document.getElementById("rep_b_titles").innerText = filtered.length;
+    document.getElementById("rep_b_copies").innerText = totalCopies + " ក្បាល";
+    document.getElementById("rep_b_cats").innerText = allCategories.length;
+}
+
+async function initVisitReport() {
+    if (allMembers.length === 0) await apiCall("getMembers");
+    const vRes = await apiCall("getStudentVisits");
+    allVisits = vRes.data || [];
+
+    const mSel = document.getElementById("visit_member_select");
+    if (mSel) {
+        mSel.innerHTML = `<option value="">-- ជ្រើសរើសសិស្ស --</option>`;
+        allMembers.forEach(m => {
+            mSel.innerHTML += `<option value="${m.id}">${m.member_code} - ${m.full_name}</option>`;
+        });
+        initOrRefreshSelect2("#visit_member_select", "ជ្រើសរើសសិស្ស...");
+    }
+    document.getElementById("visit_date").value = new Date().toISOString().split("T")[0];
+    renderVisitReport();
+}
+
+function handleQrScanInput(val) {
+    const clean = val.trim();
+    if (!clean) return;
+    let matchedMember = null;
+    if (clean.includes("ID:") || clean.includes("CODE:")) {
+        const codeMatch = clean.match(/CODE:([^|]+)/i);
+        const idMatch = clean.match(/ID:(\d+)/i);
+        if (codeMatch) matchedMember = allMembers.find(m => String(m.member_code).toLowerCase() === codeMatch[1].toLowerCase());
+        if (!matchedMember && idMatch) matchedMember = allMembers.find(m => String(m.id) === idMatch[1]);
+    } else {
+        matchedMember = allMembers.find(m => String(m.member_code).toLowerCase() === clean.toLowerCase() || String(m.id) === clean);
+    }
+    if (matchedMember) {
+        $("#visit_member_select").val(String(matchedMember.id)).trigger("change");
+    }
+}
+
+async function handleAddStudentVisit(e) {
+    e.preventDefault();
+    const memId = $("#visit_member_select").val();
+    const mObj = allMembers.find(m => String(m.id) === String(memId));
+    if (!mObj) {
+        Swal.fire("ព្រមាន!", "សូមជ្រើសរើសសិស្ស ឬស្កេន QR Code ឱ្យបានត្រឹមត្រូវ", "warning");
         return;
     }
 
-    Swal.fire({ title: "កំពុងកត់ត្រាការខ្ចី...", didOpen: () => Swal.showLoading() });
-    await apiPost("issueLoan", {
-        member_id: memberId,
-        member_name: memberName,
-        book_id: bookId,
-        loan_date: loanDate,
-        due_date: dueDate,
-        remarks: remarks
-    });
-    Swal.fire("ជោគជ័យ!", "បានកត់ត្រាការខ្ចីសៀវភៅទៅក្នុង Google Sheets", "success").then(() => initCirculationView());
-}
-
-async function handleJsAddBook(e) {
-    e.preventDefault();
     const payload = {
-        book_name: document.getElementById("f_name").value,
-        book_sub: document.getElementById("f_sub").value,
-        category: document.getElementById("f_cat").value,
-        author: document.getElementById("f_author").value,
-        publisher: document.getElementById("f_publisher").value,
-        ddc_no: document.getElementById("f_ddc").value,
-        number_saroper: document.getElementById("f_saroper").value,
-        isbnno: document.getElementById("f_isbn").value,
-        place: document.getElementById("f_place").value,
-        location_shelf: document.getElementById("f_shelf").value,
-        book_amount: document.getElementById("f_qty").value,
-        book_resource: document.getElementById("f_resource").value,
-        cover_url: document.getElementById("f_cover").value
+        visit_date: document.getElementById("visit_date").value,
+        member_id: mObj.id,
+        member_code: mObj.member_code,
+        full_name: mObj.full_name,
+        gender: mObj.gender || "ប្រុស (Male)",
+        member_type: mObj.member_type || "គរុសិស្ស (Student)",
+        time_in: document.getElementById("visit_time_in").value,
+        time_out: document.getElementById("visit_time_out").value,
+        purpose: document.getElementById("visit_purpose").value,
+        remarks: document.getElementById("visit_remarks").value.trim()
     };
 
-    Swal.fire({ title: "កំពុងរក្សាទុកក្នុង Google Sheets...", didOpen: () => Swal.showLoading() });
-    await apiPost("addBook", payload);
-    Swal.fire("ជោគជ័យ!", "បានកត់ត្រាសៀវភៅថ្មីចូល Google Sheets", "success").then(() => {
-        switchView("books");
+    await apiPost("addStudentVisit", payload);
+    document.getElementById("visit_qr_input").value = "";
+    document.getElementById("visit_remarks").value = "";
+    Swal.fire("ជោគជ័យ!", `បានកត់ត្រាវត្តមាន៖ ${mObj.full_name} ចូលបណ្ណាល័យ`, "success");
+    renderVisitReport();
+}
+
+function renderVisitReport() {
+    const tbody = document.getElementById("reportVisitsBody");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+
+    let stuCount = 0;
+    let tchCount = 0;
+
+    allVisits.forEach((v, idx) => {
+        const isStu = String(v.member_type || "").toLowerCase().includes("student") || String(v.member_type || "").includes("គរុសិស្ស");
+        if (isStu) stuCount++; else tchCount++;
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${idx + 1}</td>
+                <td>${v.visit_date || ""}</td>
+                <td class="fw-bold text-secondary">#${v.member_id}</td>
+                <td><span class="badge bg-primary-subtle text-primary border">${v.member_code || ""}</span></td>
+                <td class="fw-bold">${v.full_name}</td>
+                <td>${v.gender || ""}</td>
+                <td>${v.member_type || ""}</td>
+                <td>${v.time_in || ""} - ${v.time_out || ""}</td>
+                <td>${v.purpose || ""}</td>
+                <td class="small">${v.remarks || ""}</td>
+                <td class="no-print text-end">
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteVisitRow(${v.id})"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `;
     });
+
+    document.getElementById("rep_v_total").innerText = allVisits.length + " នាក់";
+    document.getElementById("rep_v_students").innerText = stuCount + " នាក់";
+    document.getElementById("rep_v_teachers").innerText = tchCount + " នាក់";
+}
+
+async function deleteVisitRow(id) {
+    await apiPost("deleteStudentVisit", { id: id });
+    renderVisitReport();
+}
+
+function exportTableToCSV(tableId, filename) {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+    let csv = ["\uFEFF"];
+    const rows = table.querySelectorAll("tr");
+    for (let i = 0; i < rows.length; i++) {
+        const row = [], cols = rows[i].querySelectorAll("td, th");
+        for (let j = 0; j < cols.length; j++) {
+            if (cols[j].classList.contains("no-print")) continue;
+            let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, " ").replace(/"/g, '""');
+            row.push('"' + data + '"');
+        }
+        csv.push(row.join(","));
+    }
+    const blob = new Blob([csv.join("\n")], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
 }
 
 async function loadDropdowns() {
@@ -933,16 +2426,21 @@ async function loadDropdowns() {
         const pRes = await apiCall("getPlaces");
         const catSelect = document.getElementById("f_cat");
         const plSelect = document.getElementById("f_place");
-        catSelect.innerHTML = "<option value=''>-- ជ្រើសរើសប្រភេទ --</option>";
-        plSelect.innerHTML = "<option value=''>-- ជ្រើសរើសជួរ/ទីតាំង --</option>";
-        (cRes.data || []).forEach(c => { catSelect.innerHTML += `<option value="${c.category_name}">${c.category_name}</option>`; });
-        (pRes.data || []).forEach(p => { plSelect.innerHTML += `<option value="${p.place_name}">${p.place_name} (${p.place_shelf || ""})</option>`; });
+        if (catSelect) {
+            catSelect.innerHTML = "<option value=''>-- ជ្រើសរើសប្រភេទ --</option>";
+            (cRes.data || []).forEach(c => { catSelect.innerHTML += `<option value="${c.category_name}">${c.category_name}</option>`; });
+        }
+        if (plSelect) {
+            plSelect.innerHTML = "<option value=''>-- ជ្រើសរើសជួរ/ទីតាំង --</option>";
+            (pRes.data || []).forEach(p => { plSelect.innerHTML += `<option value="${p.place_name}">${p.place_name} (${p.place_shelf || ""})</option>`; });
+        }
     } catch(e) {}
 }
 
 document.addEventListener("DOMContentLoaded", () => {
     loadDashboard();
     loadDropdowns();
+    initCirculationView(false);
 });
 </script>
 </body>
