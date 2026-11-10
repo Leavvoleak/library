@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RTTC Library Management System</title>
+    <title>RTTC Library Management System - Google Sheets Edition</title>
     <!-- Google Fonts: Kantumruy Pro & Hanuman -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -345,6 +345,9 @@
         <li id="nav-categories" onclick="switchView('categories', this)">
             <a href="javascript:void(0)"><span class="menu-label"><i class="fas fa-tags text-warning"></i> ប្រភេទសៀវភៅ (Categories)</span></a>
         </li>
+        <li id="nav-places" onclick="switchView('places', this)">
+            <a href="javascript:void(0)"><span class="menu-label"><i class="fas fa-archive text-info"></i> ទូ & លេខDDCតាមទូ (Places & DDC)</span></a>
+        </li>
 
         <!-- SUB-TREE MENU 1: ការខ្ចី-សងសៀវភៅ (Circulation - 3 Forms) -->
         <li class="has-submenu">
@@ -636,9 +639,13 @@
 
                             <!-- 13. ចំនួនសៀវភៅ * -->
                             <div class="row book-form-row">
-                                <label class="col-lg-4 col-form-label" for="f_qty">ចំនួនសៀវភៅ <span class="text-danger">*</span></label>
+                                <label class="col-lg-4 col-form-label" for="f_qty">ចំនួនសៀវភៅ (Copies) <span class="text-danger">*</span></label>
                                 <div class="col-lg-8">
-                                    <input type="number" id="f_qty" class="form-control text-danger" value="1" min="1" required>
+                                    <div class="input-group">
+                                        <input type="number" id="f_qty" class="form-control text-danger fw-bold" value="1" min="1" max="100" required oninput="renderCopySaroperInputs()">
+                                        <span class="input-group-text bg-light small">ក្បាល (Copies)</span>
+                                    </div>
+                                    <div class="form-text small text-primary"><i class="fas fa-copy me-1"></i>ឧ. ១ ចំណងជើង (Python Programming) មាន ៥ ទៅ ១០ ក្បាល</div>
                                 </div>
                             </div>
                         </div>
@@ -649,7 +656,10 @@
                             <div class="row book-form-row">
                                 <label class="col-lg-4 col-form-label" for="f_place">ទូ <span class="text-danger">*</span></label>
                                 <div class="col-lg-8">
-                                    <select id="f_place" class="form-select" required></select>
+                                    <div class="input-group">
+                                        <select id="f_place" class="form-select" required onchange="onBookFormPlaceChange(this.value)"></select>
+                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="switchView('places')" title="គ្រប់គ្រងទូ និងលេខDDCតាមទូ"><i class="fas fa-cog"></i></button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -658,6 +668,7 @@
                                 <label class="col-lg-4 col-form-label" for="f_shelf">លេខDDCសៀវភៅតាមទូ <span class="text-danger">*</span></label>
                                 <div class="col-lg-8">
                                     <select id="f_shelf" class="form-select" required></select>
+                                    <div class="form-text small text-muted" id="f_shelf_helper_text">ជ្រើសរើស «ទូ» ដើម្បីបង្ហាញលេខDDCសៀវភៅតាមទូនោះ</div>
                                 </div>
                             </div>
 
@@ -677,11 +688,24 @@
                                 </div>
                             </div>
 
-                            <!-- 5. លេខបញ្ជីសារពើភ័ណ្ឌ * -->
-                            <div class="row book-form-row">
-                                <label class="col-lg-4 col-form-label" for="f_saroper">លេខបញ្ជីសារពើភ័ណ្ឌ<span class="text-danger">*</span></label>
+                            <!-- 5. លេខបញ្ជីសារពើភ័ណ្ឌ * (Per-Copy Inventory Numbers entered by Librarian) -->
+                            <div class="row book-form-row align-items-start">
+                                <label class="col-lg-4 col-form-label pt-2" for="f_saroper">លេខបញ្ជីសារពើភ័ណ្ឌ<span class="text-danger">*</span></label>
                                 <div class="col-lg-8">
-                                    <textarea id="f_saroper" class="form-control text-danger" rows="2" placeholder="ឧ. 01,02,03..." required></textarea>
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="small text-secondary fw-semibold">លេខសារពើភ័ណ្ឌសម្រាប់ចុះលើសៀវភៅ Copy នីមួយៗ៖</span>
+                                        <span id="saroperCopyCounterBadge" class="badge bg-info-subtle text-primary border">0 / 1 ក្បាល</span>
+                                    </div>
+                                    <textarea id="f_saroper" class="form-control text-danger fw-bold mb-2" rows="2" placeholder="ឧ. 01, 02, 03, 04, 05 (បំបែកដោយសញ្ញាក្បៀស , សម្រាប់សៀវភៅ Copy នីមួយៗ)" required oninput="syncTextareaToCopyInputs()"></textarea>
+                                    <div class="p-2 border rounded-3 bg-light">
+                                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-1 mb-2">
+                                            <span class="small fw-bold text-dark"><i class="fas fa-list-ol text-primary me-1"></i>ចុះលេខសារពើភ័ណ្ឌតាមក្បាលសៀវភៅ (Copy #1 - Copy #N)៖</span>
+                                            <button type="button" class="btn btn-xs btn-outline-primary py-0 px-2" style="font-size: 0.76rem;" onclick="autoFillSequentialSaroper()" title="វាយលេខនៅ Copy ទី 1 រួចចុចប៊ូតុងនេះដើម្បីបំពេញលេខបន្តគ្នា">
+                                                <i class="fas fa-magic me-1"></i>បំពេញលេខរៀងបន្តគ្នាពី Copy #1
+                                            </button>
+                                        </div>
+                                        <div id="copySaroperInputsContainer" class="row g-2" style="max-height: 195px; overflow-y: auto;"></div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -756,6 +780,106 @@
                         </thead>
                         <tbody id="categoriesTableBody"></tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== VIEW: ទូ និងលេខDDCសៀវភៅតាមទូ (PLACES & SHELF DDC) ==================== -->
+    <div id="view-places" class="app-view">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+            <div>
+                <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;"><i class="fas fa-archive text-primary me-2"></i>ទូ និងលេខDDCសៀវភៅតាមទូ (Bookcases & Shelf DDC)</h2>
+                <p class="text-muted mb-0">គ្រប់គ្រងទូសៀវភៅនីមួយៗ និងកំណត់លេខDDCសៀវភៅតាមទូ (ទូនីមួយៗមានលេខDDCសៀវភៅតាមទូ) ក្នុង <code>tbl_place</code></p>
+            </div>
+            <button class="btn btn-outline-primary btn-sm" onclick="switchView('addBook')">
+                <i class="fas fa-book-medical me-1"></i> ទៅកាន់ Form ចុះឈ្មោះសៀវភៅ
+            </button>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left Form: Add / Edit Place & Shelf DDC -->
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm rounded-3 border-top border-primary border-4" id="placeFormCard">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold text-primary" id="placeFormTitle" style="font-family: 'Hanuman', serif;">
+                            <i class="fas fa-plus-circle me-2"></i>បញ្ចូលទូ និងលេខDDCសៀវភៅតាមទូ
+                        </h5>
+                        <button type="button" id="cancelPlaceEditBtn" class="btn btn-sm btn-outline-secondary d-none" onclick="resetPlaceForm()">
+                            <i class="fas fa-times me-1"></i> បោះបង់
+                        </button>
+                    </div>
+                    <div class="card-body p-4">
+                        <form id="placeManageForm" onsubmit="handleSavePlace(event)">
+                            <input type="hidden" id="pl_edit_id" value="">
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">១. ទូ / លេខទូសៀវភៅ (Bookcase / Cabinet) <span class="text-danger">*</span></label>
+                                <input type="text" id="pl_name" class="form-control fw-bold text-primary" list="existingPlacesDatalist" required placeholder="ឧ. ទូទី ០១ (Cabinet 01)">
+                                <datalist id="existingPlacesDatalist"></datalist>
+                                <div class="d-flex flex-wrap gap-1 mt-2">
+                                    <span class="small text-muted align-self-center me-1">ជ្រើសរើសទូរហ័ស៖</span>
+                                    <button type="button" class="btn btn-xs btn-outline-primary py-0 px-2" style="font-size:0.75rem" onclick="document.getElementById('pl_name').value='ទូទី ០១'">ទូទី ០១</button>
+                                    <button type="button" class="btn btn-xs btn-outline-primary py-0 px-2" style="font-size:0.75rem" onclick="document.getElementById('pl_name').value='ទូទី ០២'">ទូទី ០២</button>
+                                    <button type="button" class="btn btn-xs btn-outline-primary py-0 px-2" style="font-size:0.75rem" onclick="document.getElementById('pl_name').value='ទូទី ០៣'">ទូទី ០៣</button>
+                                    <button type="button" class="btn btn-xs btn-outline-primary py-0 px-2" style="font-size:0.75rem" onclick="document.getElementById('pl_name').value='ទូទី ០៤'">ទូទី ០៤</button>
+                                    <button type="button" class="btn btn-xs btn-outline-primary py-0 px-2" style="font-size:0.75rem" onclick="document.getElementById('pl_name').value='ទូទី ០៥'">ទូទី ០៥</button>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">២. លេខDDCសៀវភៅតាមទូ (Shelf DDC Classification) <span class="text-danger">*</span></label>
+                                <input type="text" id="pl_shelf_ddc" class="form-control fw-semibold text-danger" required placeholder="ឧ. 005.133 - កម្មវិធីកុំព្យូទ័រ (Python, Java, C++)">
+                                <div class="small text-muted mt-2 mb-1">ចុចជ្រើសរើសលេខ DDC ស្តង់ដាររហ័ស៖</div>
+                                <div class="d-flex flex-wrap gap-1">
+                                    <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:0.73rem" onclick="document.getElementById('pl_shelf_ddc').value='000 - ព័ត៌មានវិទ្យា និងកុំព្យូទ័រ'">000 កុំព្យូទ័រ</button>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:0.73rem" onclick="document.getElementById('pl_shelf_ddc').value='005.133 - ភាសាសរសេរកម្មវិធី (Python, C++, Java)'">005.133 Programming</button>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:0.73rem" onclick="document.getElementById('pl_shelf_ddc').value='100 - ទស្សនវិជ្ជា និងចិត្តវិទ្យា'">100 ទស្សនវិជ្ជា</button>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:0.73rem" onclick="document.getElementById('pl_shelf_ddc').value='300 - វិទ្យាសាស្ត្រសង្គម'">300 សង្គមសាស្ត្រ</button>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:0.73rem" onclick="document.getElementById('pl_shelf_ddc').value='370 - អប់រំ និងគរុកោសល្យ'">370 គរុកោសល្យ</button>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:0.73rem" onclick="document.getElementById('pl_shelf_ddc').value='400 - ភាសាវិទ្យា'">400 ភាសា</button>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:0.73rem" onclick="document.getElementById('pl_shelf_ddc').value='500 - វិទ្យាសាស្ត្រពិត និងគណិតវិទ្យា'">500 គណិត/វិទ្យាសាស្ត្រ</button>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:0.73rem" onclick="document.getElementById('pl_shelf_ddc').value='658 - ការគ្រប់គ្រង និងពាណិជ្ជកម្ម'">658 គ្រប់គ្រង</button>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:0.73rem" onclick="document.getElementById('pl_shelf_ddc').value='800 - អក្សរសិល្ប៍ និងអក្សរសាស្ត្រ'">800 អក្សរសិល្ប៍</button>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size:0.73rem" onclick="document.getElementById('pl_shelf_ddc').value='900 - ប្រវត្តិសាស្ត្រ និងភូមិវិទ្យា'">900 ប្រវត្តិសាស្ត្រ</button>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">៣. ការពិពណ៌នា / ធ្នើរ (Description)</label>
+                                <input type="text" id="pl_desc" class="form-control" placeholder="ឧ. ធ្នើរទី១ ផ្នែកកុំព្យូទ័រ និងបច្ចេកវិទ្យា">
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">៤. ស្ថានភាព (Status) <span class="text-danger">*</span></label>
+                                <select id="pl_status" class="form-select" required>
+                                    <option value="ប្រើបាន (Active)">ប្រើបាន (Active)</option>
+                                    <option value="ខូច (Inactive)">ខូច (Inactive)</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" id="plSubmitBtn" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">
+                                <i class="fas fa-plus-circle me-1"></i> បញ្ជូនទិន្នន័យ (រក្សាទុកទូ & លេខDDC)
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Grouped Bookcases (ទូនីមួយៗ មានលេខDDCសៀវភៅតាមទូ) -->
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm rounded-3 h-100">
+                    <div class="card-header bg-white py-3">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                            <h6 class="mb-0 fw-bold"><i class="fas fa-layer-group text-primary me-2"></i>បញ្ជីទូនីមួយៗ និងលេខDDCសៀវភៅតាមទូ</h6>
+                            <span class="badge bg-primary" id="placesGroupSummaryBadge">0 ទូ</span>
+                        </div>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                            <input type="text" id="placeSearchInput" class="form-control border-start-0" placeholder="ស្វែងរកឈ្មោះទូ, លេខDDCសៀវភៅតាមទូ, ឬការពិពណ៌នា..." oninput="renderPlacesView()">
+                        </div>
+                    </div>
+                    <div class="card-body p-3 scrollable-panel" style="max-height: 540px;" id="groupedPlacesContainer"></div>
                 </div>
             </div>
         </div>
@@ -1526,9 +1650,9 @@ const INITIAL_DB = {
         { id: 3, librarian_code: "LIB-003", full_name_en: "Kong Chanda", khmer_name: "គង់ ចិន្តា", password: "123456", role: "Assistant Librarian", status: "Active" }
     ],
     books: [
-        { id: 1, isbnno: "978-99950-0-123-4", ddc_no: "005.133", book_desc: "1", book_name: "មូលដ្ឋានគ្រឹះនៃការសរសេរកម្មវិធីកុំព្យូទ័រ", book_sub: "Fundamentals of Computer Programming", category: "វិទ្យាសាស្ត្រកុំព្យូទ័រ (Computer Science)", author: "បណ្ឌិត សេង សុភាព (Dr. Seng Sopheap)", publisher: "វិទ្យាស្ថានជាតិបច្ចេកវិទ្យា (NIPTICT)", book_edition: "1", year_published: "2022", country_published: "កម្ពុជា (Cambodia)", language: "ភាសាខ្មែរ (Khmer)", book_amount: 5, place: "ជួរ A (Aisle A)", location_shelf: "ធ្នើរ 01 (Shelf 01)", page_num: "320", book_resource: "ក្រអយក (MoEYS)", number_saroper: "SP-2024-001", date_saroper: "2024-01-15", availability: "មាន (Available)", cover_url: "" },
-        { id: 2, isbnno: "978-99950-0-567-8", ddc_no: "658.872", book_desc: "2", book_name: "យុទ្ធសាស្ត្រទីផ្សារឌីជីថល និងពាណិជ្ជកម្មអេឡិចត្រូនិច", book_sub: "Digital Marketing & E-Commerce Strategies", category: "គ្រប់គ្រង និងពាណិជ្ជកម្ម (Management & Business)", author: "ចាន់ សុខា (Chan Sokha)", publisher: "សាកលវិទ្យាល័យភូមិន្ទភ្នំពេញ (RUPP Press)", book_edition: "2", year_published: "2023", country_published: "កម្ពុជា (Cambodia)", language: "ភាសាខ្មែរ/អង់គ្លេស", book_amount: 3, place: "ជួរ A (Aisle A)", location_shelf: "ធ្នើរ 02 (Shelf 02)", page_num: "280", book_resource: "ក្រអយក (MoEYS)", number_saroper: "SP-2024-002", date_saroper: "2024-02-10", availability: "មាន (Available)", cover_url: "" },
-        { id: 3, isbnno: "978-99950-0-891-2", ddc_no: "959.6", book_desc: "3", book_name: "ប្រវត្តិសាស្ត្រខ្មែរ និងអារ្យធម៌អង្គរ", book_sub: "History of Cambodia & Angkor Civilization", category: "ប្រវត្តិសាស្ត្រ និងភូមិសាស្ត្រ (History & Geography)", author: "សាស្ត្រាចារ្យ រស់ ចន្ត្រាបុត្រ (Ros Chantrabot)", publisher: "វិទ្យាស្ថានពុទ្ធសាសនបណ្ឌិត្យ (Buddhist Institute)", book_edition: "3", year_published: "2021", country_published: "កម្ពុជា (Cambodia)", language: "ភាសាខ្មែរ (Khmer)", book_amount: 4, place: "ជួរ B (Aisle B)", location_shelf: "ធ្នើរ 01 (Shelf 01)", page_num: "450", book_resource: "ក្រអយក (MoEYS)", number_saroper: "SP-2024-003", date_saroper: "2024-03-01", availability: "មាន (Available)", cover_url: "" }
+        { id: 1, isbnno: "978-0135159941", ddc_no: "005.133", book_desc: "1", book_name: "Python Programming", book_sub: "មូលដ្ឋានគ្រឹះនៃការសរសេរកម្មវិធី Python", category: "វិទ្យាសាស្ត្រកុំព្យូទ័រ (Computer Science)", author: "John Zelle / បណ្ឌិត សេង សុភាព", publisher: "វិទ្យាស្ថានជាតិបច្ចេកវិទ្យា (NIPTICT)", book_edition: "3", year_published: "2023", country_published: "កម្ពុជា (Cambodia)", language: "English", book_amount: 5, place: "ទូទី ០១", location_shelf: "005.133 - ភាសាសរសេរកម្មវិធី (Python, C++, Java)", page_num: "380", book_resource: "ក្រអយក (MoEYS)", number_saroper: "00101, 00102, 00103, 00104, 00105", date_saroper: "2024-01-15", availability: "មាន (Available)", cover_url: "" },
+        { id: 2, isbnno: "978-99950-0-567-8", ddc_no: "658.872", book_desc: "2", book_name: "យុទ្ធសាស្ត្រទីផ្សារឌីជីថល និងពាណិជ្ជកម្មអេឡិចត្រូនិច", book_sub: "Digital Marketing & E-Commerce Strategies", category: "គ្រប់គ្រង និងពាណិជ្ជកម្ម (Management & Business)", author: "ចាន់ សុខា (Chan Sokha)", publisher: "សាកលវិទ្យាល័យភូមិន្ទភ្នំពេញ (RUPP Press)", book_edition: "2", year_published: "2023", country_published: "កម្ពុជា (Cambodia)", language: "ភាសាខ្មែរ/អង់គ្លេស", book_amount: 3, place: "ទូទី ០២", location_shelf: "658 - ការគ្រប់គ្រង និងពាណិជ្ជកម្ម", page_num: "280", book_resource: "ក្រអយក (MoEYS)", number_saroper: "00201, 00202, 00203", date_saroper: "2024-02-10", availability: "មាន (Available)", cover_url: "" },
+        { id: 3, isbnno: "978-99950-0-891-2", ddc_no: "959.6", book_desc: "3", book_name: "ប្រវត្តិសាស្ត្រខ្មែរ និងអារ្យធម៌អង្គរ", book_sub: "History of Cambodia & Angkor Civilization", category: "ប្រវត្តិសាស្ត្រ និងភូមិសាស្ត្រ (History & Geography)", author: "សាស្ត្រាចារ្យ រស់ ចន្ត្រាបុត្រ (Ros Chantrabot)", publisher: "វិទ្យាស្ថានពុទ្ធសាសនបណ្ឌិត្យ (Buddhist Institute)", book_edition: "3", year_published: "2021", country_published: "កម្ពុជា (Cambodia)", language: "ភាសាខ្មែរ (Khmer)", book_amount: 4, place: "ទូទី ០៣", location_shelf: "900 - ប្រវត្តិសាស្ត្រ និងភូមិវិទ្យា", page_num: "450", book_resource: "ក្រអយក (MoEYS)", number_saroper: "00301, 00302, 00303, 00304", date_saroper: "2024-03-01", availability: "មាន (Available)", cover_url: "" }
     ],
     categories: [
         { id: 1, category_name: "វិទ្យាសាស្ត្រកុំព្យូទ័រ (Computer Science)", category_code: "CS-000", description: "កម្មវិធីកុំព្យូទ័រ បណ្តាញ និងប្រព័ន្ធព័ត៌មានវិទ្យា", status: "សកម្ម (Active)" },
@@ -1538,10 +1662,12 @@ const INITIAL_DB = {
         { id: 5, category_name: "គរុកោសល្យ និងវិធីសាស្ត្របង្រៀន (Pedagogy & Education)", category_code: "EDU-370", description: "ឯកសារបណ្តុះបណ្តាលគ្រូបង្រៀន និងគរុកោសល្យ", status: "សកម្ម (Active)" }
     ],
     places: [
-        { id: 1, place_name: "ជួរ A (Aisle A)", place_shelf: "ធ្នើរ 01 (Shelf 01)", description: "ផ្នែកវិទ្យាសាស្ត្រ និងបច្ចេកវិទ្យា" },
-        { id: 2, place_name: "ជួរ A (Aisle A)", place_shelf: "ធ្នើរ 02 (Shelf 02)", description: "ផ្នែកសេដ្ឋកិច្ច និងគ្រប់គ្រង" },
-        { id: 3, place_name: "ជួរ B (Aisle B)", place_shelf: "ធ្នើរ 01 (Shelf 01)", description: "ផ្នែកប្រវត្តិសាស្ត្រ និងសង្គម" },
-        { id: 4, place_name: "ជួរ B (Aisle B)", place_shelf: "ធ្នើរ 02 (Shelf 02)", description: "ផ្នែកអក្សរសាស្ត្រ និងភាសា" }
+        { id: 1, place_name: "ទូទី ០១", place_shelf: "000 - ព័ត៌មានវិទ្យា និងកុំព្យូទ័រ", description: "ធ្នើរទី១ ផ្នែកវិទ្យាសាស្ត្រកុំព្យូទ័រទូទៅ", status: "ប្រើបាន (Active)" },
+        { id: 2, place_name: "ទូទី ០១", place_shelf: "005.133 - ភាសាសរសេរកម្មវិធី (Python, C++, Java)", description: "ធ្នើរទី២ ផ្នែកកូដ និងការអភិវឌ្ឍកម្មវិធី", status: "ប្រើបាន (Active)" },
+        { id: 3, place_name: "ទូទី ០២", place_shelf: "370 - អប់រំ និងគរុកោសល្យ", description: "ធ្នើរទី១ ផ្នែកគរុកោសល្យ និងវិធីសាស្ត្របង្រៀន", status: "ប្រើបាន (Active)" },
+        { id: 4, place_name: "ទូទី ០២", place_shelf: "658 - ការគ្រប់គ្រង និងពាណិជ្ជកម្ម", description: "ធ្នើរទី២ ផ្នែកសេដ្ឋកិច្ច និងគ្រប់គ្រង", status: "ប្រើបាន (Active)" },
+        { id: 5, place_name: "ទូទី ០៣", place_shelf: "800 - អក្សរសិល្ប៍ និងអក្សរសាស្ត្រ", description: "ធ្នើរទី១ ផ្នែកអក្សរសាស្ត្រខ្មែរ និងបរទេស", status: "ប្រើបាន (Active)" },
+        { id: 6, place_name: "ទូទី ០៣", place_shelf: "900 - ប្រវត្តិសាស្ត្រ និងភូមិវិទ្យា", description: "ធ្នើរទី២ ផ្នែកប្រវត្តិសាស្ត្រខ្មែរ និងពិភពលោក", status: "ប្រើបាន (Active)" }
     ],
     members: [
         { id: 1, member_code: "RTTC-STU-001", khmer_name: "គង់ ពិសិដ្ឋ", full_name_en: "Kong Piseth", full_name: "គង់ ពិសិដ្ឋ (Kong Piseth)", gender: "ប្រុស (Male)", phone: "012 345 678", email: "piseth.kong@rttc.edu.kh", member_type: "គរុសិស្ស (Student)", status: "សកម្ម (Active)" },
@@ -1747,8 +1873,10 @@ function switchView(viewName, el) {
         if (!document.getElementById("f_date_saroper").value) {
             document.getElementById("f_date_saroper").value = new Date().toISOString().split("T")[0];
         }
+        renderCopySaroperInputs();
     }
     if (viewName === "categories") loadCategories();
+    if (viewName === "places") loadPlaces();
     if (viewName === "loan-borrow" || viewName === "loan-return" || viewName === "loan-list") initCirculationView();
     if (viewName === "members") loadMembers();
     if (viewName === "attendance") loadAttendance();
@@ -1885,6 +2013,34 @@ async function apiPost(action, data = {}) {
         let cats = getLocalStore("categories").filter(c => String(c.id) !== String(data.id));
         saveLocalStore("categories", cats);
         allCategories = cats;
+    } else if (action === "addPlace") {
+        const pls = getLocalStore("places");
+        const nextId = pls.length > 0 ? Math.max(...pls.map(p => Number(p.id) || 0)) + 1 : 1;
+        pls.push({
+            id: nextId,
+            place_name: data.place_name,
+            place_shelf: data.place_shelf,
+            description: data.description || "",
+            status: data.status || "ប្រើបាន (Active)"
+        });
+        saveLocalStore("places", pls);
+        allPlaces = pls;
+    } else if (action === "updatePlace") {
+        const pls = getLocalStore("places");
+        pls.forEach(p => {
+            if (String(p.id) === String(data.id)) {
+                p.place_name = data.place_name;
+                p.place_shelf = data.place_shelf;
+                p.description = data.description || "";
+                p.status = data.status || "ប្រើបាន (Active)";
+            }
+        });
+        saveLocalStore("places", pls);
+        allPlaces = pls;
+    } else if (action === "deletePlace") {
+        let pls = getLocalStore("places").filter(p => String(p.id) !== String(data.id));
+        saveLocalStore("places", pls);
+        allPlaces = pls;
     } else if (action === "addMember") {
         const mems = getLocalStore("members");
         const nextId = mems.length > 0 ? Math.max(...mems.map(m => Number(m.id) || 0)) + 1 : 1;
@@ -2096,6 +2252,13 @@ async function loadBooks() {
     }
 }
 
+function formatSaroperBadges(saroperStr, qty) {
+    const items = String(saroperStr || "").split(",").map(s => s.trim()).filter(Boolean);
+    if (items.length === 0) return `<span class="badge badge-saroper">N/A</span>`;
+    const badges = items.map((s, idx) => `<span class="badge badge-saroper me-1 mb-1" title="Copy #${idx + 1}">#${idx + 1}: ${s}</span>`).join("");
+    return `<div class="mt-1"><span class="small text-muted fw-semibold d-block">លេខសារពើភ័ណ្ឌ (${items.length}/${qty || items.length} Copy):</span>${badges}</div>`;
+}
+
 function renderBooksTable(books) {
     const tbody = document.getElementById("booksTableBody");
     if (!tbody) return;
@@ -2108,10 +2271,21 @@ function renderBooksTable(books) {
         tbody.innerHTML += `
             <tr>
                 <td class="fw-bold text-muted">${b.id}</td>
-                <td><strong class="text-primary">${b.book_name || ""}</strong><div class="small text-muted">${b.book_sub || ""}</div></td>
-                <td><span class="badge badge-ddc">DDC: ${b.ddc_no || "N/A"}</span> <span class="badge badge-saroper">${b.number_saroper || "N/A"}</span></td>
+                <td>
+                    <strong class="text-primary">${b.book_name || ""}</strong>
+                    <div class="small text-muted">${b.book_sub || ""}</div>
+                    <div class="small text-secondary"><i class="fas fa-copy me-1"></i>ចំនួនសរុប៖ <strong>${b.book_amount || 1} ក្បាល (Copies)</strong></div>
+                </td>
+                <td>
+                    <span class="badge badge-ddc">DDC: ${b.ddc_no || "N/A"}</span>
+                    ${formatSaroperBadges(b.number_saroper, b.book_amount)}
+                </td>
                 <td>${b.author || "N/A"}</td>
-                <td><span class="badge bg-secondary">${b.category || "N/A"}</span><div class="small text-muted">${b.place || ""} (${b.location_shelf || ""})</div></td>
+                <td>
+                    <span class="badge bg-secondary">${b.category || "N/A"}</span>
+                    <div class="small text-primary fw-semibold mt-1"><i class="fas fa-archive me-1"></i>${b.place || "-"}</div>
+                    <div class="small text-muted">${b.location_shelf || "-"}</div>
+                </td>
                 <td><span class="badge bg-success">${formatBookAvailability(b)}</span></td>
                 <td class="text-end pe-3 text-nowrap">
                     <button class="btn btn-sm btn-outline-primary me-1" onclick="editJsBook(${b.id})" title="កែប្រែព័ត៌មានសៀវភៅ (Update)">
@@ -2167,11 +2341,18 @@ function loadBookIntoForm(id) {
     document.getElementById("f_country").value = b.country_published || "";
     document.getElementById("f_lang").value = b.language || "ភាសាខ្មែរ (Khmer)";
     document.getElementById("f_qty").value = b.book_amount || 1;
-    document.getElementById("f_place").value = b.place || "";
-    document.getElementById("f_shelf").value = b.location_shelf || "";
+    const plSelect = document.getElementById("f_place");
+    if (plSelect && b.place) {
+        if (!Array.from(plSelect.options).some(o => o.value === b.place)) {
+            plSelect.innerHTML += `<option value="${b.place}">${b.place}</option>`;
+        }
+        plSelect.value = b.place;
+    }
+    onBookFormPlaceChange(b.place || "", b.location_shelf || "");
     document.getElementById("f_pages").value = b.page_num || "";
     document.getElementById("f_resource").value = b.book_resource || "";
     document.getElementById("f_saroper").value = b.number_saroper || "";
+    renderCopySaroperInputs();
     document.getElementById("f_date_saroper").value = b.date_saroper || new Date().toISOString().split("T")[0];
 
     const isUnavail = String(b.availability || "").toLowerCase().includes("unavailable") || String(b.availability || "").includes("មិនមាន") || String(b.availability) === "0";
@@ -2197,6 +2378,121 @@ function resetBookForm() {
     document.getElementById("bookSubmitBtn").innerHTML = `<i class="fas fa-plus-circle me-1"></i>បញ្ជូនទិន្ន័យ`;
     document.getElementById("bookSubmitBtn").className = "btn btn-primary px-4 fw-bold shadow-sm";
     document.getElementById("cancelBookEditBtn").classList.add("d-none");
+    onBookFormPlaceChange("");
+    renderCopySaroperInputs();
+}
+
+// ==================== PER-COPY SAROPER (លេខបញ្ជីសារពើភ័ណ្ឌតាមក្បាលសៀវភៅ Copy នីមួយៗ) ====================
+function renderCopySaroperInputs() {
+    const qtyInput = document.getElementById("f_qty");
+    const saroperTextarea = document.getElementById("f_saroper");
+    const container = document.getElementById("copySaroperInputsContainer");
+    const badge = document.getElementById("saroperCopyCounterBadge");
+    if (!qtyInput || !saroperTextarea || !container) return;
+
+    const qty = Math.max(1, Math.min(100, parseInt(qtyInput.value, 10) || 1));
+    const currentValues = saroperTextarea.value
+        .split(",")
+        .map(s => s.trim())
+        .filter((s, idx, arr) => s !== "" || arr.length === 1);
+
+    let html = "";
+    let filledCount = 0;
+    for (let i = 1; i <= qty; i++) {
+        const val = currentValues[i - 1] ? currentValues[i - 1] : "";
+        if (val) filledCount++;
+        html += `
+            <div class="col-md-6 col-sm-6">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white fw-bold text-primary" style="min-width: 72px;">Copy #${i}</span>
+                    <input type="text" class="form-control text-danger fw-semibold copy-saroper-item" data-copy-index="${i}" value="${val.replace(/"/g, '&quot;')}" placeholder="លេខសារពើភ័ណ្ឌក្បាលទី ${i}" oninput="syncCopyInputsToTextarea()">
+                </div>
+            </div>
+        `;
+    }
+    container.innerHTML = html;
+    if (badge) {
+        badge.innerText = `ចុះបាន ${filledCount} / ${qty} ក្បាល (Copies)`;
+        badge.className = filledCount === qty
+            ? "badge bg-success-subtle text-success border border-success"
+            : "badge bg-warning-subtle text-dark border border-warning";
+    }
+}
+
+function syncCopyInputsToTextarea() {
+    const inputs = Array.from(document.querySelectorAll(".copy-saroper-item"));
+    const values = inputs.map(inp => inp.value.trim()).filter(Boolean);
+    const saroperTextarea = document.getElementById("f_saroper");
+    if (saroperTextarea) {
+        saroperTextarea.value = values.join(", ");
+    }
+    const qty = Math.max(1, parseInt(document.getElementById("f_qty")?.value, 10) || 1);
+    const badge = document.getElementById("saroperCopyCounterBadge");
+    if (badge) {
+        badge.innerText = `ចុះបាន ${values.length} / ${qty} ក្បាល (Copies)`;
+        badge.className = values.length === qty
+            ? "badge bg-success-subtle text-success border border-success"
+            : "badge bg-warning-subtle text-dark border border-warning";
+    }
+}
+
+function syncTextareaToCopyInputs() {
+    const saroperTextarea = document.getElementById("f_saroper");
+    const qtyInput = document.getElementById("f_qty");
+    if (!saroperTextarea || !qtyInput) return;
+
+    const parts = saroperTextarea.value.split(",").map(s => s.trim()).filter(Boolean);
+    const currentQty = parseInt(qtyInput.value, 10) || 1;
+    if (parts.length > currentQty && parts.length <= 100) {
+        qtyInput.value = parts.length;
+    }
+    const inputs = Array.from(document.querySelectorAll(".copy-saroper-item"));
+    if (inputs.length !== (parseInt(qtyInput.value, 10) || 1)) {
+        renderCopySaroperInputs();
+        return;
+    }
+    let filledCount = 0;
+    inputs.forEach((inp, idx) => {
+        inp.value = parts[idx] || "";
+        if (inp.value) filledCount++;
+    });
+    const qty = Math.max(1, parseInt(qtyInput.value, 10) || 1);
+    const badge = document.getElementById("saroperCopyCounterBadge");
+    if (badge) {
+        badge.innerText = `ចុះបាន ${filledCount} / ${qty} ក្បាល (Copies)`;
+        badge.className = filledCount === qty
+            ? "badge bg-success-subtle text-success border border-success"
+            : "badge bg-warning-subtle text-dark border border-warning";
+    }
+}
+
+function autoFillSequentialSaroper() {
+    const qty = Math.max(1, parseInt(document.getElementById("f_qty")?.value, 10) || 1);
+    const inputs = Array.from(document.querySelectorAll(".copy-saroper-item"));
+    let firstVal = (inputs[0]?.value || "").trim();
+    if (!firstVal) {
+        const rawTextarea = (document.getElementById("f_saroper")?.value || "").split(",")[0].trim();
+        firstVal = rawTextarea || "001";
+    }
+
+    // Extract trailing number so e.g. "01" -> "01, 02, 03" or "SP-001" -> "SP-001, SP-002..."
+    const match = firstVal.match(/^(.*?)(\d+)$/);
+    const generated = [];
+    if (match) {
+        const prefix = match[1];
+        const startNum = parseInt(match[2], 10);
+        const padLen = match[2].length;
+        for (let i = 0; i < qty; i++) {
+            generated.push(prefix + String(startNum + i).padStart(padLen, "0"));
+        }
+    } else {
+        for (let i = 1; i <= qty; i++) {
+            generated.push(`${firstVal}-${String(i).padStart(2, "0")}`);
+        }
+    }
+
+    document.getElementById("f_saroper").value = generated.join(", ");
+    renderCopySaroperInputs();
 }
 
 function previewCoverUrl(url) {
@@ -2398,6 +2694,244 @@ async function deleteJsCategory(id) {
             loadDropdowns();
         }
     });
+}
+
+// ==================== ទូ និងលេខDDCសៀវភៅតាមទូ (PLACES & SHELF DDC MANAGEMENT) ====================
+async function loadPlaces() {
+    const res = await apiCall("getPlaces");
+    allPlaces = res.data || [];
+    populatePlacesDatalist();
+    renderPlacesView();
+}
+
+function populatePlacesDatalist() {
+    const dl = document.getElementById("existingPlacesDatalist");
+    if (!dl) return;
+    const uniqueCabinets = [...new Set(allPlaces.map(p => p.place_name).filter(Boolean))];
+    dl.innerHTML = uniqueCabinets.map(c => `<option value="${c}">`).join("");
+}
+
+function renderPlacesView() {
+    const container = document.getElementById("groupedPlacesContainer");
+    const badge = document.getElementById("placesGroupSummaryBadge");
+    if (!container) return;
+
+    const q = (document.getElementById("placeSearchInput")?.value || "").toLowerCase().trim();
+    const filtered = allPlaces.filter(p => {
+        if (!q) return true;
+        return String(p.place_name || "").toLowerCase().includes(q) ||
+               String(p.place_shelf || "").toLowerCase().includes(q) ||
+               String(p.description || "").toLowerCase().includes(q);
+    });
+
+    const groups = {};
+    filtered.forEach(p => {
+        const key = String(p.place_name || "ទូមិនទាន់កំណត់").trim();
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(p);
+    });
+
+    const cabinetNames = Object.keys(groups);
+    if (badge) {
+        badge.innerText = `${cabinetNames.length} ទូ (${filtered.length} លេខDDCតាមទូ)`;
+    }
+
+    if (cabinetNames.length === 0) {
+        container.innerHTML = `<div class="text-center py-5 text-muted"><i class="fas fa-archive fs-2 d-block mb-2 opacity-25"></i>មិនមានទិន្នន័យទូ និងលេខDDCសៀវភៅតាមទូដែលស្វែងរកឡើយ</div>`;
+        return;
+    }
+
+    let html = "";
+    cabinetNames.forEach(cabName => {
+        const shelfItems = groups[cabName];
+        const booksInCabinet = allBooks.filter(b => String(b.place || "").trim() === cabName);
+
+        let subRows = "";
+        shelfItems.forEach((item, idx) => {
+            const isBroken = String(item.status || "").includes("ខូច") || String(item.status || "") === "0";
+            const statusBadge = isBroken
+                ? `<span class="badge bg-danger-subtle text-danger border">ខូច</span>`
+                : `<span class="badge bg-success-subtle text-success border">ប្រើបាន</span>`;
+
+            const booksOnShelf = booksInCabinet.filter(b => String(b.location_shelf || "").trim() === String(item.place_shelf || "").trim()).length;
+
+            subRows += `
+                <li>
+                    <div>
+                        <div class="fw-bold text-dark">
+                            <span class="badge badge-ddc me-1"><i class="fas fa-bookmark me-1"></i>${item.place_shelf || "-"}</span>
+                            ${statusBadge}
+                            ${booksOnShelf > 0 ? `<span class="badge bg-info-subtle text-primary border ms-1">${booksOnShelf} ចំណងជើង</span>` : ""}
+                        </div>
+                        ${item.description ? `<div class="small text-muted mt-1"><i class="fas fa-info-circle me-1"></i>${item.description}</div>` : ""}
+                    </div>
+                    <div class="text-nowrap">
+                        <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 me-1" onclick="editPlaceItem(${item.id})" title="កែប្រែ">
+                            <i class="fas fa-edit"></i> កែប្រែ
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2" onclick="deletePlaceItem(${item.id})" title="លុប">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </li>
+            `;
+        });
+
+        const safeCab = cabName.replace(/'/g, "\'");
+        html += `
+            <div class="borrower-group-card shadow-sm">
+                <div class="borrower-group-header">
+                    <div>
+                        <i class="fas fa-archive text-primary me-2"></i>
+                        <strong class="text-dark fs-6">${cabName}</strong>
+                        <span class="badge bg-primary rounded-pill ms-1">${shelfItems.length} លេខDDCតាមទូ</span>
+                        <span class="badge bg-secondary-subtle text-secondary border ms-1">សៀវភៅក្នុងទូនេះ៖ ${booksInCabinet.length} ចំណងជើង</span>
+                    </div>
+                    <button type="button" class="btn btn-xs btn-outline-primary py-1 px-2 fw-semibold" style="font-size: 0.78rem;" onclick="quickAddDdcToCabinet('${safeCab}')">
+                        <i class="fas fa-plus me-1"></i>បន្ថែមលេខDDCក្នុងទូនេះ
+                    </button>
+                </div>
+                <ul class="borrowed-books-sublist small">
+                    ${subRows}
+                </ul>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+function quickAddDdcToCabinet(cabinetName) {
+    resetPlaceForm();
+    document.getElementById("pl_name").value = cabinetName;
+    document.getElementById("pl_shelf_ddc").focus();
+}
+
+function editPlaceItem(id) {
+    const p = allPlaces.find(item => String(item.id) === String(id));
+    if (!p) return;
+    document.getElementById("pl_edit_id").value = p.id;
+    document.getElementById("pl_name").value = p.place_name || "";
+    document.getElementById("pl_shelf_ddc").value = p.place_shelf || "";
+    document.getElementById("pl_desc").value = p.description || "";
+    document.getElementById("pl_status").value = (String(p.status || "").includes("ខូច") || String(p.status) === "0") ? "ខូច (Inactive)" : "ប្រើបាន (Active)";
+
+    document.getElementById("placeFormTitle").innerHTML = `<i class="fas fa-edit text-warning me-2"></i>កែប្រែទូ និងលេខDDCតាមទូ (#${p.id})`;
+    document.getElementById("plSubmitBtn").innerHTML = `<i class="fas fa-save me-1"></i>រក្សាទុកការកែប្រែ (Update)`;
+    document.getElementById("plSubmitBtn").className = "btn btn-warning text-dark w-100 py-2 fw-bold shadow-sm";
+    document.getElementById("cancelPlaceEditBtn").classList.remove("d-none");
+}
+
+function resetPlaceForm() {
+    const form = document.getElementById("placeManageForm");
+    if (form) form.reset();
+    document.getElementById("pl_edit_id").value = "";
+    document.getElementById("placeFormTitle").innerHTML = `<i class="fas fa-plus-circle me-2"></i>បញ្ចូលទូ និងលេខDDCសៀវភៅតាមទូ`;
+    document.getElementById("plSubmitBtn").innerHTML = `<i class="fas fa-plus-circle me-1"></i>បញ្ជូនទិន្នន័យ (រក្សាទុកទូ & លេខDDC)`;
+    document.getElementById("plSubmitBtn").className = "btn btn-primary w-100 py-2 fw-bold shadow-sm";
+    document.getElementById("cancelPlaceEditBtn").classList.add("d-none");
+}
+
+async function handleSavePlace(e) {
+    e.preventDefault();
+    const editId = document.getElementById("pl_edit_id").value;
+    const payload = {
+        id: editId,
+        place_name: document.getElementById("pl_name").value.trim(),
+        place_shelf: document.getElementById("pl_shelf_ddc").value.trim(),
+        description: document.getElementById("pl_desc").value.trim(),
+        status: document.getElementById("pl_status").value
+    };
+
+    if (!payload.place_name || !payload.place_shelf) {
+        Swal.fire("សូមបញ្ចូលព័ត៌មាន", "សូមបំពេញឈ្មោះទូ និងលេខDDCសៀវភៅតាមទូ!", "warning");
+        return;
+    }
+
+    if (editId) {
+        await apiPost("updatePlace", payload);
+        Swal.fire("ជោគជ័យ!", "បានកែប្រែព័ត៌មានទូ និងលេខDDCតាមទូរួចរាល់!", "success");
+    } else {
+        await apiPost("addPlace", payload);
+        Swal.fire("ជោគជ័យ!", `បានបន្ថែមលេខDDC «${payload.place_shelf}» ទៅក្នុង «${payload.place_name}» រួចរាល់!`, "success");
+    }
+    resetPlaceForm();
+    loadPlaces();
+    loadDropdowns();
+}
+
+async function deletePlaceItem(id) {
+    const p = allPlaces.find(item => String(item.id) === String(id));
+    if (!p) return;
+
+    const booksUsing = allBooks.filter(b =>
+        String(b.place || "").trim() === String(p.place_name || "").trim() &&
+        String(b.location_shelf || "").trim() === String(p.place_shelf || "").trim()
+    );
+    if (booksUsing.length > 0) {
+        Swal.fire({
+            title: "ព្រមាន!",
+            text: `អ្នកមិនអាចលុបបានទេ ព្រោះមានសៀវភៅចំនួន ${booksUsing.length} ចំណងជើងស្ថិតក្នុងទូ «${p.place_name}» (${p.place_shelf}) នេះ!`,
+            icon: "warning"
+        });
+        return;
+    }
+
+    Swal.fire({
+        title: "តើអ្នកពិតជាចង់លុបទិន្នន័យនេះមែនទេ?",
+        text: `${p.place_name} — ${p.place_shelf}`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        confirmButtonText: "លុបចោល",
+        cancelButtonText: "បោះបង់"
+    }).then(async r => {
+        if (r.isConfirmed) {
+            await apiPost("deletePlace", { id: id });
+            Swal.fire("បានលុប!", "ទិន្នន័យត្រូវបានលុបដោយជោគជ័យ", "success");
+            loadPlaces();
+            loadDropdowns();
+        }
+    });
+}
+
+function onBookFormPlaceChange(selectedPlace, preselectShelf = "") {
+    const shSelect = document.getElementById("f_shelf");
+    const helperText = document.getElementById("f_shelf_helper_text");
+    if (!shSelect) return;
+
+    const currentVal = preselectShelf || shSelect.value;
+    shSelect.innerHTML = "<option value=''>លេខDDCសៀវភៅតាមទូ</option>";
+
+    let matchingShelves = [];
+    if (selectedPlace) {
+        matchingShelves = allPlaces
+            .filter(p => String(p.place_name || "").trim() === String(selectedPlace).trim())
+            .map(p => p.place_shelf)
+            .filter(Boolean);
+        if (helperText) {
+            helperText.innerHTML = `<i class="fas fa-check-circle text-success me-1"></i>បង្ហាញលេខDDCសៀវភៅសម្រាប់ <strong>${selectedPlace}</strong> (${matchingShelves.length} ជម្រើស)`;
+        }
+    } else {
+        matchingShelves = allPlaces.map(p => p.place_shelf).filter(Boolean);
+        if (helperText) {
+            helperText.innerText = "ជ្រើសរើស «ទូ» ដើម្បីបង្ហាញលេខDDCសៀវភៅតាមទូនោះ";
+        }
+    }
+
+    const uniqueShelves = [...new Set(matchingShelves)];
+    uniqueShelves.forEach(sName => {
+        shSelect.innerHTML += `<option value="${sName}">${sName}</option>`;
+    });
+
+    if (currentVal) {
+        if (!Array.from(shSelect.options).some(o => o.value === currentVal)) {
+            shSelect.innerHTML += `<option value="${currentVal}">${currentVal}</option>`;
+        }
+        shSelect.value = currentVal;
+    } else if (selectedPlace && uniqueShelves.length === 1) {
+        shSelect.value = uniqueShelves[0];
+    }
 }
 
 // ==================== CIRCULATION ====================
@@ -3442,18 +3976,13 @@ async function loadDropdowns() {
             (cRes.data || []).forEach(c => { catSelect.innerHTML += `<option value="${c.category_name}">${c.category_name}</option>`; });
         }
         if (plSelect) {
+            const prevPlace = plSelect.value;
             plSelect.innerHTML = "<option value=''>ជ្រើសរើសលេខទូ</option>";
             const uniquePlaces = [...new Set((pRes.data || []).map(p => p.place_name).filter(Boolean))];
             uniquePlaces.forEach(pName => { plSelect.innerHTML += `<option value="${pName}">${pName}</option>`; });
+            if (prevPlace) plSelect.value = prevPlace;
         }
-        if (shSelect) {
-            shSelect.innerHTML = "<option value=''>លេខDDCសៀវភៅតាមទូ</option>";
-            const uniqueShelves = [...new Set((pRes.data || []).map(p => p.place_shelf).filter(Boolean))];
-            uniqueShelves.forEach(sName => { shSelect.innerHTML += `<option value="${sName}">${sName}</option>`; });
-            ["000 - វិទ្យាសាស្ត្រកុំព្យូទ័រ", "300 - វិទ្យាសាស្ត្រសង្គម", "370 - អប់រំ/គរុកោសល្យ", "650 - គ្រប់គ្រង", "800 - អក្សរសាស្ត្រ", "900 - ប្រវត្តិសាស្ត្រ"].forEach(d => {
-                shSelect.innerHTML += `<option value="${d}">${d}</option>`;
-            });
-        }
+        onBookFormPlaceChange(plSelect ? plSelect.value : "");
         if (quickEditSelect) {
             quickEditSelect.innerHTML = `<option value="">-- ជ្រើសរើសសៀវភៅដែលមានស្រាប់ដើម្បី Update --</option>`;
             allBooks.forEach(b => {
@@ -3472,6 +4001,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (document.getElementById("f_date_saroper")) {
         document.getElementById("f_date_saroper").value = new Date().toISOString().split("T")[0];
     }
+    renderCopySaroperInputs();
 });
 </script>
 </body>
