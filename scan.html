@@ -318,7 +318,7 @@
         <div class="spinner-border text-primary mb-3" style="width: 3.2rem; height: 3.2rem; border-width: 5px;" role="status">
             <span class="visually-hidden">កំពុងដំណើរការ...</span>
         </div>
-        <div class="fw-bold fs-6" id="globalSpinnerMessage" style="font-family: 'Hanuman', serif;">កំពុងភ្ជាប់ទិន្នន័យជាមួយ Google Sheet...</div>
+        <div class="fw-bold fs-6" id="globalSpinnerMessage" style="font-family: 'Hanuman', serif;">កំពុងដំណើរការទិន្នន័យ...</div>
         <div class="small text-muted mt-1">សូមរង់ចាំបន្តិច (Please wait)...</div>
         <div class="progress mt-3" style="height: 6px;">
             <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" style="width: 100%"></div>
@@ -456,16 +456,22 @@
 let API_URL = localStorage.getItem("RTTC_API_URL") || "https://script.google.com/macros/s/AKfycby_placeholder_deploy_url/exec";
 const scanBroadcast = ("BroadcastChannel" in window) ? new BroadcastChannel("rttc_library_scan_channel") : null;
 
-const DEFAULT_MEMBERS = [
-    { id: 1, member_code: "RTTC-STU-001", khmer_name: "គង់ ពិសិដ្ឋ", full_name_en: "Kong Piseth", full_name: "គង់ ពិសិដ្ឋ (Kong Piseth)", gender: "ប្រុស (Male)", member_type: "គរុសិស្ស (Student)" },
-    { id: 2, member_code: "RTTC-STU-002", khmer_name: "សុខ ធីតា", full_name_en: "Sok Thida", full_name: "សុខ ធីតា (Sok Thida)", gender: "ស្រី (Female)", member_type: "គរុសិស្ស (Student)" },
-    { id: 3, member_code: "RTTC-TCH-001", khmer_name: "លោកគ្រូ កែវ វិបុល", full_name_en: "Keo Vibol", full_name: "លោកគ្រូ កែវ វិបុល (Keo Vibol)", gender: "ប្រុស (Male)", member_type: "គ្រូបង្រៀន (Teacher)" },
-    { id: 4, member_code: "RTTC-TCH-002", khmer_name: "អ្នកគ្រូ ម៉េង ស្រីពៅ", full_name_en: "Meng Sreypov", full_name: "អ្នកគ្រូ ម៉េង ស្រីពៅ (Meng Sreypov)", gender: "ស្រី (Female)", member_type: "គ្រូបង្រៀន (Teacher)" }
-];
+const DEFAULT_MEMBERS = [];
+
+// Purge any legacy demo values from localStorage
+(function purgeLegacyDemoValues() {
+    const keys = ["visits", "members"];
+    keys.forEach(k => {
+        const val = localStorage.getItem("RTTC_DB_" + k);
+        if (val && (val.includes("LN-2024-001") || val.includes("RTTC-STU-001") || val.includes("កំពុងអានសៀវភៅក្នុងបណ្ណាល័យ"))) {
+            localStorage.removeItem("RTTC_DB_" + k);
+        }
+    });
+})();
 
 let spinnerCounter = 0;
 let scanSpinnerTimestamp = 0;
-function showLoadingSpinner(msg = "កំពុងដំណើរការជាមួយ Google Sheet...") {
+function showLoadingSpinner(msg = "កំពុងដំណើរការទិន្នន័យ...") {
     spinnerCounter++;
     scanSpinnerTimestamp = Date.now();
     const el = document.getElementById("globalLoadingSpinner");
@@ -476,8 +482,8 @@ function showLoadingSpinner(msg = "កំពុងដំណើរការជា
 
 async function hideLoadingSpinner() {
     const elapsed = Date.now() - scanSpinnerTimestamp;
-    if (elapsed < 450) {
-        await new Promise(r => setTimeout(r, 450 - elapsed));
+    if (elapsed < 110) {
+        await new Promise(r => setTimeout(r, 110 - elapsed));
     }
     spinnerCounter = Math.max(0, spinnerCounter - 1);
     if (spinnerCounter === 0) {
@@ -594,6 +600,10 @@ function renderDemoChips() {
     const box = document.getElementById("demoStudentQrButtons");
     if (!box) return;
     box.innerHTML = "";
+    if (!allMembers || allMembers.length === 0) {
+        box.innerHTML = `<span class="small text-muted">មិនទាន់មានទិន្នន័យសមាជិក</span>`;
+        return;
+    }
     allMembers.slice(0, 4).forEach(m => {
         const payload = `ID:${m.id}|CODE:${m.member_code}`;
         box.innerHTML += `
@@ -659,7 +669,7 @@ async function triggerAcledaCapture(qrString) {
     await new Promise(r => setTimeout(r, 320));
 
     // Step 2: Save to LocalStorage & Sync to Google Sheet with Loading Spinner
-    showLoadingSpinner(isCheckIn ? "កំពុងកត់ត្រាការស្កេនចូលបណ្ណាល័យទៅកាន់ Google Sheet..." : "កំពុងកត់ត្រាការស្កេនចេញពីបណ្ណាល័យទៅកាន់ Google Sheet...");
+    showLoadingSpinner(isCheckIn ? "កំពុងកត់ត្រាការស្កេនចូលបណ្ណាល័យ..." : "កំពុងកត់ត្រាការស្កេនចេញពីបណ្ណាល័យ...");
     try {
         if (isCheckIn) {
             const nextId = allVisits.length > 0 ? Math.max(...allVisits.map(v => Number(v.id) || 0)) + 1 : 1;
@@ -866,7 +876,7 @@ if (scanBroadcast) {
 }
 
 async function initScanKiosk() {
-    showLoadingSpinner("កំពុងទាញយកទិន្នន័យសមាជិក និងភ្ជាប់ប្រព័ន្ធស្កេន QR...");
+    showLoadingSpinner("កំពុងទាញយកទិន្នន័យ...");
     try {
         if (isApiConfigured()) {
             try {
