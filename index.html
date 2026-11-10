@@ -209,7 +209,7 @@
         </div>
     </div>
 
-    <!-- VIEW: CATEGORIES (បន្ថែមប្រភេទបញ្ជីសៀវភៅ-Book Category) -->
+    <!-- VIEW: CATEGORIES -->
     <div id="view-categories" class="app-view">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
@@ -241,21 +241,154 @@
         </div>
     </div>
 
-    <!-- VIEW: LOANS (ការខ្ចី-សង ជាមួយការឆែកស្ថានភាព & ពិន័យ) -->
+    <!-- VIEW: LOANS (ការខ្ចី-សងសៀវភៅ ជាមួយ Form សម្រាប់សងសៀវភៅ) -->
     <div id="view-loans" class="app-view">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;">ការខ្ចី-សងសៀវភៅ (Circulation)</h2>
-                <p class="text-muted mb-0">សងសៀវភៅជាមួយការពិនិត្យស្ថានភាព (ធម្មតា, រហែក, បាត់) និងការកំណត់ប្រាក់ពិន័យ</p>
+                <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;">ការខ្ចី-សងសៀវភៅ (Circulation & Book Return)</h2>
+                <p class="text-muted mb-0">បែបបទកត់ត្រាការខ្ចីសៀវភៅ និងបែបបទសងសៀវភៅ (បើសភាពសៀវភៅនៅល្អ មិនមានពិន័យ តែបើមានរហែក បណ្ណារក្សវាយបញ្ចូលទឹកប្រាក់ពិន័យ)</p>
             </div>
-            <button class="btn btn-primary shadow-sm" onclick="openJsLoanModal()">
-                <i class="fas fa-plus-circle me-1"></i> កត់ត្រាការខ្ចីថ្មី
-            </button>
         </div>
+
+        <!-- Two Dedicated Forms Side-by-Side: 1. ខ្ចីសៀវភៅ (Borrow Form) & 2. សងសៀវភៅ (Return Form) -->
+        <div class="row g-4 mb-4">
+            <!-- FORM 1: បែបបទខ្ចីសៀវភៅ (Borrow Book Form) -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-3 h-100">
+                    <div class="card-header bg-primary text-white py-3 d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0 fw-bold" style="font-family: 'Hanuman', serif;">
+                            <i class="fas fa-hand-holding-heart me-2"></i>១. បែបបទខ្ចីសៀវភៅ (Borrow Book Form)
+                        </h5>
+                        <span class="badge bg-white text-primary">ខ្ចីចេញ</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <form onsubmit="handleJsSubmitLoan(event)">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">ជ្រើសរើសសិស្ស / គរុសិស្ស <span class="text-danger">*</span></label>
+                                <select id="inline_member_select" class="form-select select2-inline" style="width:100%" required></select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">ជ្រើសរើសសៀវភៅដែលត្រូវខ្ចី <span class="text-danger">*</span></label>
+                                <select id="inline_book_select" class="form-select select2-inline" style="width:100%" required></select>
+                            </div>
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold">ថ្ងៃខ្ចីសៀវភៅ</label>
+                                    <input type="date" id="inline_loan_date" class="form-control" required>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold">ថ្ងៃកំណត់សង (១៤ថ្ងៃ)</label>
+                                    <input type="date" id="inline_due_date" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">កំណត់សម្គាល់ពេលខ្ចី</label>
+                                <input type="text" id="inline_loan_remarks" class="form-control" placeholder="ឧ. សៀវភៅស្ថិតក្នុងសភាពល្អ">
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">
+                                <i class="fas fa-check-circle me-1"></i> កត់ត្រាការខ្ចីសៀវភៅ
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORM 2: បែបបទសងសៀវភៅ (Return Book Form - សិស្សយកសៀវភៅមកសង) -->
+            <div class="col-lg-6" id="jsReturnFormCard">
+                <div class="card border-0 shadow-sm rounded-3 h-100 border-top border-success border-4">
+                    <div class="card-header bg-success text-white py-3 d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0 fw-bold" style="font-family: 'Hanuman', serif;">
+                            <i class="fas fa-undo-alt me-2"></i>២. បែបបទសងសៀវភៅ (Book Return Form)
+                        </h5>
+                        <span class="badge bg-white text-success">សិស្សយកសៀវភៅមកសង</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <form onsubmit="handleJsSubmitReturn(event)">
+                            <!-- Step 1: Select Active Borrowed Loan -->
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">១. ជ្រើសរើសសិស្ស / លេខកូដខ្ចីដែលយកសៀវភៅមកសង <span class="text-danger">*</span></label>
+                                <select id="ret_js_loan_select" class="form-select select2-inline" style="width:100%" required></select>
+                                <div class="form-text">អាចវាយស្វែងរកឈ្មោះសិស្ស ឬចុចប៊ូតុង <strong>«ជ្រើសរើសសង»</strong> ពីតារាងខាងក្រោម</div>
+                            </div>
+
+                            <!-- Step 2: Check Book Condition -->
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">២. ពិនិត្យសភាពសៀវភៅពេលសិស្សយកមកសង <span class="text-danger">*</span></label>
+                                <div class="row g-2">
+                                    <!-- នៅល្អ (មិនមានពិន័យ) -->
+                                    <div class="col-md-4">
+                                        <input type="radio" class="btn-check" name="js_book_cond" id="js_c_good" value="នៅល្អ" checked onchange="toggleJsFineSection()">
+                                        <label class="btn btn-outline-success w-100 p-2 text-start h-100" for="js_c_good">
+                                            <div class="fw-bold"><i class="fas fa-check-circle me-1"></i> នៅល្អ</div>
+                                            <div class="small opacity-75">មិនមានពិន័យ (0 ៛)</div>
+                                        </label>
+                                    </div>
+                                    <!-- រហែក (មានការពិន័យ) -->
+                                    <div class="col-md-4">
+                                        <input type="radio" class="btn-check" name="js_book_cond" id="js_c_torn" value="រហែក" onchange="toggleJsFineSection()">
+                                        <label class="btn btn-outline-warning text-dark w-100 p-2 text-start h-100" for="js_c_torn">
+                                            <div class="fw-bold"><i class="fas fa-tools me-1 text-warning"></i> រហែក / ខូចខាត</div>
+                                            <div class="small">វាយបញ្ចូលប្រាក់ពិន័យ</div>
+                                        </label>
+                                    </div>
+                                    <!-- បាត់ (សងថ្លៃសៀវភៅ) -->
+                                    <div class="col-md-4">
+                                        <input type="radio" class="btn-check" name="js_book_cond" id="js_c_lost" value="បាត់" onchange="toggleJsFineSection()">
+                                        <label class="btn btn-outline-danger w-100 p-2 text-start h-100" for="js_c_lost">
+                                            <div class="fw-bold"><i class="fas fa-times-circle me-1"></i> បាត់សៀវភៅ</div>
+                                            <div class="small">ពិន័យសងថ្លៃសៀវភៅ</div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Dynamic Section A: នៅល្អ (No Fine Banner) -->
+                            <div id="jsNoFineBanner" class="alert alert-success d-flex align-items-center py-2 px-3 mb-3">
+                                <i class="fas fa-shield-alt fs-4 me-2 text-success"></i>
+                                <div>
+                                    <div class="fw-bold">សភាពសៀវភៅនៅល្អ — មិនមានការពិន័យ (0 ៛)</div>
+                                    <div class="small">សៀវភៅនឹងត្រូវបញ្ចូលទៅក្នុងស្តុកបណ្ណាល័យវិញដោយស្វ័យប្រវត្តិ</div>
+                                </div>
+                            </div>
+
+                            <!-- Dynamic Section B: រហែក / បាត់ (Fine Input Box for Librarian) -->
+                            <div id="jsFineInputSection" class="p-3 border border-warning rounded-3 bg-warning-subtle mb-3 d-none">
+                                <label class="form-label fw-bold text-danger">
+                                    <i class="fas fa-coins me-1"></i> ៣. វាយបញ្ចូលទឹកប្រាក់ពិន័យ (Fine Amount) <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text bg-white fw-bold text-danger">៛</span>
+                                    <input type="number" id="ret_js_fine" class="form-control fw-bold fs-5 text-danger" value="0" min="0" step="500" placeholder="វាយបញ្ចូលចំនួនទឹកប្រាក់ពិន័យ...">
+                                    <span class="input-group-text bg-white">រៀល (KHR)</span>
+                                </div>
+                                <div class="d-flex flex-wrap gap-1 mb-2">
+                                    <span class="small text-muted me-1 align-self-center">ជ្រើសរើសរហ័ស:</span>
+                                    <button type="button" class="btn btn-sm btn-outline-dark bg-white" onclick="setJsFine(1000)">1,000 ៛</button>
+                                    <button type="button" class="btn btn-sm btn-outline-dark bg-white" onclick="setJsFine(2000)">2,000 ៛</button>
+                                    <button type="button" class="btn btn-sm btn-outline-dark bg-white" onclick="setJsFine(5000)">5,000 ៛</button>
+                                    <button type="button" class="btn btn-sm btn-outline-dark bg-white" onclick="setJsFine(10000)">10,000 ៛</button>
+                                    <button type="button" class="btn btn-sm btn-outline-dark bg-white" onclick="setJsFine(20000)">20,000 ៛</button>
+                                </div>
+                                <div>
+                                    <label class="form-label small fw-semibold mb-1">មូលហេតុពិន័យ / កម្រិតរហែក</label>
+                                    <input type="text" id="ret_js_remarks" class="form-control form-control-sm bg-white" placeholder="ឧ. រហែកក្របមុខ ឬដាច់ទំព័រទី១៥...">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-success w-100 py-2 fw-bold shadow-sm">
+                                <i class="fas fa-clipboard-check me-1"></i> បញ្ជាក់ការទទួលសៀវភៅសងវិញ
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loans Table -->
         <div class="card border-0 shadow-sm rounded-3">
             <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                <h6 class="mb-0 fw-bold"><i class="fas fa-list-alt text-primary me-2"></i>ប្រវត្តិប្រតិបត្តិការខ្ចី-សងសៀវភៅ</h6>
-                <input type="text" id="loansTableFilter" class="form-control form-control-sm" style="max-width: 280px;" placeholder="ស្វែងរកក្នុងតារាង..." onkeyup="filterLoansTable()">
+                <h6 class="mb-0 fw-bold"><i class="fas fa-list-alt text-primary me-2"></i>បញ្ជីតាមដានប្រតិបត្តិការខ្ចី-សងសៀវភៅទាំងអស់</h6>
+                <input type="text" id="loansTableFilter" class="form-control form-control-sm" style="max-width: 280px;" placeholder="ស្វែងរកកូដ, ឈ្មោះសិស្ស, ឬស្ថានភាព..." onkeyup="filterLoansTable()">
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -263,11 +396,11 @@
                         <thead class="table-light">
                             <tr>
                                 <th>កូដខ្ចី</th>
-                                <th>សមាជិក</th>
+                                <th>សិស្ស / គរុសិស្ស</th>
                                 <th>Book ID</th>
-                                <th>ថ្ងៃខ្ចី & សង</th>
-                                <th>ស្ថានភាព</th>
-                                <th>ស្ថានភាពជាក់ស្តែង & ប្រាក់ពិន័យ</th>
+                                <th>ថ្ងៃខ្ចី & កំណត់សង</th>
+                                <th>ស្ថានភាពខ្ចី-សង</th>
+                                <th>សភាពសៀវភៅ & ទឹកប្រាក់ពិន័យ</th>
                                 <th class="text-end pe-3">សកម្មភាព</th>
                             </tr>
                         </thead>
@@ -297,110 +430,7 @@
     </div>
 </div>
 
-<!-- Modal: Issue New Loan -->
-<div class="modal fade" id="jsLoanModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white"><h5 class="modal-title"><i class="fas fa-hand-holding-heart me-2"></i>កត់ត្រាការខ្ចីសៀវភៅថ្មី</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-            <form onsubmit="handleJsSubmitLoan(event)">
-                <div class="modal-body p-4">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">ជ្រើសរើសសមាជិក/គរុសិស្ស (ស្វែងរកឈ្មោះ ឬលេខកូដ) *</label>
-                        <select id="modal_member_select" class="form-select select2-js" style="width:100%" required></select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">ជ្រើសរើសសៀវភៅ (ស្វែងរកចំណងជើង, DDC, ឬលេខសារពើភ័ណ្ឌ) *</label>
-                        <select id="modal_book_select" class="form-select select2-js" style="width:100%" required></select>
-                    </div>
-                    <div class="row g-2">
-                        <div class="col-6"><label class="form-label fw-semibold">ថ្ងៃខ្ចី</label><input type="date" id="modal_loan_date" class="form-control" required></div>
-                        <div class="col-6"><label class="form-label fw-semibold">ថ្ងៃកំណត់សង</label><input type="date" id="modal_due_date" class="form-control" required></div>
-                    </div>
-                </div>
-                <div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">បោះបង់</button><button type="submit" class="btn btn-primary">បញ្ជាក់ការខ្ចី</button></div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Modal: Return Book with Condition & Custom Fine (សងសៀវភៅ ដោយមានការឆែកមើលស្ថានភាពសៀវភៅ) -->
-<div class="modal fade" id="jsReturnModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title fw-bold"><i class="fas fa-clipboard-check me-2"></i>កត់ត្រាការសងសៀវភៅ & ពិនិត្យស្ថានភាព</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form onsubmit="handleJsSubmitReturn(event)">
-                <input type="hidden" id="ret_js_loan_id">
-                <div class="modal-body p-4">
-                    <div class="alert alert-secondary py-2 px-3 mb-3">
-                        <div class="d-flex justify-content-between">
-                            <span class="small">កូដខ្ចី: <strong id="ret_js_code" class="text-dark"></strong></span>
-                            <span class="small">ថ្ងៃសង: <strong id="ret_js_due"></strong></span>
-                        </div>
-                        <div class="mt-1 small">អ្នកខ្ចី: <strong id="ret_js_member" class="text-primary"></strong></div>
-                        <div id="ret_js_overdue_badge" class="badge bg-danger mt-1 d-none">ហួសកាលកំណត់សង!</div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">១. ស្ថានភាពសៀវភៅជាក់ស្តែង (Book Condition) <span class="text-danger">*</span></label>
-                        <div class="d-flex flex-column gap-2">
-                            <div class="form-check p-3 border rounded bg-light">
-                                <input class="form-check-input" type="radio" name="js_book_cond" id="js_c_normal" value="ធម្មតា" checked onchange="handleJsConditionChange()">
-                                <label class="form-check-label fw-bold text-success" for="js_c_normal">
-                                    <i class="fas fa-check-circle me-1"></i> ធម្មតា (Normal / Good)
-                                </label>
-                                <div class="small text-muted ps-4">សៀវភៅស្ថិតក្នុងសភាពល្អ គ្មានការរហែក (អាចដាក់ឱ្យខ្ចីបន្តបាន)</div>
-                            </div>
-                            <div class="form-check p-3 border rounded">
-                                <input class="form-check-input" type="radio" name="js_book_cond" id="js_c_damaged" value="រហែក" onchange="handleJsConditionChange()">
-                                <label class="form-check-label fw-bold text-warning" for="js_c_damaged">
-                                    <i class="fas fa-tools me-1"></i> រហែក / ខូចខាត (Torn / Damaged)
-                                </label>
-                                <div class="small text-muted ps-4">សៀវភៅរហែកក្រប ឬដាច់ទំព័រ (តម្រូវឱ្យជួសជុល ឬពិន័យ)</div>
-                            </div>
-                            <div class="form-check p-3 border rounded">
-                                <input class="form-check-input" type="radio" name="js_book_cond" id="js_c_lost" value="បាត់" onchange="handleJsConditionChange()">
-                                <label class="form-check-label fw-bold text-danger" for="js_c_lost">
-                                    <i class="fas fa-times-circle me-1"></i> បាត់សៀវភៅ (Lost)
-                                </label>
-                                <div class="small text-muted ps-4">សិស្សធ្វើឱ្យបាត់សៀវភៅ (មិនបូកចូលស្តុកវិញទេ និងត្រូវសងថ្លៃសៀវភៅ)</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">២. ប្រាក់ពិន័យ (Fine / Penalty Amount)</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-white"><i class="fas fa-money-bill-wave text-success"></i></span>
-                            <input type="number" id="ret_js_fine" class="form-control" value="0" min="0" step="500">
-                            <span class="input-group-text">រៀល (KHR)</span>
-                        </div>
-                        <div class="d-flex gap-1 mt-2">
-                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setJsFine(0)">0៛</button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setJsFine(1000)">1,000៛</button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setJsFine(2000)">2,000៛</button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setJsFine(5000)">5,000៛</button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setJsFine(10000)">10,000៛</button>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">៣. កំណត់សម្គាល់បន្ថែម</label>
-                        <textarea id="ret_js_remarks" class="form-control" rows="2" placeholder="ឧ. រហែកក្របខាងមុខ ឬបង់ប្រាក់ពិន័យរួចរាល់..."></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">បោះបង់</button>
-                    <button type="submit" class="btn btn-success px-4"><i class="fas fa-check me-1"></i> បញ្ជាក់ការសងសៀវភៅ</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Modal: Add Category (បន្ថែមប្រភេទបញ្ជីសៀវភៅ) -->
+<!-- Modal: Add Category -->
 <div class="modal fade" id="addCategoryModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -457,7 +487,7 @@ function switchView(viewName, el) {
     if (viewName === "dashboard") loadDashboard();
     if (viewName === "books") loadBooks();
     if (viewName === "categories") loadCategories();
-    if (viewName === "loans") loadLoans();
+    if (viewName === "loans") initCirculationView();
     if (viewName === "members") loadMembers();
 }
 
@@ -638,12 +668,61 @@ async function deleteJsCategory(id) {
     });
 }
 
-// Loans Management
+// Circulation View Initialization (Borrow Form + Return Form + Loans Table)
+async function initCirculationView() {
+    if (allMembers.length === 0) await loadMembers();
+    if (allBooks.length === 0) await loadBooks();
+    await loadLoans();
+
+    // Populate Borrow Form Dropdowns
+    const mSelect = document.getElementById("inline_member_select");
+    mSelect.innerHTML = `<option value=""></option>`;
+    allMembers.forEach(m => {
+        mSelect.innerHTML += `<option value="${m.id}" data-name="${m.full_name}">${m.member_code} - ${m.full_name} (${m.phone || "គ្មានលេខ"})</option>`;
+    });
+
+    const bSelect = document.getElementById("inline_book_select");
+    bSelect.innerHTML = `<option value=""></option>`;
+    allBooks.filter(b => (b.availability || 0) > 0).forEach(b => {
+        bSelect.innerHTML += `<option value="${b.id}">[DDC: ${b.ddc_no}] ${b.book_name} | សារពើភ័ណ្ឌ: ${b.number_saroper} (សល់: ${b.availability})</option>`;
+    });
+
+    const today = new Date().toISOString().split("T")[0];
+    const dueDate = new Date(Date.now() + 14 * 86400000).toISOString().split("T")[0];
+    document.getElementById("inline_loan_date").value = today;
+    document.getElementById("inline_due_date").value = dueDate;
+
+    // Populate Return Form Active Loans Dropdown
+    populateReturnLoanDropdown();
+
+    $(".select2-inline").select2({
+        theme: "bootstrap-5",
+        width: "100%",
+        placeholder: "ស្វែងរក និងជ្រើសរើស...",
+        allowClear: true
+    });
+}
+
+function populateReturnLoanDropdown() {
+    const retSelect = document.getElementById("ret_js_loan_select");
+    if (!retSelect) return;
+    retSelect.innerHTML = `<option value=""></option>`;
+    const activeLoans = allLoans.filter(l => {
+        const st = (l.status || "").toLowerCase();
+        return st === "active" || st === "borrowed";
+    });
+    activeLoans.forEach(l => {
+        const code = l.loan_code || ("LN-" + l.id);
+        retSelect.innerHTML += `<option value="${l.id}">${code} | ${l.member_name || "Member #" + l.member_id} (Book ID: ${l.book_id})</option>`;
+    });
+}
+
 async function loadLoans() {
     try {
         const res = await apiCall("getLoans");
         allLoans = res.data || [];
         renderLoansTable(allLoans);
+        populateReturnLoanDropdown();
     } catch(e) { console.error(e); }
 }
 
@@ -684,11 +763,13 @@ function renderLoansTable(loans) {
                       `<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> បានសង (${l.return_date || ""})</span>`}
                 </td>
                 <td>
-                    <div class="small">${l.remarks || "-"}</div>
-                    ${fine > 0 ? `<span class="badge bg-danger-subtle text-danger border border-danger-subtle"><i class="fas fa-receipt me-1"></i>ពិន័យ: ${fine.toLocaleString()} ៛</span>` : ""}
+                    ${!isActive ? `
+                        <div class="small fw-semibold">${l.remarks || "សភាពសៀវភៅ: នៅល្អ"}</div>
+                        ${fine > 0 ? `<span class="badge bg-danger-subtle text-danger border border-danger-subtle mt-1"><i class="fas fa-coins me-1"></i>ពិន័យ: ${fine.toLocaleString()} ៛</span>` : `<span class="badge bg-success-subtle text-success border border-success-subtle mt-1">មិនមានពិន័យ (0 ៛)</span>`}
+                    ` : `<span class="text-muted small">មិនទាន់សង</span>`}
                 </td>
                 <td class="text-end pe-3">
-                    ${isActive ? `<button class="btn btn-sm btn-success shadow-sm" onclick="openJsReturnModal(${l.id}, '${l.loan_code || ""}', '${l.member_name || ""}', '${l.due_date || ""}', ${isOverdue})"><i class="fas fa-undo-alt me-1"></i> សងសៀវភៅ</button>` : `<span class="small text-muted"><i class="fas fa-check-double text-success"></i> រួចរាល់</span>`}
+                    ${isActive ? `<button class="btn btn-sm btn-success shadow-sm" onclick="selectJsLoanForReturn(${l.id})"><i class="fas fa-hand-point-up me-1"></i> ជ្រើសរើសសង</button>` : `<span class="small text-muted"><i class="fas fa-check-double text-success"></i> បានសងរួច</span>`}
                 </td>
             </tr>
         `;
@@ -706,44 +787,40 @@ function filterLoansTable() {
     renderLoansTable(filtered);
 }
 
-function openJsReturnModal(id, code, member, dueDate, isOverdue) {
-    document.getElementById("ret_js_loan_id").value = id;
-    document.getElementById("ret_js_code").innerText = code;
-    document.getElementById("ret_js_member").innerText = member;
-    document.getElementById("ret_js_due").innerText = dueDate;
-
-    const overdueBadge = document.getElementById("ret_js_overdue_badge");
-    if (isOverdue) {
-        overdueBadge.classList.remove("d-none");
-        document.getElementById("ret_js_fine").value = 2000;
-        document.getElementById("ret_js_remarks").value = "សងហួសកាលកំណត់";
-    } else {
-        overdueBadge.classList.add("d-none");
-        document.getElementById("ret_js_fine").value = 0;
-        document.getElementById("ret_js_remarks").value = "";
-    }
-
-    document.getElementById("js_c_normal").checked = true;
-    new bootstrap.Modal(document.getElementById("jsReturnModal")).show();
+function selectJsLoanForReturn(loanId) {
+    $("#ret_js_loan_select").val(String(loanId)).trigger("change");
+    document.getElementById("jsReturnFormCard").scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
-function handleJsConditionChange() {
-    const isDamaged = document.getElementById("js_c_damaged").checked;
+function toggleJsFineSection() {
+    const isGood = document.getElementById("js_c_good").checked;
+    const isTorn = document.getElementById("js_c_torn").checked;
     const isLost = document.getElementById("js_c_lost").checked;
+
+    const noFineBanner = document.getElementById("jsNoFineBanner");
+    const fineSection = document.getElementById("jsFineInputSection");
     const fineInput = document.getElementById("ret_js_fine");
     const remarksInput = document.getElementById("ret_js_remarks");
 
-    if (isDamaged) {
-        if (Number(fineInput.value) === 0) fineInput.value = 5000;
-        if (!remarksInput.value) remarksInput.value = "សៀវភៅរហែក/ខូចខាត";
-    } else if (isLost) {
-        if (Number(fineInput.value) === 0) fineInput.value = 20000;
-        remarksInput.value = "បាត់សៀវភៅ - សងថ្លៃសៀវភៅ";
+    if (isGood) {
+        noFineBanner.classList.remove("d-none");
+        fineSection.classList.add("d-none");
+        fineInput.value = 0;
+        fineInput.removeAttribute("required");
+        remarksInput.value = "សភាពសៀវភៅនៅល្អ";
     } else {
-        if (document.getElementById("ret_js_overdue_badge").classList.contains("d-none")) {
-            fineInput.value = 0;
-            remarksInput.value = "";
+        noFineBanner.classList.add("d-none");
+        fineSection.classList.remove("d-none");
+        fineInput.setAttribute("required", "required");
+        if (isTorn) {
+            if (Number(fineInput.value) === 0) fineInput.value = 2000;
+            remarksInput.placeholder = "ឧ. រហែកក្របមុខ ឬដាច់ទំព័រ...";
+            if (remarksInput.value === "សភាពសៀវភៅនៅល្អ") remarksInput.value = "";
+        } else if (isLost) {
+            if (Number(fineInput.value) === 0 || Number(fineInput.value) === 2000) fineInput.value = 15000;
+            remarksInput.value = "បាត់សៀវភៅ - សងថ្លៃសៀវភៅ";
         }
+        fineInput.focus();
     }
 }
 
@@ -753,21 +830,28 @@ function setJsFine(amount) {
 
 async function handleJsSubmitReturn(e) {
     e.preventDefault();
-    const id = document.getElementById("ret_js_loan_id").value;
+    const id = $("#ret_js_loan_select").val();
+    if (!id) {
+        Swal.fire("ព្រមាន!", "សូមជ្រើសរើសសិស្ស ឬលេខកូដខ្ចីដែលយកសៀវភៅមកសង!", "warning");
+        return;
+    }
     const condition = document.querySelector("input[name='js_book_cond']:checked").value;
-    const fine = Number(document.getElementById("ret_js_fine").value) || 0;
+    const fine = (condition === "នៅល្អ") ? 0 : (Number(document.getElementById("ret_js_fine").value) || 0);
     const remarks = document.getElementById("ret_js_remarks").value.trim();
 
-    Swal.fire({ title: "កំពុងកត់ត្រាការសង...", didOpen: () => Swal.showLoading() });
+    Swal.fire({ title: "កំពុងកត់ត្រាការសងសៀវភៅ...", didOpen: () => Swal.showLoading() });
     await apiPost("returnLoan", {
         loan_id: id,
         condition: condition,
         fine: fine,
         remarks: remarks
     });
-    bootstrap.Modal.getInstance(document.getElementById("jsReturnModal")).hide();
-    Swal.fire("ជោគជ័យ!", `បានកត់ត្រាសងសៀវភៅ (ស្ថានភាព: ${condition}${fine > 0 ? ", ពិន័យ: " + fine.toLocaleString() + "៛" : ""})`, "success").then(() => {
-        loadLoans();
+
+    const fineMsg = fine > 0 ? ` | ពិន័យ: ${fine.toLocaleString()} ៛` : ` | មិនមានពិន័យ (0 ៛)`;
+    Swal.fire("ជោគជ័យ!", `បានកត់ត្រាសងសៀវភៅរួចរាល់ (សភាពសៀវភៅ: ${condition}${fineMsg})`, "success").then(() => {
+        document.getElementById("js_c_good").checked = true;
+        toggleJsFineSection();
+        initCirculationView();
     });
 }
 
@@ -792,55 +876,30 @@ async function loadMembers() {
     } catch(e) { console.error(e); }
 }
 
-async function openJsLoanModal() {
-    if (allMembers.length === 0) await loadMembers();
-    if (allBooks.length === 0) await loadBooks();
-
-    const mSelect = document.getElementById("modal_member_select");
-    mSelect.innerHTML = `<option value=""></option>`;
-    allMembers.forEach(m => {
-        mSelect.innerHTML += `<option value="${m.id}" data-name="${m.full_name}">${m.member_code} - ${m.full_name} (${m.phone || "No phone"})</option>`;
-    });
-
-    const bSelect = document.getElementById("modal_book_select");
-    bSelect.innerHTML = `<option value=""></option>`;
-    allBooks.filter(b => (b.availability || 0) > 0).forEach(b => {
-        bSelect.innerHTML += `<option value="${b.id}">[DDC: ${b.ddc_no}] ${b.book_name} | Saroper: ${b.number_saroper} (Avail: ${b.availability})</option>`;
-    });
-
-    const today = new Date().toISOString().split("T")[0];
-    const dueDate = new Date(Date.now() + 14 * 86400000).toISOString().split("T")[0];
-    document.getElementById("modal_loan_date").value = today;
-    document.getElementById("modal_due_date").value = dueDate;
-
-    $(".select2-js").select2({
-        theme: "bootstrap-5",
-        dropdownParent: $("#jsLoanModal"),
-        width: "100%",
-        placeholder: "ស្វែងរក និងជ្រើសរើស..."
-    });
-
-    new bootstrap.Modal(document.getElementById("jsLoanModal")).show();
-}
-
 async function handleJsSubmitLoan(e) {
     e.preventDefault();
-    const memberId = $("#modal_member_select").val();
-    const memberName = $("#modal_member_select").find(":selected").data("name");
-    const bookId = $("#modal_book_select").val();
-    const loanDate = document.getElementById("modal_loan_date").value;
-    const dueDate = document.getElementById("modal_due_date").value;
+    const memberId = $("#inline_member_select").val();
+    const memberName = $("#inline_member_select").find(":selected").data("name");
+    const bookId = $("#inline_book_select").val();
+    const loanDate = document.getElementById("inline_loan_date").value;
+    const dueDate = document.getElementById("inline_due_date").value;
+    const remarks = document.getElementById("inline_loan_remarks").value;
 
-    Swal.fire({ title: "កំពុងកត់ត្រា...", didOpen: () => Swal.showLoading() });
+    if (!memberId || !bookId) {
+        Swal.fire("ព្រមាន!", "សូមជ្រើសរើសសិស្ស និងសៀវភៅដែលត្រូវខ្ចី!", "warning");
+        return;
+    }
+
+    Swal.fire({ title: "កំពុងកត់ត្រាការខ្ចី...", didOpen: () => Swal.showLoading() });
     await apiPost("issueLoan", {
         member_id: memberId,
         member_name: memberName,
         book_id: bookId,
         loan_date: loanDate,
-        due_date: dueDate
+        due_date: dueDate,
+        remarks: remarks
     });
-    bootstrap.Modal.getInstance(document.getElementById("jsLoanModal")).hide();
-    Swal.fire("ជោគជ័យ!", "បានកត់ត្រាការខ្ចីសៀវភៅទៅក្នុង Google Sheets", "success").then(() => loadLoans());
+    Swal.fire("ជោគជ័យ!", "បានកត់ត្រាការខ្ចីសៀវភៅទៅក្នុង Google Sheets", "success").then(() => initCirculationView());
 }
 
 async function handleJsAddBook(e) {
