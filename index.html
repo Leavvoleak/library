@@ -392,8 +392,8 @@
             </div>
             <i class="fas fa-cloud-download-alt spinner-ring-icon" id="globalSpinnerIcon"></i>
         </div>
-        <div class="fw-bold text-dark" id="globalSpinnerText" style="font-size: 1.05rem; font-family: 'Hanuman', serif;">កំពុងទាញយកទិន្នន័យពី Google Sheet...</div>
-        <div class="small text-secondary mt-1" id="globalSpinnerSubtext">កំពុងភ្ជាប់ទៅកាន់ RTTC_Library_Database...</div>
+        <div class="fw-bold text-dark" id="globalSpinnerText" style="font-size: 1.05rem; font-family: 'Hanuman', serif;">កំពុងដំណើរការទិន្នន័យ...</div>
+        <div class="small text-secondary mt-1" id="globalSpinnerSubtext">សូមរង់ចាំបន្តិច ប្រព័ន្ធកំពុងដំណើរការ...</div>
         <div class="progress mt-3" style="height: 6px;">
             <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" style="width: 100%"></div>
         </div>
@@ -440,14 +440,14 @@
                 <div class="mb-4">
                     <div class="small text-muted mb-1">ជ្រើសរើសគណនីបណ្ណារក្សរហ័ស (Quick Fill):</div>
                     <div class="d-flex flex-wrap gap-1">
-                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="fillLoginDemo('SANG NARY')">
-                            <i class="fas fa-user-check me-1"></i> សាំង ណារី
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="fillLoginDemo('Sok Sambath')">
+                            <i class="fas fa-user-check me-1"></i> Sok Sambath
                         </button>
-                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="fillLoginDemo('Chin Bopha')">
-                            <i class="fas fa-user-check me-1"></i> ជិន បុប្ផា
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="fillLoginDemo('Chan Moniroth')">
+                            <i class="fas fa-user-check me-1"></i> Chan Moniroth
                         </button>
-                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="fillLoginDemo('Yun Sophearak')">
-                            <i class="fas fa-user-check me-1"></i> យន់ សុភារៈ
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="fillLoginDemo('Kong Chanda')">
+                            <i class="fas fa-user-check me-1"></i> Kong Chanda
                         </button>
                     </div>
                 </div>
@@ -940,7 +940,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;">ប្រភេទបញ្ជីសៀវភៅ (Book Categories)</h2>
-                <p class="text-muted mb-0">គ្រប់គ្រងប្រភេទចំណាត់ថ្នាក់សៀវភៅក្នុងបណ្ណាល័យ (Google Sheet: <code>tbl_category</code>)</p>
+                <p class="text-muted mb-0">គ្រប់គ្រងប្រភេទចំណាត់ថ្នាក់សៀវភៅក្នុងបណ្ណាល័យ</p>
             </div>
             <button class="btn btn-primary shadow-sm" onclick="openAddCategoryModal()">
                 <i class="fas fa-plus-circle me-1"></i> បន្ថែមប្រភេទថ្មី (Add Category)
@@ -972,7 +972,7 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
             <div>
                 <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;"><i class="fas fa-archive text-primary me-2"></i>ទូ និងលេខDDCសៀវភៅតាមទូ (Bookcases & Shelf DDC)</h2>
-                <p class="text-muted mb-0">គ្រប់គ្រងទូសៀវភៅនីមួយៗ និងកំណត់លេខDDCសៀវភៅតាមទូ (ទូនីមួយៗមានលេខDDCសៀវភៅតាមទូ) ក្នុង <code>tbl_place</code></p>
+                <p class="text-muted mb-0">គ្រប់គ្រងទូសៀវភៅនីមួយៗ និងកំណត់លេខDDCសៀវភៅតាមទូ (ទូនីមួយៗមានលេខDDCសៀវភៅតាមទូ)</p>
             </div>
             <button class="btn btn-outline-primary btn-sm" onclick="switchView('addBook')">
                 <i class="fas fa-book-medical me-1"></i> ទៅកាន់ Form ចុះឈ្មោះសៀវភៅ
@@ -1956,83 +1956,83 @@ const INITIAL_DB = {
         { id: 2, librarian_code: "LIB-002", full_name_en: "Chan Moniroth", khmer_name: "ចាន់ មុនីរតន៍", password: "123456", role: "Librarian", status: "Active" },
         { id: 3, librarian_code: "LIB-003", full_name_en: "Kong Chanda", khmer_name: "គង់ ចិន្តា", password: "123456", role: "Assistant Librarian", status: "Active" }
     ],
-    books: [
-        { id: 1, isbnno: "978-0135159941", ddc_no: "005.133", book_desc: "1", book_name: "Python Programming", book_sub: "មូលដ្ឋានគ្រឹះនៃការសរសេរកម្មវិធី Python", category: "វិទ្យាសាស្ត្រកុំព្យូទ័រ (Computer Science)", author: "John Zelle / បណ្ឌិត សេង សុភាព", publisher: "វិទ្យាស្ថានជាតិបច្ចេកវិទ្យា (NIPTICT)", book_edition: "3", year_published: "2023", country_published: "កម្ពុជា (Cambodia)", language: "English", book_amount: 5, place: "ទូទី ០១", location_shelf: "005.133 - ភាសាសរសេរកម្មវិធី (Python, C++, Java)", page_num: "380", book_resource: "ក្រអយក (MoEYS)", number_saroper: "00101, 00102, 00103, 00104, 00105", date_saroper: "2024-01-15", availability: "មាន (Available)", cover_url: "" },
-        { id: 2, isbnno: "978-99950-0-567-8", ddc_no: "658.872", book_desc: "2", book_name: "យុទ្ធសាស្ត្រទីផ្សារឌីជីថល និងពាណិជ្ជកម្មអេឡិចត្រូនិច", book_sub: "Digital Marketing & E-Commerce Strategies", category: "គ្រប់គ្រង និងពាណិជ្ជកម្ម (Management & Business)", author: "ចាន់ សុខា (Chan Sokha)", publisher: "សាកលវិទ្យាល័យភូមិន្ទភ្នំពេញ (RUPP Press)", book_edition: "2", year_published: "2023", country_published: "កម្ពុជា (Cambodia)", language: "ភាសាខ្មែរ/អង់គ្លេស", book_amount: 3, place: "ទូទី ០២", location_shelf: "658 - ការគ្រប់គ្រង និងពាណិជ្ជកម្ម", page_num: "280", book_resource: "ក្រអយក (MoEYS)", number_saroper: "00201, 00202, 00203", date_saroper: "2024-02-10", availability: "មាន (Available)", cover_url: "" },
-        { id: 3, isbnno: "978-99950-0-891-2", ddc_no: "959.6", book_desc: "3", book_name: "ប្រវត្តិសាស្ត្រខ្មែរ និងអារ្យធម៌អង្គរ", book_sub: "History of Cambodia & Angkor Civilization", category: "ប្រវត្តិសាស្ត្រ និងភូមិសាស្ត្រ (History & Geography)", author: "សាស្ត្រាចារ្យ រស់ ចន្ត្រាបុត្រ (Ros Chantrabot)", publisher: "វិទ្យាស្ថានពុទ្ធសាសនបណ្ឌិត្យ (Buddhist Institute)", book_edition: "3", year_published: "2021", country_published: "កម្ពុជា (Cambodia)", language: "ភាសាខ្មែរ (Khmer)", book_amount: 4, place: "ទូទី ០៣", location_shelf: "900 - ប្រវត្តិសាស្ត្រ និងភូមិវិទ្យា", page_num: "450", book_resource: "ក្រអយក (MoEYS)", number_saroper: "00301, 00302, 00303, 00304", date_saroper: "2024-03-01", availability: "មាន (Available)", cover_url: "" }
-    ],
-    categories: [
-        { id: 1, category_name: "វិទ្យាសាស្ត្រកុំព្យូទ័រ (Computer Science)", category_code: "CS-000", description: "កម្មវិធីកុំព្យូទ័រ បណ្តាញ និងប្រព័ន្ធព័ត៌មានវិទ្យា", status: "សកម្ម (Active)" },
-        { id: 2, category_name: "គ្រប់គ្រង និងពាណិជ្ជកម្ម (Management & Business)", category_code: "MG-600", description: "ការគ្រប់គ្រង ទីផ្សារ គណនេយ្យ និងសហគ្រិនភាព", status: "សកម្ម (Active)" },
-        { id: 3, category_name: "ប្រវត្តិសាស្ត្រ និងភូមិសាស្ត្រ (History & Geography)", category_code: "HIS-900", description: "ប្រវត្តិសាស្ត្រខ្មែរ អាស៊ី និងសកលលោក", status: "សកម្ម (Active)" },
-        { id: 4, category_name: "អក្សរសាស្ត្រខ្មែរ និងវប្បធម៌ (Khmer Literature & Culture)", category_code: "LIT-800", description: "កម្រងអក្សរសិល្ប៍ វប្បធម៌ និងទំនៀមទម្លាប់ខ្មែរ", status: "សកម្ម (Active)" },
-        { id: 5, category_name: "គរុកោសល្យ និងវិធីសាស្ត្របង្រៀន (Pedagogy & Education)", category_code: "EDU-370", description: "ឯកសារបណ្តុះបណ្តាលគ្រូបង្រៀន និងគរុកោសល្យ", status: "សកម្ម (Active)" }
-    ],
-    places: [
-        { id: 1, place_name: "ទូទី ០១", place_shelf: "000 - ព័ត៌មានវិទ្យា និងកុំព្យូទ័រ", description: "ធ្នើរទី១ ផ្នែកវិទ្យាសាស្ត្រកុំព្យូទ័រទូទៅ", status: "ប្រើបាន (Active)" },
-        { id: 2, place_name: "ទូទី ០១", place_shelf: "005.133 - ភាសាសរសេរកម្មវិធី (Python, C++, Java)", description: "ធ្នើរទី២ ផ្នែកកូដ និងការអភិវឌ្ឍកម្មវិធី", status: "ប្រើបាន (Active)" },
-        { id: 3, place_name: "ទូទី ០២", place_shelf: "370 - អប់រំ និងគរុកោសល្យ", description: "ធ្នើរទី១ ផ្នែកគរុកោសល្យ និងវិធីសាស្ត្របង្រៀន", status: "ប្រើបាន (Active)" },
-        { id: 4, place_name: "ទូទី ០២", place_shelf: "658 - ការគ្រប់គ្រង និងពាណិជ្ជកម្ម", description: "ធ្នើរទី២ ផ្នែកសេដ្ឋកិច្ច និងគ្រប់គ្រង", status: "ប្រើបាន (Active)" },
-        { id: 5, place_name: "ទូទី ០៣", place_shelf: "800 - អក្សរសិល្ប៍ និងអក្សរសាស្ត្រ", description: "ធ្នើរទី១ ផ្នែកអក្សរសាស្ត្រខ្មែរ និងបរទេស", status: "ប្រើបាន (Active)" },
-        { id: 6, place_name: "ទូទី ០៣", place_shelf: "900 - ប្រវត្តិសាស្ត្រ និងភូមិវិទ្យា", description: "ធ្នើរទី២ ផ្នែកប្រវត្តិសាស្ត្រខ្មែរ និងពិភពលោក", status: "ប្រើបាន (Active)" }
-    ],
-    members: [
-        { id: 1, member_code: "RTTC-STU-001", khmer_name: "គង់ ពិសិដ្ឋ", full_name_en: "Kong Piseth", full_name: "គង់ ពិសិដ្ឋ (Kong Piseth)", gender: "ប្រុស (Male)", phone: "012 345 678", email: "piseth.kong@rttc.edu.kh", member_type: "គរុសិស្ស (Student)", status: "សកម្ម (Active)" },
-        { id: 2, member_code: "RTTC-STU-002", khmer_name: "សុខ ធីតា", full_name_en: "Sok Thida", full_name: "សុខ ធីតា (Sok Thida)", gender: "ស្រី (Female)", phone: "098 765 432", email: "thida.sok@rttc.edu.kh", member_type: "គរុសិស្ស (Student)", status: "សកម្ម (Active)" },
-        { id: 3, member_code: "RTTC-TCH-001", khmer_name: "លោកគ្រូ កែវ វិបុល", full_name_en: "Keo Vibol", full_name: "លោកគ្រូ កែវ វិបុល (Keo Vibol)", gender: "ប្រុស (Male)", phone: "017 888 999", email: "vibol.keo@rttc.edu.kh", member_type: "គ្រូបង្រៀន (Teacher)", status: "សកម្ម (Active)" },
-        { id: 4, member_code: "RTTC-TCH-002", khmer_name: "អ្នកគ្រូ ម៉េង ស្រីពៅ", full_name_en: "Meng Sreypov", full_name: "អ្នកគ្រូ ម៉េង ស្រីពៅ (Meng Sreypov)", gender: "ស្រី (Female)", phone: "085 222 333", email: "sreypov.meng@rttc.edu.kh", member_type: "គ្រូបង្រៀន (Teacher)", status: "សកម្ម (Active)" }
-    ],
-    loans: [
-        { id: 1, loan_code: "LN-2024-001", book_id: 1, copy_id: 2, member_id: 1, member_name: "គង់ ពិសិដ្ឋ (Kong Piseth)", loan_date: "2024-03-01", due_date: "2024-03-15", return_date: "", status: "កំពុងខ្ចី (Active)", fine: 0, remarks: "ខ្ចីស្រាវជ្រាវ (Research loan)" },
-        { id: 4, loan_code: "LN-2024-004", book_id: 3, copy_id: 5, member_id: 1, member_name: "គង់ ពិសិដ្ឋ (Kong Piseth)", loan_date: "2024-03-01", due_date: "2024-03-15", return_date: "", status: "កំពុងខ្ចី (Active)", fine: 0, remarks: "ខ្ចីស្រាវជ្រាវបន្ថែម" },
-        { id: 2, loan_code: "LN-2024-002", book_id: 3, copy_id: 6, member_id: 3, member_name: "លោកគ្រូ កែវ វិបុល (Keo Vibol)", loan_date: "2024-02-10", due_date: "2024-02-24", return_date: "2024-02-22", status: "បានសងរួច (Returned)", fine: 0, remarks: "សភាពសៀវភៅ: នៅល្អ" },
-        { id: 3, loan_code: "LN-2024-003", book_id: 2, copy_id: 4, member_id: 2, member_name: "សុខ ធីតា (Sok Thida)", loan_date: "2024-02-01", due_date: "2024-02-15", return_date: "2024-02-18", status: "បានសងរួច (Returned)", fine: 1500, remarks: "ស្ថានភាព: រហែក | ពិន័យ: 1,500៛" }
-    ],
-    attendance: [
-        { id: 1, librarian_code: "LIB-001", full_name_en: "Sok Sambath", khmer_name: "សុខ សម្បត្តិ", attendance_date: "2024-03-01", shift: "វេនព្រឹក (Morning)", morning_in: "07:30", morning_out: "11:30", afternoon_in: "", afternoon_out: "", status: "វត្តមាន (Present)", remarks: "ប្រចាំការវេនព្រឹក" },
-        { id: 2, librarian_code: "LIB-002", full_name_en: "Chan Moniroth", khmer_name: "ចាន់ មុនីរតន៍", attendance_date: "2024-03-01", shift: "វេនរសៀល (Afternoon)", morning_in: "", morning_out: "", afternoon_in: "13:30", afternoon_out: "17:00", status: "វត្តមាន (Present)", remarks: "ប្រចាំការវេនរសៀល" }
-    ],
-    visits: [
-        { id: 1, visit_date: "2024-03-01", member_id: 1, member_code: "RTTC-STU-001", full_name: "គង់ ពិសិដ្ឋ (Kong Piseth)", gender: "ប្រុស (Male)", member_type: "គរុសិស្ស (Student)", time_in: "08:15", time_out: "09:45", purpose: "ស្រាវជ្រាវកិច្ចការសាលា (Research)", remarks: "សិក្សាឯកសារវិទ្យាសាស្ត្រកុំព្យូទ័រ" },
-        { id: 2, visit_date: "2024-03-01", member_id: 2, member_code: "RTTC-STU-002", full_name: "សុខ ធីតា (Sok Thida)", gender: "ស្រី (Female)", member_type: "គរុសិស្ស (Student)", time_in: "10:00", time_out: "11:15", purpose: "អានសៀវភៅ (Reading)", remarks: "អានសៀវភៅប្រវត្តិសាស្ត្រខ្មែរ" },
-        { id: 3, visit_date: "2024-03-01", member_id: 3, member_code: "RTTC-TCH-001", full_name: "លោកគ្រូ កែវ វិបុល (Keo Vibol)", gender: "ប្រុស (Male)", member_type: "គ្រូបង្រៀន (Teacher)", time_in: "14:00", time_out: "14:45", purpose: "ខ្ចី-សងសៀវភៅ (Borrow/Return)", remarks: "ខ្ចីសៀវភៅយុទ្ធសាស្ត្រទីផ្សារឌីជីថល" }
-    ]
+    books: [],
+    categories: [],
+    places: [],
+    members: [],
+    loans: [],
+    attendance: [],
+    visits: []
 };
+
+// Purge any legacy mock values from localStorage so all screens start completely clean until real data is fetched/added
+(function purgeLegacyDemoValues() {
+    const keys = ["loans", "visits", "attendance", "books", "categories", "places", "members"];
+    keys.forEach(k => {
+        const val = localStorage.getItem("RTTC_DB_" + k);
+        if (val) {
+            try {
+                const parsed = JSON.parse(val);
+                if (Array.isArray(parsed) && parsed.some(item =>
+                    String(item.loan_code || "").includes("LN-2024-001") ||
+                    String(item.loan_code || "").includes("LN-2024-004") ||
+                    String(item.number_saroper || "").includes("00101") ||
+                    String(item.full_name || "").includes("គង់ ពិសិដ្ឋ") ||
+                    String(item.book_name || "") === "Python Programming" ||
+                    String(item.remarks || "").includes("កំពុងអានសៀវភៅក្នុងបណ្ណាល័យ") ||
+                    String(item.remarks || "").includes("ខ្ចីស្រាវជ្រាវ")
+                )) {
+                    localStorage.removeItem("RTTC_DB_" + k);
+                }
+            } catch (e) {}
+        }
+    });
+})();
 
 let activeSpinnerRequests = 0;
 let spinnerShownTimestamp = 0;
 
+const loadedDatasets = {
+    books: false,
+    categories: false,
+    places: false,
+    members: false,
+    loans: false,
+    attendance: false,
+    visits: false
+};
+
 const ACTION_KHMER_LABELS = {
-    getDashboard: "កំពុងទាញយកទិន្នន័យផ្ទាំងគ្រប់គ្រង និងសិស្សចូលអានថ្ងៃនេះ...",
-    getBooks: "កំពុងទាញយកបញ្ជីសៀវភៅពី Google Sheet (tbl_book)...",
-    getCategories: "កំពុងទាញយកប្រភេទសៀវភៅពី Google Sheet (tbl_category)...",
-    getPlaces: "កំពុងទាញយកទិន្នន័យទូ និងលេខDDCតាមទូ (tbl_place)...",
-    getMembers: "កំពុងទាញយកបញ្ជីសមាជិកបណ្ណាល័យ (tbl_members)...",
-    getLoans: "កំពុងទាញយកទិន្នន័យខ្ចី-សងសៀវភៅ (tbl_loans)...",
+    getDashboard: "កំពុងទាញយកទិន្នន័យផ្ទាំងគ្រប់គ្រង...",
+    getBooks: "កំពុងទាញយកបញ្ជីសៀវភៅ...",
+    getCategories: "កំពុងទាញយកប្រភេទសៀវភៅ...",
+    getPlaces: "កំពុងទាញយកទិន្នន័យទូ និងលេខDDCតាមទូ...",
+    getMembers: "កំពុងទាញយកបញ្ជីសមាជិកបណ្ណាល័យ...",
+    getLoans: "កំពុងទាញយកទិន្នន័យខ្ចី-សងសៀវភៅ...",
     getLibrarianAttendance: "កំពុងទាញយកសម្រង់វត្តមានបណ្ណារក្ស...",
-    getStudentVisits: "កំពុងទាញយកបញ្ជីសិស្សស្កេន QR ចូល-ចេញបណ្ណាល័យ...",
-    addBook: "កំពុងបញ្ជូនទិន្នន័យសៀវភៅថ្មីទៅកាន់ Google Sheet...",
-    updateBook: "កំពុងធ្វើបច្ចុប្បន្នភាពព័ត៌មានសៀវភៅក្នុង Google Sheet...",
-    deleteBook: "កំពុងលុបទិន្នន័យសៀវភៅពី Google Sheet...",
-    addCategory: "កំពុងរក្សាទុកប្រភេទសៀវភៅថ្មីទៅកាន់ Google Sheet...",
-    deleteCategory: "កំពុងលុបប្រភេទសៀវភៅពី Google Sheet...",
-    addPlace: "កំពុងរក្សាទុកទូ និងលេខDDCតាមទូទៅកាន់ Google Sheet...",
+    getStudentVisits: "កំពុងទាញយកបញ្ជីសិស្សចូលអានសៀវភៅ...",
+    addBook: "កំពុងរក្សាទុកទិន្នន័យសៀវភៅថ្មី...",
+    updateBook: "កំពុងធ្វើបច្ចុប្បន្នភាពព័ត៌មានសៀវភៅ...",
+    deleteBook: "កំពុងលុបទិន្នន័យសៀវភៅ...",
+    addCategory: "កំពុងរក្សាទុកប្រភេទសៀវភៅថ្មី...",
+    deleteCategory: "កំពុងលុបប្រភេទសៀវភៅ...",
+    addPlace: "កំពុងរក្សាទុកទូ និងលេខDDCតាមទូ...",
     updatePlace: "កំពុងកែប្រែព័ត៌មានទូ និងលេខDDCតាមទូ...",
     deletePlace: "កំពុងលុបទូ និងលេខDDCតាមទូ...",
-    addMember: "កំពុងចុះឈ្មោះសមាជិកថ្មីទៅកាន់ Google Sheet...",
-    updateMember: "កំពុងកែប្រែព័ត៌មានសមាជិកក្នុង Google Sheet...",
-    deleteMember: "កំពុងលុបសមាជិកពី Google Sheet...",
-    issueLoan: "កំពុងកត់ត្រាការខ្ចីសៀវភៅទៅកាន់ Google Sheet...",
-    returnLoan: "កំពុងកត់ត្រាការសងសៀវភៅទៅកាន់ Google Sheet...",
-    addLibrarianAttendance: "កំពុងកត់ត្រាវត្តមានបណ្ណារក្សទៅកាន់ Google Sheet...",
-    updateLibrarianAttendance: "កំពុងកែប្រែវត្តមានបណ្ណារក្សក្នុង Google Sheet...",
+    addMember: "កំពុងចុះឈ្មោះសមាជិកថ្មី...",
+    updateMember: "កំពុងកែប្រែព័ត៌មានសមាជិក...",
+    deleteMember: "កំពុងលុបសមាជិក...",
+    issueLoan: "កំពុងកត់ត្រាការខ្ចីសៀវភៅ...",
+    returnLoan: "កំពុងកត់ត្រាការសងសៀវភៅ...",
+    addLibrarianAttendance: "កំពុងកត់ត្រាវត្តមានបណ្ណារក្ស...",
+    updateLibrarianAttendance: "កំពុងកែប្រែវត្តមានបណ្ណារក្ស...",
     deleteLibrarianAttendance: "កំពុងលុបកំណត់ត្រាវត្តមានបណ្ណារក្ស...",
-    addStudentVisit: "កំពុងកត់ត្រាការស្កេន QR ចូលបណ្ណាល័យទៅកាន់ Google Sheet...",
-    checkoutStudentVisit: "កំពុងកត់ត្រាការស្កេន QR ចេញពីបណ្ណាល័យទៅកាន់ Google Sheet...",
+    addStudentVisit: "កំពុងកត់ត្រាការស្កេនចូលបណ្ណាល័យ...",
+    checkoutStudentVisit: "កំពុងកត់ត្រាការស្កេនចេញពីបណ្ណាល័យ...",
     deleteStudentVisit: "កំពុងលុបកំណត់ត្រាវត្តមានសិស្ស..."
 };
 
-function showLoadingSpinner(message = "កំពុងទាញយកទិន្នន័យពី Google Sheet...", isPost = false) {
+function showLoadingSpinner(message = "កំពុងទាញយកទិន្នន័យ...", isPost = false) {
     activeSpinnerRequests++;
     spinnerShownTimestamp = Date.now();
     const spinner = document.getElementById("globalLoadingSpinner");
@@ -2044,8 +2044,8 @@ function showLoadingSpinner(message = "កំពុងទាញយកទិន�
     if (textEl && message) textEl.innerText = message;
     if (subEl) {
         subEl.innerText = isPost
-            ? "កំពុងបញ្ជូន និងរក្សាទុកទិន្នន័យទៅកាន់ Google Sheet (RTTC_Library_Database)..."
-            : "កំពុងទាញយកទិន្នន័យពី Google Sheet (RTTC_Library_Database)...";
+            ? "សូមរង់ចាំបន្តិច កំពុងរក្សាទុកទិន្នន័យ..."
+            : "សូមរង់ចាំបន្តិច កំពុងទាញយកទិន្នន័យចាំបាច់...";
     }
     if (iconEl) {
         iconEl.className = isPost
@@ -2062,7 +2062,7 @@ function showLoadingSpinner(message = "កំពុងទាញយកទិន�
 
 async function hideLoadingSpinner() {
     const elapsed = Date.now() - spinnerShownTimestamp;
-    const minVisibleMs = 480;
+    const minVisibleMs = 110;
     if (elapsed < minVisibleMs) {
         await new Promise(r => setTimeout(r, minVisibleMs - elapsed));
     }
@@ -2145,17 +2145,6 @@ let allPlaces = getLocalStore("places");
 let allLoans = getLocalStore("loans");
 let allAttendance = sanitizeAttendanceRecords(getLocalStore("attendance"));
 let allVisits = getLocalStore("visits");
-(function ensureTodayActiveReaders() {
-    const today = getTodayDateStr();
-    const hasToday = allVisits.some(v => String(v.visit_date || "").replace(/^'/, "") === today);
-    if (!hasToday) {
-        allVisits.unshift(
-            { id: Date.now() - 200, visit_date: today, member_id: 1, member_code: "RTTC-STU-001", full_name: "គង់ ពិសិដ្ឋ (Kong Piseth)", gender: "ប្រុស (Male)", member_type: "គរុសិស្ស (Student)", time_in: "08:15", time_out: "", purpose: "អានសៀវភៅ (Reading)", remarks: "កំពុងអានសៀវភៅក្នុងបណ្ណាល័យ" },
-            { id: Date.now() - 100, visit_date: today, member_id: 2, member_code: "RTTC-STU-002", full_name: "សុខ ធីតា (Sok Thida)", gender: "ស្រី (Female)", member_type: "គរុសិស្ស (Student)", time_in: "08:45", time_out: "", purpose: "ស្រាវជ្រាវកិច្ចការសាលា (Research)", remarks: "កំពុងស្រាវជ្រាវឯកសារគរុកោសល្យ" }
-        );
-        saveLocalStore("visits", allVisits);
-    }
-})();
 
 // ==================== LIBRARIAN AUTHENTICATION (FULL NAME IN ENGLISH ONLY ON LOGIN FORM) ====================
 let currentLibrarian = null;
@@ -2351,7 +2340,7 @@ function openSettingsModal() {
 }
 
 async function apiCall(action, params = {}) {
-    showLoadingSpinner(ACTION_KHMER_LABELS[action] || "កំពុងទាញយកទិន្នន័យពី Google Sheet...", false);
+    showLoadingSpinner(ACTION_KHMER_LABELS[action] || "កំពុងទាញយកទិន្នន័យ...", false);
     await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
     try {
         if (isApiConfigured()) {
@@ -2362,29 +2351,29 @@ async function apiCall(action, params = {}) {
                 const res = await fetch(url);
                 const json = await res.json();
                 if (json && json.success) {
-                    if (action === "getBooks" && json.data) { allBooks = json.data; saveLocalStore("books", allBooks); }
-                    if (action === "getMembers" && json.data) { allMembers = json.data; saveLocalStore("members", allMembers); }
-                    if (action === "getCategories" && json.data) { allCategories = json.data; saveLocalStore("categories", allCategories); }
-                    if (action === "getPlaces" && json.data) { allPlaces = json.data; saveLocalStore("places", allPlaces); }
-                    if (action === "getLoans" && json.data) { allLoans = json.data; saveLocalStore("loans", allLoans); }
-                    if (action === "getLibrarianAttendance" && json.data) { allAttendance = sanitizeAttendanceRecords(json.data); saveLocalStore("attendance", allAttendance); }
-                    if (action === "getStudentVisits" && json.data) { allVisits = json.data; saveLocalStore("visits", allVisits); }
+                    if (action === "getBooks" && json.data) { allBooks = json.data; loadedDatasets.books = true; saveLocalStore("books", allBooks); }
+                    if (action === "getMembers" && json.data) { allMembers = json.data; loadedDatasets.members = true; saveLocalStore("members", allMembers); }
+                    if (action === "getCategories" && json.data) { allCategories = json.data; loadedDatasets.categories = true; saveLocalStore("categories", allCategories); }
+                    if (action === "getPlaces" && json.data) { allPlaces = json.data; loadedDatasets.places = true; saveLocalStore("places", allPlaces); }
+                    if (action === "getLoans" && json.data) { allLoans = json.data; loadedDatasets.loans = true; saveLocalStore("loans", allLoans); }
+                    if (action === "getLibrarianAttendance" && json.data) { allAttendance = sanitizeAttendanceRecords(json.data); loadedDatasets.attendance = true; saveLocalStore("attendance", allAttendance); }
+                    if (action === "getStudentVisits" && json.data) { allVisits = json.data; loadedDatasets.visits = true; saveLocalStore("visits", allVisits); }
                     return json;
                 }
             } catch (err) {
                 console.warn("Using local synced dataset:", err);
             }
         } else {
-            await new Promise(r => setTimeout(r, 160));
+            await new Promise(r => setTimeout(r, 40));
         }
 
-    if (action === "getBooks") return { success: true, data: getLocalStore("books") };
-    if (action === "getMembers") return { success: true, data: getLocalStore("members") };
-    if (action === "getCategories") return { success: true, data: getLocalStore("categories") };
-    if (action === "getPlaces") return { success: true, data: getLocalStore("places") };
-    if (action === "getLoans") return { success: true, data: getLocalStore("loans") };
-    if (action === "getLibrarianAttendance") return { success: true, data: getLocalStore("attendance") };
-    if (action === "getStudentVisits") return { success: true, data: getLocalStore("visits") };
+    if (action === "getBooks") { loadedDatasets.books = true; return { success: true, data: getLocalStore("books") }; }
+    if (action === "getMembers") { loadedDatasets.members = true; return { success: true, data: getLocalStore("members") }; }
+    if (action === "getCategories") { loadedDatasets.categories = true; return { success: true, data: getLocalStore("categories") }; }
+    if (action === "getPlaces") { loadedDatasets.places = true; return { success: true, data: getLocalStore("places") }; }
+    if (action === "getLoans") { loadedDatasets.loans = true; return { success: true, data: getLocalStore("loans") }; }
+    if (action === "getLibrarianAttendance") { loadedDatasets.attendance = true; return { success: true, data: getLocalStore("attendance") }; }
+    if (action === "getStudentVisits") { loadedDatasets.visits = true; return { success: true, data: getLocalStore("visits") }; }
     if (action === "getDashboard") {
         const bks = getLocalStore("books");
         const lns = getLocalStore("loans");
@@ -2409,7 +2398,7 @@ async function apiCall(action, params = {}) {
 }
 
 async function apiPost(action, data = {}) {
-    showLoadingSpinner(ACTION_KHMER_LABELS[action] || "កំពុងបញ្ជូនទិន្នន័យទៅកាន់ Google Sheet...", true);
+    showLoadingSpinner(ACTION_KHMER_LABELS[action] || "កំពុងរក្សាទុកទិន្នន័យ...", true);
     await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
     try {
     if (action === "addBook") {
@@ -2668,7 +2657,7 @@ async function apiPost(action, data = {}) {
             console.warn("POST sync warning:", err);
         }
     } else {
-        await new Promise(r => setTimeout(r, 180));
+        await new Promise(r => setTimeout(r, 50));
     }
     return { success: true };
     } finally {
@@ -2694,15 +2683,18 @@ function initOrRefreshSelect2(selector, placeholderText, isMulti = false) {
 // ==================== DASHBOARD (WITH TODAY'S STUDENTS READING IN LIBRARY TABLE) ====================
 async function loadDashboard() {
     const res = await apiCall("getDashboard");
-    const vRes = await apiCall("getStudentVisits");
-    if (vRes && vRes.data) allVisits = vRes.data;
-
-    if (res.success) {
+    if (res.success && res.data) {
         const d = res.data;
         document.getElementById("kpi-titles").innerText = d.total_titles || 0;
         document.getElementById("kpi-copies").innerText = d.total_copies || 0;
         document.getElementById("kpi-loans").innerText = d.active_loans || 0;
         document.getElementById("kpi-members").innerText = d.total_members || 0;
+        if (Array.isArray(d.today_visits) && d.today_visits.length > 0) {
+            const today = getTodayDateStr();
+            const otherDays = allVisits.filter(v => String(v.visit_date || "").replace(/^'/, "") !== today);
+            allVisits = [...d.today_visits, ...otherDays];
+            saveLocalStore("visits", allVisits);
+        }
     }
     renderDashboardReadingTable();
 }
@@ -2904,9 +2896,10 @@ if (librarianScanChannel) {
 
 // ==================== IN-APP QR SCAN CHECK-IN / CHECK-OUT VIEW ====================
 async function loadScanView() {
-    await apiCall("getMembers");
-    const vRes = await apiCall("getStudentVisits");
-    if (vRes && vRes.data) allVisits = vRes.data;
+    const tasks = [apiCall("getStudentVisits")];
+    if (!loadedDatasets.members) tasks.push(apiCall("getMembers"));
+    const results = await Promise.all(tasks);
+    if (results[0] && results[0].data) allVisits = results[0].data;
 
     const sel = document.getElementById("inapp_scan_member");
     if (sel) {
@@ -3744,16 +3737,10 @@ function onBookFormPlaceChange(selectedPlace, preselectShelf = "") {
 
 // ==================== CIRCULATION ====================
 async function initCirculationView(forceReload = false) {
-    if (true) {
-        const mRes = await apiCall("getMembers");
-        allMembers = mRes.data || [];
-    }
-    if (true) {
-        const bRes = await apiCall("getBooks");
-        allBooks = bRes.data || [];
-    }
-    const lRes = await apiCall("getLoans");
-    allLoans = lRes.data || [];
+    const tasks = [apiCall("getLoans")];
+    if (forceReload || !loadedDatasets.members) tasks.push(apiCall("getMembers"));
+    if (forceReload || !loadedDatasets.books) tasks.push(apiCall("getBooks"));
+    await Promise.all(tasks);
 
     const mSelect = document.getElementById("inline_member_select");
     if (mSelect) {
@@ -4530,8 +4517,9 @@ async function deleteAttendanceRow(id) {
 
 // ==================== REPORTS ====================
 async function renderLoanReport() {
-    await apiCall("getLoans");
-    await apiCall("getBooks");
+    const tasks = [apiCall("getLoans")];
+    if (!loadedDatasets.books) tasks.push(apiCall("getBooks"));
+    await Promise.all(tasks);
 
     const fromDate = document.getElementById("rep_loan_from")?.value || "";
     const toDate = document.getElementById("rep_loan_to")?.value || "";
@@ -4594,8 +4582,9 @@ function resetLoanReportFilter() {
 }
 
 async function initBookReport() {
-    await apiCall("getBooks");
-    await apiCall("getCategories");
+    const tasks = [apiCall("getBooks")];
+    if (!loadedDatasets.categories) tasks.push(apiCall("getCategories"));
+    await Promise.all(tasks);
 
     const catSel = document.getElementById("rep_book_cat");
     if (catSel && catSel.options.length <= 1) {
@@ -4651,9 +4640,9 @@ function renderBookReport() {
 }
 
 async function initVisitReport() {
-    await apiCall("getMembers");
-    const vRes = await apiCall("getStudentVisits");
-    allVisits = vRes.data || [];
+    const tasks = [apiCall("getStudentVisits")];
+    if (!loadedDatasets.members) tasks.push(apiCall("getMembers"));
+    await Promise.all(tasks);
 
     const mSel = document.getElementById("visit_member_select");
     if (mSel) {
@@ -4775,10 +4764,14 @@ function exportTableToCSV(tableId, filename) {
     link.click();
 }
 
-async function loadDropdowns() {
+async function loadDropdowns(forceReload = false) {
     try {
-        const cRes = await apiCall("getCategories");
-        const pRes = await apiCall("getPlaces");
+        const tasks = [];
+        if (forceReload || !loadedDatasets.categories) tasks.push(apiCall("getCategories"));
+        if (forceReload || !loadedDatasets.places) tasks.push(apiCall("getPlaces"));
+        if (tasks.length > 0) await Promise.all(tasks);
+        const cRes = { data: allCategories };
+        const pRes = { data: allPlaces };
         const catSelect = document.getElementById("f_cat");
         const plSelect = document.getElementById("f_place");
         const shSelect = document.getElementById("f_shelf");
@@ -4809,8 +4802,6 @@ document.addEventListener("DOMContentLoaded", () => {
     applyLoggedInState();
     updateLibrarianCameraButtonsUI();
     loadDashboard();
-    loadDropdowns();
-    initCirculationView(false);
     generateAutoMemberCode();
     if (document.getElementById("f_date_saroper")) {
         document.getElementById("f_date_saroper").value = new Date().toISOString().split("T")[0];
