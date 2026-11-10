@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ស្កេន QR Code ចូល-ចេញបណ្ណាល័យ (Student Check-In / Check-Out) - RTTC Library</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hanuman:wght@400;700;900&family=Kantumruy+Pro:wght@300;400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.min.css" rel="stylesheet">
+    <!-- HTML5 QRCode Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <style>
+        :root {
+            --bs-body-font-family: 'Kantumruy Pro', 'Hanuman', 'Inter', sans-serif;
+        }
+        body {
+            font-family: var(--bs-body-font-family);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            color: #1e293b;
+            padding-bottom: 2.5rem;
+        }
+        .kiosk-navbar {
+            background: rgba(15, 23, 42, 0.92);
+            border-bottom: 2px solid #38bdf8;
+            padding: 0.9rem 1.5rem;
+            color: #ffffff;
+        }
+        .scanner-card {
+            border: none;
+            border-radius: 1rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+        #qrReaderBox {
+            width: 100%;
+            max-width: 380px;
+            margin: 0 auto;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            border: 2px dashed #38bdf8;
+            background: #f8fafc;
+        }
+        /* Global Loading Spinner Overlay */
+        #globalLoadingSpinner {
+            position: fixed;
+            inset: 0;
+            z-index: 10050;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(3px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.2s ease;
+        }
+        #globalLoadingSpinner.d-none { display: none !important; }
+        .spinner-box {
+            background: #ffffff;
+            padding: 1.5rem 2.25rem;
+            border-radius: 1rem;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.35);
+            text-align: center;
+            border-top: 4px solid #0284c7;
+            min-width: 290px;
+        }
+        .pulse-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 0 rgba(34, 197, 94, 0.7);
+            animation: pulseGreen 1.6s infinite;
+        }
+        @keyframes pulseGreen {
+            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ==================== GLOBAL LOADING SPINNER OVERLAY ==================== -->
+<div id="globalLoadingSpinner" class="d-none">
+    <div class="spinner-box">
+        <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">កំពុងដំណើរការ...</span>
+        </div>
+        <div class="fw-bold text-dark fs-6" id="globalSpinnerMessage">កំពុងភ្ជាប់ទិន្នន័យជាមួយ Google Sheet...</div>
+        <div class="small text-muted mt-1">សូមរង់ចាំបន្តិច (Please wait)...</div>
+    </div>
+</div>
+
+<!-- ==================== TOP NAVBAR ==================== -->
+<nav class="kiosk-navbar d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div class="d-flex align-items-center gap-3">
+        <span class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-25 rounded-circle" style="width: 46px; height: 46px;">
+            <i class="fas fa-qrcode text-info fs-4"></i>
+        </span>
+        <div>
+            <h5 class="mb-0 fw-bold" style="font-family: 'Hanuman', serif;">ប្រព័ន្ធស្កេន QR Code ចូល-ចេញបណ្ណាល័យ (Student Scan In / Scan Out)</h5>
+            <div class="small text-info">មជ្ឈមណ្ឌលគរុកោសល្យភូមិភាគ (RTTC Library Kiosk — <code>scan.html</code>)</div>
+        </div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-dark border border-info px-3 py-2 fs-6">
+            <i class="far fa-clock text-info me-1"></i> <span id="liveClockDisplay">--:--:--</span>
+        </span>
+        <a href="index.html" class="btn btn-outline-info btn-sm fw-bold">
+            <i class="fas fa-arrow-left me-1"></i> ត្រឡប់ទៅផ្ទាំងគ្រប់គ្រង (Dashboard)
+        </a>
+    </div>
+</nav>
+
+<div class="container-fluid px-4">
+    <!-- KPI Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-3 p-3 border-start border-success border-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted small fw-bold"><span class="pulse-dot me-1"></span> សិស្សកំពុងអានសៀវភៅក្នុងបណ្ណាល័យឥឡូវនេះ</span>
+                        <h2 class="fw-bold text-success my-1" id="kpiCurrentlyReading">0 នាក់</h2>
+                        <span class="small text-secondary">Currently Reading Inside Library</span>
+                    </div>
+                    <i class="fas fa-book-reader fs-1 text-success opacity-25"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-3 p-3 border-start border-primary border-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted small fw-bold">សិស្សបានស្កេនចូលសរុបក្នុងថ្ងៃនេះ</span>
+                        <h2 class="fw-bold text-primary my-1" id="kpiTotalToday">0 នាក់</h2>
+                        <span class="small text-secondary" id="kpiTodayDateLabel">Today's Total Check-Ins</span>
+                    </div>
+                    <i class="fas fa-sign-in-alt fs-1 text-primary opacity-25"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-3 p-3 border-start border-secondary border-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted small fw-bold">សិស្សបានស្កេនចេញរួចក្នុងថ្ងៃនេះ</span>
+                        <h2 class="fw-bold text-secondary my-1" id="kpiCheckedOutToday">0 នាក់</h2>
+                        <span class="small text-secondary">Checked Out Today</span>
+                    </div>
+                    <i class="fas fa-sign-out-alt fs-1 text-secondary opacity-25"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- LEFT COLUMN: QR SCANNER & CHECK-IN / CHECK-OUT FORM -->
+        <div class="col-lg-5">
+            <div class="card scanner-card bg-white">
+                <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold" style="font-family: 'Hanuman', serif;">
+                        <i class="fas fa-qrcode me-2"></i>បែបបទស្កេន QR Code ចូល និងចេញបណ្ណាល័យ
+                    </h5>
+                    <span class="badge bg-white text-primary fw-bold">QR Scan Kiosk</span>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Scan Mode Selector (Auto / Scan In / Scan Out) -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">១. ជ្រើសរើសប្រភេទនៃការស្កេន (Scan Mode) <span class="text-danger">*</span></label>
+                        <div class="btn-group w-100 shadow-sm" role="group">
+                            <input type="radio" class="btn-check" name="scanModeRadio" id="mode_auto" value="auto" checked onchange="updateScanModeUI()">
+                            <label class="btn btn-outline-primary fw-bold py-2" for="mode_auto">
+                                <i class="fas fa-magic me-1"></i> ស្វ័យប្រវត្តិ (Auto ចូល/ចេញ)
+                            </label>
+
+                            <input type="radio" class="btn-check" name="scanModeRadio" id="mode_in" value="in" onchange="updateScanModeUI()">
+                            <label class="btn btn-outline-success fw-bold py-2" for="mode_in">
+                                <i class="fas fa-sign-in-alt me-1"></i> ស្កេនចូល (Scan In)
+                            </label>
+
+                            <input type="radio" class="btn-check" name="scanModeRadio" id="mode_out" value="out" onchange="updateScanModeUI()">
+                            <label class="btn btn-outline-danger fw-bold py-2" for="mode_out">
+                                <i class="fas fa-sign-out-alt me-1"></i> ស្កេនចេញ (Scan Out)
+                            </label>
+                        </div>
+                        <div class="form-text text-primary mt-1" id="scanModeHelperText">
+                            <i class="fas fa-info-circle me-1"></i><strong>មុខងារស្វ័យប្រវត្តិ៖</strong> ស្កេនលើកទី១ កត់ត្រា <strong>ម៉ោងចូល</strong> | ស្កេនម្តងទៀតពេលត្រឡប់ទៅវិញ កត់ត្រា <strong>ម៉ោងចេញ</strong> ដោយស្វ័យប្រវត្តិ!
+                        </div>
+                    </div>
+
+                    <!-- Camera QR Code Scanner Toggle -->
+                    <div class="mb-3 text-center">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold small text-secondary"><i class="fas fa-camera text-primary me-1"></i> ស្កេនតាមកាមេរ៉ា (Camera QR Scanner)៖</span>
+                            <button type="button" id="toggleCameraBtn" class="btn btn-sm btn-dark" onclick="toggleCameraScanner()">
+                                <i class="fas fa-video text-info me-1"></i> បើកកាមេរ៉ាស្កេន QR
+                            </button>
+                        </div>
+                        <div id="qrReaderBox" class="d-none mb-2"></div>
+                    </div>
+
+                    <form id="scanQrForm" onsubmit="handleScanFormSubmit(event)">
+                        <!-- QR Scanner Gun / Barcode Input -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">២. ស្កេន QR Code ឬវាយបញ្ចូលលេខកូដសិស្ស <span class="text-danger">*</span></label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text bg-dark text-info"><i class="fas fa-qrcode"></i></span>
+                                <input type="text" id="qrScanInput" class="form-control fw-bold text-primary" placeholder="ដាក់ Cursor ទីនេះដើម្បីស្កេន QR (ឧ. RTTC-STU-001)..." autofocus oninput="onQrInputChanged(this.value)">
+                                <button type="button" class="btn btn-outline-secondary" onclick="clearScanInputs()" title="សម្អាត"><i class="fas fa-times"></i></button>
+                            </div>
+                            <div class="form-text">គាំទ្រទម្រង់ QR៖ <code>ID:1|CODE:RTTC-STU-001</code> ឬលេខកូដ <code>RTTC-STU-001</code></div>
+                        </div>
+
+                        <!-- Or Select Student from Dropdown -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">៣. ឬជ្រើសរើសឈ្មោះសិស្ស / គរុសិស្សពីបញ្ជី</label>
+                            <select id="scanMemberSelect" class="form-select" onchange="onMemberDropdownSelected(this.value)">
+                                <option value="">-- ស្វែងរកឈ្មោះសិស្ស ឬលេខកូដសមាជិក --</option>
+                            </select>
+                        </div>
+
+                        <!-- Purpose & Remarks (Shown for Auto / Scan In) -->
+                        <div id="purposeSectionBox" class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">៤. គោលបំណងចូលបណ្ណាល័យ</label>
+                                <select id="scanPurpose" class="form-select">
+                                    <option value="អានសៀវភៅ (Reading)">អានសៀវភៅ (Reading)</option>
+                                    <option value="ស្រាវជ្រាវកិច្ចការសាលា (Research)">ស្រាវជ្រាវកិច្ចការសាលា (Research)</option>
+                                    <option value="ខ្ចី-សងសៀវភៅ (Borrow/Return)">ខ្ចី-សងសៀវភៅ (Borrow/Return)</option>
+                                    <option value="ប្រើប្រាស់កុំព្យូទ័រ (Computer Lab)">ប្រើប្រាស់កុំព្យូទ័រ (Computer Lab)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">៥. កំណត់សម្គាល់</label>
+                                <input type="text" id="scanRemarks" class="form-control" placeholder="ឧ. អានសៀវភៅគរុកោសល្យ">
+                            </div>
+                        </div>
+
+                        <!-- Quick Demo Student QR Chips -->
+                        <div class="mb-3 p-2 rounded-3 bg-light border">
+                            <div class="small text-muted fw-bold mb-1"><i class="fas fa-bolt text-warning me-1"></i>សាកល្បងស្កេនរហ័ស (Quick Test Scan)៖</div>
+                            <div class="d-flex flex-wrap gap-1" id="quickStudentScanChips"></div>
+                        </div>
+
+                        <button type="submit" id="scanSubmitBtn" class="btn btn-primary w-100 py-2 fw-bold fs-5 shadow-sm">
+                            <i class="fas fa-qrcode me-1"></i> បញ្ជាក់ការស្កេន (ចូល / ចេញដោយស្វ័យប្រវត្តិ)
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: LIVE TABLE OF STUDENTS READING IN LIBRARY TODAY -->
+        <div class="col-lg-7">
+            <div class="card scanner-card bg-white h-100">
+                <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2 border-bottom">
+                    <div>
+                        <h5 class="mb-0 fw-bold text-dark" style="font-family: 'Hanuman', serif;">
+                            <i class="fas fa-users text-success me-2"></i>តារាងសិស្សកំពុងចូលអានសៀវភៅក្នុងបណ្ណាល័យថ្ងៃនេះ
+                        </h5>
+                        <div class="small text-muted">បង្ហាញម៉ោងស្កេនចូល (Time In) និងម៉ោងស្កេនចេញ (Time Out) ក្នុងថ្ងៃនេះផ្ទាល់ពី Google Sheet</div>
+                    </div>
+                    <div class="d-flex gap-2 align-items-center">
+                        <input type="text" id="todayVisitSearch" class="form-control form-control-sm" style="width: 210px;" placeholder="ស្វែងរកឈ្មោះ ឬលេខកូដ..." oninput="renderTodayVisitsTable()">
+                        <button class="btn btn-sm btn-outline-primary" onclick="loadScanPageData(true)" title="ទាញទិន្នន័យថ្មី"><i class="fas fa-sync-alt"></i></button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="max-height: 540px; overflow-y: auto;">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light" style="position: sticky; top: 0; z-index: 2;">
+                                <tr>
+                                    <th>ល.រ</th>
+                                    <th>លេខកូដសិស្ស</th>
+                                    <th>ឈ្មោះសិស្ស / គរុសិស្ស</th>
+                                    <th class="text-center">ម៉ោងចូល (In)</th>
+                                    <th class="text-center">ម៉ោងចេញ (Out)</th>
+                                    <th>គោលបំណង</th>
+                                    <th>ស្ថានភាព</th>
+                                    <th class="text-end pe-3">សកម្មភាព</th>
+                                </tr>
+                            </thead>
+                            <tbody id="todayVisitsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.all.min.js"></script>
+
+<script>
+let API_URL = localStorage.getItem("RTTC_API_URL") || "https://script.google.com/macros/s/AKfycby_placeholder_deploy_url/exec";
+
+const DEFAULT_MEMBERS = [
+    { id: 1, member_code: "RTTC-STU-001", khmer_name: "គង់ ពិសិដ្ឋ", full_name_en: "Kong Piseth", full_name: "គង់ ពិសិដ្ឋ (Kong Piseth)", gender: "ប្រុស (Male)", member_type: "គរុសិស្ស (Student)" },
+    { id: 2, member_code: "RTTC-STU-002", khmer_name: "សុខ ធីតា", full_name_en: "Sok Thida", full_name: "សុខ ធីតា (Sok Thida)", gender: "ស្រី (Female)", member_type: "គរុសិស្ស (Student)" },
+    { id: 3, member_code: "RTTC-TCH-001", khmer_name: "លោកគ្រូ កែវ វិបុល", full_name_en: "Keo Vibol", full_name: "លោកគ្រូ កែវ វិបុល (Keo Vibol)", gender: "ប្រុស (Male)", member_type: "គ្រូបង្រៀន (Teacher)" },
+    { id: 4, member_code: "RTTC-TCH-002", khmer_name: "អ្នកគ្រូ ម៉េង ស្រីពៅ", full_name_en: "Meng Sreypov", full_name: "អ្នកគ្រូ ម៉េង ស្រីពៅ (Meng Sreypov)", gender: "ស្រី (Female)", member_type: "គ្រូបង្រៀន (Teacher)" }
+];
+
+let spinnerCounter = 0;
+let scanSpinnerTimestamp = 0;
+function showLoadingSpinner(msg = "កំពុងដំណើរការជាមួយ Google Sheet...") {
+    spinnerCounter++;
+    scanSpinnerTimestamp = Date.now();
+    const el = document.getElementById("globalLoadingSpinner");
+    const msgEl = document.getElementById("globalSpinnerMessage");
+    if (msgEl) msgEl.innerText = msg;
+    if (el) el.classList.remove("d-none");
+}
+
+async function hideLoadingSpinner() {
+    const elapsed = Date.now() - scanSpinnerTimestamp;
+    if (elapsed < 500) {
+        await new Promise(r => setTimeout(r, 500 - elapsed));
+    }
+    spinnerCounter = Math.max(0, spinnerCounter - 1);
+    if (spinnerCounter === 0) {
+        const el = document.getElementById("globalLoadingSpinner");
+        if (el) el.classList.add("d-none");
+    }
+}
+
+function getTodayDateString() {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+}
+
+function getNowTimeString() {
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2, "0");
+    const min = String(now.getMinutes()).padStart(2, "0");
+    return `${hh}:${min}`;
+}
+
+/**
+ * Clean time formatter so 1899-12-30 never appears
+ */
+function formatCleanTime(rawVal, fallback = "--:--") {
+    if (!rawVal) return fallback;
+    const str = String(rawVal).replace(/^'/, "").trim();
+    if (!str) return fallback;
+    if (str.startsWith("1899") || str.startsWith("1900")) {
+        const m = str.match(/(\d{2}:\d{2})/);
+        return m ? m[1] : fallback;
+    }
+    const timeMatch = str.match(/^(\d{1,2}:\d{2})/);
+    if (timeMatch) return timeMatch[1];
+    return str;
+}
+
+function isApiConfigured() {
+    return API_URL && !API_URL.includes("placeholder_deploy_url");
+}
+
+function getLocalStore(key, fallback) {
+    const raw = localStorage.getItem("RTTC_DB_" + key);
+    if (raw) {
+        try { return JSON.parse(raw); } catch(e) {}
+    }
+    localStorage.setItem("RTTC_DB_" + key, JSON.stringify(fallback));
+    return JSON.parse(JSON.stringify(fallback));
+}
+
+function saveLocalStore(key, data) {
+    localStorage.setItem("RTTC_DB_" + key, JSON.stringify(data));
+}
+
+let allMembers = getLocalStore("members", DEFAULT_MEMBERS);
+let allVisits = getLocalStore("visits", []);
+
+// Ensure today has initial active readers if none exist for today yet
+function ensureDemoTodayVisits() {
+    const today = getTodayDateString();
+    const hasToday = allVisits.some(v => String(v.visit_date || "").replace(/^'/, "") === today);
+    if (!hasToday && allMembers.length >= 2) {
+        allVisits.unshift(
+            { id: Date.now() - 200, visit_date: today, member_id: 1, member_code: "RTTC-STU-001", full_name: "គង់ ពិសិដ្ឋ (Kong Piseth)", gender: "ប្រុស (Male)", member_type: "គរុសិស្ស (Student)", time_in: "08:15", time_out: "", purpose: "អានសៀវភៅ (Reading)", remarks: "កំពុងអានសៀវភៅក្នុងបណ្ណាល័យ" },
+            { id: Date.now() - 100, visit_date: today, member_id: 2, member_code: "RTTC-STU-002", full_name: "សុខ ធីតា (Sok Thida)", gender: "ស្រី (Female)", member_type: "គរុសិស្ស (Student)", time_in: "08:45", time_out: "", purpose: "ស្រាវជ្រាវកិច្ចការសាលា (Research)", remarks: "កំពុងស្រាវជ្រាវឯកសារគរុកោសល្យ" }
+        );
+        saveLocalStore("visits", allVisits);
+    }
+}
+
+async function loadScanPageData(showSpinner = true) {
+    if (showSpinner) showLoadingSpinner("កំពុងទាញយកទិន្នន័យសិស្សចូលអានសៀវភៅពី Google Sheet...");
+    try {
+        ensureDemoTodayVisits();
+        if (isApiConfigured()) {
+            try {
+                const u1 = new URL(API_URL);
+                u1.searchParams.append("action", "getMembers");
+                const r1 = await fetch(u1);
+                const j1 = await r1.json();
+                if (j1 && j1.success && j1.data) {
+                    allMembers = j1.data;
+                    saveLocalStore("members", allMembers);
+                }
+
+                const u2 = new URL(API_URL);
+                u2.searchParams.append("action", "getStudentVisits");
+                const r2 = await fetch(u2);
+                const j2 = await r2.json();
+                if (j2 && j2.success && j2.data) {
+                    allVisits = j2.data;
+                    saveLocalStore("visits", allVisits);
+                }
+            } catch (err) {
+                console.warn("Offline / local fallback:", err);
+            }
+        }
+        populateMemberSelectAndChips();
+        renderTodayVisitsTable();
+    } finally {
+        if (showSpinner) await await hideLoadingSpinner();
+    }
+}
+
+function getMemberDisplayName(m) {
+    if (!m) return "";
+    if (m.khmer_name && m.full_name_en) return `${m.khmer_name} (${m.full_name_en})`;
+    return m.full_name || m.khmer_name || m.full_name_en || "";
+}
+
+function populateMemberSelectAndChips() {
+    const sel = document.getElementById("scanMemberSelect");
+    const chipsBox = document.getElementById("quickStudentScanChips");
+    if (sel) {
+        sel.innerHTML = `<option value="">-- ស្វែងរកឈ្មោះសិស្ស ឬលេខកូដសមាជិក --</option>`;
+        allMembers.forEach(m => {
+            sel.innerHTML += `<option value="${m.id}">${m.member_code} - ${getMemberDisplayName(m)}</option>`;
+        });
+        if ($("#scanMemberSelect").hasClass("select2-hidden-accessible")) {
+            $("#scanMemberSelect").select2("destroy");
+        }
+        $("#scanMemberSelect").select2({
+            theme: "bootstrap-5",
+            width: "100%",
+            placeholder: "-- ស្វែងរកឈ្មោះសិស្ស ឬលេខកូដសមាជិក --",
+            allowClear: true
+        });
+    }
+
+    if (chipsBox) {
+        chipsBox.innerHTML = "";
+        allMembers.slice(0, 6).forEach(m => {
+            const qrPayload = `ID:${m.id}|CODE:${m.member_code}`;
+            chipsBox.innerHTML += `
+                <button type="button" class="btn btn-xs btn-outline-dark bg-white py-1 px-2" style="font-size: 0.78rem;" onclick="triggerQuickScan('${qrPayload}')">
+                    <i class="fas fa-qrcode text-primary me-1"></i>${m.member_code} (${m.khmer_name || m.full_name})
+                </button>
+            `;
+        });
+    }
+}
+
+function triggerQuickScan(qrPayload) {
+    document.getElementById("qrScanInput").value = qrPayload;
+    onQrInputChanged(qrPayload);
+    processQrScanAction(qrPayload);
+}
+
+function onQrInputChanged(val) {
+    const clean = String(val || "").trim();
+    if (!clean) return;
+    const matched = resolveMemberFromQrString(clean);
+    if (matched) {
+        $("#scanMemberSelect").val(String(matched.id)).trigger("change.select2");
+    }
+}
+
+function onMemberDropdownSelected(memberId) {
+    const m = allMembers.find(item => String(item.id) === String(memberId));
+    if (m) {
+        document.getElementById("qrScanInput").value = `ID:${m.id}|CODE:${m.member_code}`;
+    }
+}
+
+function clearScanInputs() {
+    document.getElementById("qrScanInput").value = "";
+    $("#scanMemberSelect").val("").trigger("change.select2");
+    document.getElementById("qrScanInput").focus();
+}
+
+function resolveMemberFromQrString(rawStr) {
+    const clean = String(rawStr || "").trim();
+    if (!clean) return null;
+    let matched = null;
+    if (clean.includes("ID:") || clean.includes("CODE:")) {
+        const codeMatch = clean.match(/CODE:([^|]+)/i);
+        const idMatch = clean.match(/ID:(\d+)/i);
+        if (codeMatch) matched = allMembers.find(m => String(m.member_code).toLowerCase() === codeMatch[1].trim().toLowerCase());
+        if (!matched && idMatch) matched = allMembers.find(m => String(m.id) === idMatch[1].trim());
+    } else {
+        matched = allMembers.find(m =>
+            String(m.member_code || "").toLowerCase() === clean.toLowerCase() ||
+            String(m.id) === clean ||
+            getMemberDisplayName(m).toLowerCase().includes(clean.toLowerCase())
+        );
+    }
+    return matched;
+}
+
+function updateScanModeUI() {
+    const mode = document.querySelector("input[name='scanModeRadio']:checked")?.value || "auto";
+    const btn = document.getElementById("scanSubmitBtn");
+    const helper = document.getElementById("scanModeHelperText");
+    const purposeBox = document.getElementById("purposeSectionBox");
+
+    if (mode === "in") {
+        btn.className = "btn btn-success w-100 py-2 fw-bold fs-5 shadow-sm";
+        btn.innerHTML = `<i class="fas fa-sign-in-alt me-1"></i> បញ្ជាក់ការស្កេនចូលបណ្ណាល័យ (Scan In)`;
+        helper.innerHTML = `<i class="fas fa-sign-in-alt text-success me-1"></i><strong>មុខងារស្កេនចូល៖</strong> កត់ត្រាម៉ោងចូលអានសៀវភៅក្នុងបណ្ណាល័យថ្ងៃនេះ។`;
+        purposeBox.classList.remove("d-none");
+    } else if (mode === "out") {
+        btn.className = "btn btn-danger w-100 py-2 fw-bold fs-5 shadow-sm";
+        btn.innerHTML = `<i class="fas fa-sign-out-alt me-1"></i> បញ្ជាក់ការស្កេនចេញពីបណ្ណាល័យ (Scan Out)`;
+        helper.innerHTML = `<i class="fas fa-sign-out-alt text-danger me-1"></i><strong>មុខងារស្កេនចេញ៖</strong> កត់ត្រាម៉ោងសិស្សចាកចេញពីបណ្ណាល័យ។`;
+        purposeBox.classList.add("d-none");
+    } else {
+        btn.className = "btn btn-primary w-100 py-2 fw-bold fs-5 shadow-sm";
+        btn.innerHTML = `<i class="fas fa-qrcode me-1"></i> បញ្ជាក់ការស្កេន (ចូល / ចេញដោយស្វ័យប្រវត្តិ)`;
+        helper.innerHTML = `<i class="fas fa-info-circle me-1"></i><strong>មុខងារស្វ័យប្រវត្តិ៖</strong> ស្កេនលើកទី១ កត់ត្រា <strong>ម៉ោងចូល</strong> | ស្កេនម្តងទៀតពេលត្រឡប់ទៅវិញ កត់ត្រា <strong>ម៉ោងចេញ</strong> ដោយស្វ័យប្រវត្តិ!`;
+        purposeBox.classList.remove("d-none");
+    }
+}
+
+async function handleScanFormSubmit(e) {
+    e.preventDefault();
+    const rawQr = document.getElementById("qrScanInput").value.trim();
+    const selectedId = $("#scanMemberSelect").val();
+    await processQrScanAction(rawQr || selectedId);
+}
+
+async function processQrScanAction(qrOrId) {
+    let member = resolveMemberFromQrString(qrOrId);
+    if (!member) {
+        const selId = $("#scanMemberSelect").val();
+        if (selId) member = allMembers.find(m => String(m.id) === String(selId));
+    }
+
+    if (!member) {
+        Swal.fire("រកមិនឃើញសមាជិក!", "សូមស្កេន QR Code ឬជ្រើសរើសសិស្សពីបញ្ជីឱ្យបានត្រឹមត្រូវ!", "warning");
+        return;
+    }
+
+    const mode = document.querySelector("input[name='scanModeRadio']:checked")?.value || "auto";
+    const today = getTodayDateString();
+    const nowTime = getNowTimeString();
+    const purpose = document.getElementById("scanPurpose").value;
+    const remarks = document.getElementById("scanRemarks").value.trim();
+
+    // Check if student currently has an active (unchecked-out) visit today
+    const activeVisit = allVisits.find(v =>
+        String(v.visit_date || "").replace(/^'/, "") === today &&
+        (String(v.member_id) === String(member.id) || String(v.member_code).toLowerCase() === String(member.member_code).toLowerCase()) &&
+        (!v.time_out || String(v.time_out).trim() === "")
+    );
+
+    let actionType = mode;
+    if (mode === "auto") {
+        actionType = activeVisit ? "out" : "in";
+    }
+
+    showLoadingSpinner(actionType === "in" ? "កំពុងកត់ត្រាការស្កេនចូលបណ្ណាល័យទៅកាន់ Google Sheet..." : "កំពុងកត់ត្រាការស្កេនចេញពីបណ្ណាល័យទៅកាន់ Google Sheet...");
+    try {
+        if (actionType === "out") {
+            if (!activeVisit) {
+                await hideLoadingSpinner();
+                Swal.fire("មិនទាន់បានស្កេនចូល!", `សិស្ស ${getMemberDisplayName(member)} មិនទាន់មានកំណត់ត្រាស្កេនចូលក្នុងថ្ងៃនេះទេ!`, "warning");
+                return;
+            }
+            activeVisit.time_out = nowTime;
+            if (remarks) activeVisit.remarks = remarks;
+            saveLocalStore("visits", allVisits);
+
+            if (isApiConfigured()) {
+                await fetch(API_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        action: "checkoutStudentVisit",
+                        id: activeVisit.id,
+                        member_id: member.id,
+                        member_code: member.member_code,
+                        visit_date: today,
+                        time_out: nowTime,
+                        remarks: activeVisit.remarks
+                    })
+                });
+            }
+
+            await hideLoadingSpinner();
+            Swal.fire({
+                icon: "info",
+                title: "ស្កេនចេញពីបណ្ណាល័យជោគជ័យ! (Scan Out)",
+                html: `<div class="fw-bold fs-5 text-dark">${getMemberDisplayName(member)}</div>
+                       <div class="badge bg-primary my-1">${member.member_code}</div>
+                       <div class="mt-2">ម៉ោងចូល៖ <strong>${formatCleanTime(activeVisit.time_in)}</strong> &rarr; ម៉ោងចេញ៖ <strong class="text-danger">${nowTime}</strong></div>`,
+                timer: 2300,
+                showConfirmButton: false
+            });
+        } else {
+            if (activeVisit) {
+                await hideLoadingSpinner();
+                Swal.fire({
+                    icon: "question",
+                    title: "សិស្សនេះកំពុងស្ថិតក្នុងបណ្ណាល័យរួចហើយ!",
+                    text: `តើអ្នកចង់កត់ត្រា «ស្កេនចេញ (Scan Out)» សម្រាប់ ${getMemberDisplayName(member)} ឥឡូវនេះមែនទេ?`,
+                    showCancelButton: true,
+                    confirmButtonText: "បាទ/ចាស, ស្កេនចេញឥឡូវនេះ",
+                    cancelButtonText: "បោះបង់"
+                }).then(r => {
+                    if (r.isConfirmed) {
+                        checkoutVisitById(activeVisit.id);
+                    }
+                });
+                return;
+            }
+
+            const nextId = allVisits.length > 0 ? Math.max(...allVisits.map(v => Number(v.id) || 0)) + 1 : 1;
+            const newVisit = {
+                id: nextId,
+                visit_date: today,
+                member_id: member.id,
+                member_code: member.member_code,
+                full_name: getMemberDisplayName(member),
+                gender: member.gender || "ប្រុស (Male)",
+                member_type: member.member_type || "គរុសិស្ស (Student)",
+                time_in: nowTime,
+                time_out: "",
+                purpose: purpose,
+                remarks: remarks || "កំពុងអានសៀវភៅក្នុងបណ្ណាល័យ"
+            };
+            allVisits.unshift(newVisit);
+            saveLocalStore("visits", allVisits);
+
+            if (isApiConfigured()) {
+                await fetch(API_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(Object.assign({ action: "addStudentVisit" }, newVisit))
+                });
+            }
+
+            await hideLoadingSpinner();
+            Swal.fire({
+                icon: "success",
+                title: "ស្កេនចូលបណ្ណាល័យជោគជ័យ! (Scan In)",
+                html: `<div class="fw-bold fs-5 text-dark">${getMemberDisplayName(member)}</div>
+                       <div class="badge bg-success my-1">${member.member_code}</div>
+                       <div class="mt-2">ម៉ោងស្កេនចូល៖ <strong class="text-success">${nowTime}</strong> | គោលបំណង៖ <strong>${purpose}</strong></div>`,
+                timer: 2300,
+                showConfirmButton: false
+            });
+        }
+
+        clearScanInputs();
+        document.getElementById("scanRemarks").value = "";
+        renderTodayVisitsTable();
+    } catch (err) {
+        await hideLoadingSpinner();
+        console.error(err);
+    }
+}
+
+async function checkoutVisitById(visitId) {
+    const v = allVisits.find(item => String(item.id) === String(visitId));
+    if (!v) return;
+    const nowTime = getNowTimeString();
+    showLoadingSpinner("កំពុងកត់ត្រាការស្កេនចេញទៅកាន់ Google Sheet...");
+    try {
+        v.time_out = nowTime;
+        v.remarks = "បានស្កេនចេញពីបណ្ណាល័យ";
+        saveLocalStore("visits", allVisits);
+
+        if (isApiConfigured()) {
+            await fetch(API_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    action: "checkoutStudentVisit",
+                    id: v.id,
+                    member_id: v.member_id,
+                    member_code: v.member_code,
+                    visit_date: v.visit_date,
+                    time_out: nowTime
+                })
+            });
+        }
+        await hideLoadingSpinner();
+        Swal.fire({
+            icon: "success",
+            title: "បានស្កេនចេញរួចរាល់!",
+            text: `${v.full_name} — ម៉ោងចេញ៖ ${nowTime}`,
+            timer: 1600,
+            showConfirmButton: false
+        });
+        renderTodayVisitsTable();
+    } catch (e) {
+        await hideLoadingSpinner();
+    }
+}
+
+function renderTodayVisitsTable() {
+    const today = getTodayDateString();
+    document.getElementById("kpiTodayDateLabel").innerText = `កាលបរិច្ឆេទថ្ងៃនេះ៖ ${today}`;
+
+    const todayList = allVisits.filter(v => String(v.visit_date || "").replace(/^'/, "") === today);
+    const activeReading = todayList.filter(v => !v.time_out || String(v.time_out).trim() === "");
+    const checkedOut = todayList.filter(v => v.time_out && String(v.time_out).trim() !== "");
+
+    document.getElementById("kpiCurrentlyReading").innerText = `${activeReading.length} នាក់`;
+    document.getElementById("kpiTotalToday").innerText = `${todayList.length} នាក់`;
+    document.getElementById("kpiCheckedOutToday").innerText = `${checkedOut.length} នាក់`;
+
+    const q = (document.getElementById("todayVisitSearch")?.value || "").toLowerCase().trim();
+    const filtered = todayList.filter(v => {
+        if (!q) return true;
+        return String(v.full_name || "").toLowerCase().includes(q) ||
+               String(v.member_code || "").toLowerCase().includes(q) ||
+               String(v.purpose || "").toLowerCase().includes(q);
+    });
+
+    const tbody = document.getElementById("todayVisitsTableBody");
+    tbody.innerHTML = "";
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-muted">មិនទាន់មានសិស្សស្កេនចូលបណ្ណាល័យក្នុងថ្ងៃនេះទេ</td></tr>`;
+        return;
+    }
+
+    filtered.forEach((v, idx) => {
+        const isReading = !v.time_out || String(v.time_out).trim() === "";
+        const cleanIn = formatCleanTime(v.time_in, "08:00");
+        const cleanOut = isReading ? "--:--" : formatCleanTime(v.time_out, "--:--");
+
+        tbody.innerHTML += `
+            <tr class="${isReading ? 'table-success bg-opacity-10' : ''}">
+                <td class="fw-bold text-secondary">${idx + 1}</td>
+                <td><span class="badge bg-primary-subtle text-primary border">${v.member_code || ""}</span></td>
+                <td>
+                    <div class="fw-bold text-dark">${v.full_name || ""}</div>
+                    <div class="small text-muted">${v.gender || ""} | ${v.member_type || ""}</div>
+                </td>
+                <td class="text-center"><span class="badge bg-success">${cleanIn}</span></td>
+                <td class="text-center">${isReading ? `<span class="badge bg-warning text-dark">កំពុងអាន</span>` : `<span class="badge bg-secondary">${cleanOut}</span>`}</td>
+                <td><span class="small fw-semibold">${v.purpose || "អានសៀវភៅ"}</span></td>
+                <td>
+                    ${isReading
+                        ? `<span class="badge bg-success-subtle text-success border border-success"><span class="pulse-dot me-1" style="width:7px;height:7px;"></span>កំពុងអានក្នុងបណ្ណាល័យ</span>`
+                        : `<span class="badge bg-light text-secondary border">បានចេញរួច</span>`}
+                </td>
+                <td class="text-end pe-3">
+                    ${isReading
+                        ? `<button type="button" class="btn btn-sm btn-danger fw-bold shadow-sm" onclick="checkoutVisitById('${v.id}')">
+                               <i class="fas fa-sign-out-alt me-1"></i> ស្កេនចេញ
+                           </button>`
+                        : `<span class="small text-muted"><i class="fas fa-check-double text-success"></i> ចេញរួច</span>`}
+                </td>
+            </tr>
+        `;
+    });
+}
+
+// Camera QR Scanner using html5-qrcode
+let html5QrCodeInstance = null;
+let cameraRunning = false;
+
+function toggleCameraScanner() {
+    const box = document.getElementById("qrReaderBox");
+    const btn = document.getElementById("toggleCameraBtn");
+
+    if (cameraRunning && html5QrCodeInstance) {
+        html5QrCodeInstance.stop().then(() => {
+            cameraRunning = false;
+            box.classList.add("d-none");
+            btn.innerHTML = `<i class="fas fa-video text-info me-1"></i> បើកកាមេរ៉ាស្កេន QR`;
+            btn.className = "btn btn-sm btn-dark";
+        }).catch(err => console.warn(err));
+        return;
+    }
+
+    box.classList.remove("d-none");
+    btn.innerHTML = `<i class="fas fa-stop-circle text-warning me-1"></i> បិទកាមេរ៉ាស្កេន`;
+    btn.className = "btn btn-sm btn-danger";
+
+    if (!html5QrCodeInstance) {
+        html5QrCodeInstance = new Html5Qrcode("qrReaderBox");
+    }
+    html5QrCodeInstance.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 220, height: 220 } },
+        (decodedText) => {
+            document.getElementById("qrScanInput").value = decodedText;
+            onQrInputChanged(decodedText);
+            processQrScanAction(decodedText);
+        },
+        () => {}
+    ).then(() => {
+        cameraRunning = true;
+    }).catch(err => {
+        box.classList.add("d-none");
+        btn.innerHTML = `<i class="fas fa-video text-info me-1"></i> បើកកាមេរ៉ាស្កេន QR`;
+        btn.className = "btn btn-sm btn-dark";
+        Swal.fire("មិនអាចបើកកាមេរ៉ាបានទេ", "សូមប្រើប្រាស់ម៉ាស៊ីនស្កេន QR ឬជ្រើសរើសឈ្មោះសិស្សពីបញ្ជី។", "info");
+    });
+}
+
+setInterval(() => {
+    const now = new Date();
+    const el = document.getElementById("liveClockDisplay");
+    if (el) el.innerText = now.toLocaleTimeString("en-GB");
+}, 1000);
+
+document.addEventListener("DOMContentLoaded", () => {
+    loadScanPageData(true);
+});
+</script>
+</body>
+</html>
