@@ -18,10 +18,41 @@
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.min.css" rel="stylesheet">
     <style>
         :root {
-            --bs-body-font-family: 'Kantumruy Pro', 'Hanuman', sans-serif;
+            --bs-body-font-family: 'Kantumruy Pro', 'Hanuman', 'Inter', sans-serif;
             --sidebar-width: 280px;
         }
         body { font-family: var(--bs-body-font-family); background-color: #f8fafc; color: #1e293b; }
+
+        /* ==================== LOGIN OVERLAY SCREEN ==================== */
+        #loginOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 55%, #0284c7 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        #loginOverlay.d-none { display: none !important; }
+        .login-card {
+            background: #ffffff;
+            border-radius: 1.25rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
+            width: 100%;
+            max-width: 480px;
+            overflow: hidden;
+            animation: fadeIn 0.3s ease-out;
+        }
+        .login-header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #ffffff;
+            padding: 1.75rem 1.5rem;
+            text-align: center;
+            border-bottom: 4px solid #38bdf8;
+        }
+
+        /* ==================== SIDEBAR ==================== */
         .sidebar {
             width: var(--sidebar-width);
             background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
@@ -34,7 +65,7 @@
             z-index: 1000;
         }
         .sidebar-brand {
-            padding: 1.2rem 1.25rem;
+            padding: 1.1rem 1.25rem;
             color: #ffffff !important;
             font-weight: 700;
             border-bottom: 1px solid rgba(255,255,255,0.12);
@@ -43,7 +74,12 @@
             gap: 0.75rem;
             text-decoration: none;
         }
-        .sidebar-menu { list-style: none; padding: 0.75rem 0; margin: 0; }
+        .librarian-profile-box {
+            background: rgba(255, 255, 255, 0.06);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.75rem 1.25rem;
+        }
+        .sidebar-menu { list-style: none; padding: 0.6rem 0; margin: 0; }
         .sidebar-menu li a,
         .sidebar-menu li a:link,
         .sidebar-menu li a:visited,
@@ -51,11 +87,11 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0.75rem 1.25rem;
+            padding: 0.72rem 1.25rem;
             color: #f1f5f9 !important;
             text-decoration: none !important;
             font-weight: 500;
-            font-size: 0.93rem;
+            font-size: 0.92rem;
             cursor: pointer;
             border-left: 4px solid transparent;
             transition: all 0.2s;
@@ -77,7 +113,7 @@
             color: #38bdf8 !important;
             font-weight: 600;
         }
-        /* Sub-tree menu styling with high-contrast readable text */
+        /* Sub-tree menu styling */
         .submenu {
             list-style: none;
             padding: 0.3rem 0;
@@ -90,14 +126,12 @@
         .submenu li a:link,
         .submenu li a:visited,
         .submenu li a:not([href]) {
-            padding: 0.6rem 1.25rem 0.6rem 2.6rem;
-            font-size: 0.88rem;
+            padding: 0.58rem 1.25rem 0.58rem 2.6rem;
+            font-size: 0.87rem;
             color: #e2e8f0 !important;
             border-left: 4px solid transparent;
         }
-        .submenu li a .menu-label {
-            color: #e2e8f0 !important;
-        }
+        .submenu li a .menu-label { color: #e2e8f0 !important; }
         .submenu li a:hover,
         .submenu li.active > a {
             color: #38bdf8 !important;
@@ -160,7 +194,7 @@
         .qr-canvas-box img, .qr-canvas-box canvas { margin: 0 auto; }
 
         @media print {
-            .sidebar, .no-print, .btn, .modal-footer, .modal-header .btn-close { display: none !important; }
+            .sidebar, .no-print, #loginOverlay, .btn, .modal-footer, .modal-header .btn-close { display: none !important; }
             .main-content { margin-left: 0 !important; padding: 0 !important; }
             body { background: #fff !important; }
             .card { box-shadow: none !important; border: 1px solid #ddd !important; }
@@ -173,6 +207,75 @@
 </head>
 <body>
 
+<!-- ==================== LIBRARIAN LOGIN SCREEN OVERLAY ==================== -->
+<div id="loginOverlay">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="mb-2">
+                <span class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-25 rounded-circle" style="width: 60px; height: 60px;">
+                    <i class="fas fa-book-reader text-info fs-2"></i>
+                </span>
+            </div>
+            <h4 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;">ប្រព័ន្ធគ្រប់គ្រងបណ្ណាល័យ គរុកោសល្យ</h4>
+            <div class="small text-info fw-semibold">RTTC Library Management System — Librarian Login</div>
+        </div>
+        <div class="p-4">
+            <form id="librarianLoginForm" onsubmit="handleLibrarianLogin(event)">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">១. ឈ្មោះបណ្ណារក្សជាភាសាអង់គ្លេស (Full Name in English) <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="fas fa-user-tie text-primary"></i></span>
+                        <input type="text" id="login_full_name_en" class="form-control" list="librarianEnList" required placeholder="e.g. Sok Sambath" oninput="syncLoginKhmerName(this.value)">
+                    </div>
+                    <datalist id="librarianEnList">
+                        <option value="Sok Sambath">សុខ សម្បត្តិ (LIB-001)</option>
+                        <option value="Chan Moniroth">ចាន់ មុនីរតន៍ (LIB-002)</option>
+                        <option value="Kong Chanda">គង់ ចិន្តា (LIB-003)</option>
+                    </datalist>
+                    <div class="form-text">វាយបញ្ចូល Full Name in English (ឧ. <code>Sok Sambath</code>)</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">២. ឈ្មោះជាភាសាខ្មែរ (Khmer Name) <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="fas fa-id-badge text-success"></i></span>
+                        <input type="text" id="login_khmer_name" class="form-control" required placeholder="ឧ. សុខ សម្បត្តិ">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">៣. លេខកូដសម្ងាត់ (Password / Staff Code)</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="fas fa-lock text-secondary"></i></span>
+                        <input type="password" id="login_password" class="form-control" value="123456" required placeholder="123456">
+                    </div>
+                </div>
+
+                <!-- Quick Demo Select Chips -->
+                <div class="mb-4">
+                    <div class="small text-muted mb-1">ជ្រើសរើសគណនីបណ្ណារក្សរហ័ស (Quick Fill):</div>
+                    <div class="d-flex flex-wrap gap-1">
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="fillLoginDemo('Sok Sambath', 'សុខ សម្បត្តិ', 'LIB-001')">
+                            <i class="fas fa-user-check me-1"></i> Sok Sambath (សុខ សម្បត្តិ)
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="fillLoginDemo('Chan Moniroth', 'ចាន់ មុនីរតន៍', 'LIB-002')">
+                            <i class="fas fa-user-check me-1"></i> Chan Moniroth (ចាន់ មុនីរតន៍)
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="fillLoginDemo('Kong Chanda', 'គង់ ចិន្តា', 'LIB-003')">
+                            <i class="fas fa-user-check me-1"></i> Kong Chanda (គង់ ចិន្តា)
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">
+                    <i class="fas fa-sign-in-alt me-1"></i> ចូលប្រព័ន្ធបណ្ណាល័យ (Sign In)
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SIDEBAR NAVIGATION ==================== -->
 <div class="sidebar no-print">
     <a href="javascript:void(0)" class="sidebar-brand" onclick="switchView('dashboard')">
         <i class="fas fa-book-reader text-info fs-4"></i>
@@ -181,6 +284,21 @@
             <div style="font-size: 0.72rem; color: #cbd5e1; font-weight: 400;">RTTC Library System</div>
         </div>
     </a>
+
+    <!-- Logged-in Librarian Badge -->
+    <div class="librarian-profile-box">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <div class="small text-info fw-bold"><i class="fas fa-user-shield me-1"></i> បណ្ណារក្សកំពុងប្រចាំការ៖</div>
+                <div class="fw-bold text-white mt-1" id="sidebarLibKhmerName" style="font-size: 0.92rem;">សុខ សម្បត្តិ</div>
+                <div class="small text-light opacity-75" id="sidebarLibEnName" style="font-size: 0.78rem;">Sok Sambath (LIB-001)</div>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-danger py-1 px-2" onclick="handleLibrarianLogout()" title="ចាកចេញពីប្រព័ន្ធ (Logout)">
+                <i class="fas fa-power-off"></i>
+            </button>
+        </div>
+    </div>
+
     <ul class="sidebar-menu">
         <li id="nav-dashboard" class="active" onclick="switchView('dashboard', this)">
             <a href="javascript:void(0)"><span class="menu-label"><i class="fas fa-chart-pie text-info"></i> ផ្ទាំងព័ត៌មាន (Dashboard)</span></a>
@@ -243,7 +361,7 @@
             </ul>
         </li>
 
-        <li class="mt-3 pt-2 border-top border-secondary">
+        <li class="mt-2 pt-2 border-top border-secondary">
             <a href="https://docs.google.com/spreadsheets/d/13uiO2EIpeiVtUQAzv5ph46ziMy1d3m5dcVY7lxgMqVA/edit" target="_blank">
                 <span class="menu-label" style="color: #fbbf24 !important;"><i class="fas fa-external-link-alt text-warning"></i> បើក Google Sheet DB</span>
             </a>
@@ -262,12 +380,12 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;">ផ្ទាំងគ្រប់គ្រងទិន្នន័យបណ្ណាល័យ RTTC</h2>
-                <p class="text-muted mb-0"><i class="fas fa-cloud text-primary me-1"></i> Google Sheets Backend | ប្រព័ន្ធគ្រប់គ្រងបណ្ណាល័យទំនើប</p>
+                <p class="text-muted mb-0"><i class="fas fa-cloud text-primary me-1"></i> Google Sheets Backend | សូមស្វាគមន៍បណ្ណារក្ស៖ <strong id="dashWelcomeLibName" class="text-primary">សុខ សម្បត្តិ (Sok Sambath)</strong></p>
             </div>
             <div class="d-flex gap-2">
+                <button class="btn btn-warning btn-sm fw-bold" onclick="switchView('attendance')"><i class="fas fa-user-clock me-1"></i> ចុះវត្តមានបណ្ណារក្ស</button>
                 <button class="btn btn-primary btn-sm" onclick="switchView('loan-borrow')"><i class="fas fa-hand-holding-heart me-1"></i> ខ្ចីសៀវភៅ</button>
                 <button class="btn btn-success btn-sm" onclick="switchView('loan-return')"><i class="fas fa-undo-alt me-1"></i> សងសៀវភៅ</button>
-                <button class="btn btn-outline-secondary btn-sm" onclick="loadDashboard()"><i class="fas fa-sync-alt"></i></button>
             </div>
         </div>
 
@@ -434,7 +552,7 @@
                             <div class="mb-3">
                                 <label class="form-label fw-bold">១. ជ្រើសរើសសិស្ស / គរុសិស្សដែលខ្ចី <span class="text-danger">*</span></label>
                                 <select id="inline_member_select" class="form-select" style="width:100%" required></select>
-                                <div class="form-text">វាយឈ្មោះ ឬលេខកូដសមាជិក (ឧ. RTTC-STU-001)</div>
+                                <div class="form-text">វាយឈ្មោះខ្មែរ, Full Name in English, ឬលេខកូដសមាជិក (ឧ. RTTC-STU-001)</div>
                             </div>
 
                             <!-- Multi-select Books Dropdown + Live Selected Books Sub-list -->
@@ -446,7 +564,6 @@
                                 <select id="inline_book_select" class="form-select" multiple="multiple" style="width:100%" required onchange="renderSelectedBooksPreview()"></select>
                                 <div class="form-text text-primary"><i class="fas fa-info-circle me-1"></i>អ្នកអាចចុចជ្រើសរើសសៀវភៅ ១ក្បាល ២ក្បាល ឬច្រើនក្បាលបន្តបន្ទាប់គ្នាបានភ្លាមៗក្នុងប្រអប់នេះ</div>
 
-                                <!-- Live Preview of Selected Books to Borrow -->
                                 <div id="selectedBooksPreviewBox" class="mt-2 p-3 border rounded-3 bg-light d-none">
                                     <div class="small fw-bold text-secondary mb-2"><i class="fas fa-layer-group text-primary me-1"></i> បញ្ជីសៀវភៅដែលបានជ្រើសរើសសម្រាប់ខ្ចី៖</div>
                                     <ul id="selectedBooksPreviewList" class="list-group list-group-flush small rounded-2"></ul>
@@ -514,7 +631,7 @@
                             <div class="mb-3">
                                 <label class="form-label fw-bold">១. ជ្រើសរើសសិស្ស / សៀវភៅដែលយកមកសង <span class="text-danger">*</span></label>
                                 <select id="ret_js_loan_select" class="form-select" style="width:100%" required></select>
-                                <div class="form-text">វាយឈ្មោះសិស្ស ឬចុចប៊ូតុង <strong>«ជ្រើសរើសសង»</strong> ពីបញ្ជីរង (Sub-list) ខាងស្តាំដៃ</div>
+                                <div class="form-text">វាយឈ្មោះសិស្ស ឬចុចប៊ូតុង <strong>«សង»</strong> ពីបញ្ជីរង (Sub-list) ខាងស្តាំដៃ</div>
                             </div>
 
                             <div class="mb-3">
@@ -544,7 +661,6 @@
                                 </div>
                             </div>
 
-                            <!-- Dynamic Section A: នៅល្អ -->
                             <div id="jsNoFineBanner" class="alert alert-success d-flex align-items-center py-2 px-3 mb-3">
                                 <i class="fas fa-shield-alt fs-4 me-2 text-success"></i>
                                 <div>
@@ -553,7 +669,6 @@
                                 </div>
                             </div>
 
-                            <!-- Dynamic Section B: រហែក / បាត់ -->
                             <div id="jsFineInputSection" class="p-3 border border-warning rounded-3 bg-warning-subtle mb-3 d-none">
                                 <label class="form-label fw-bold text-danger">
                                     <i class="fas fa-coins me-1"></i> ៣. វាយបញ្ចូលទឹកប្រាក់ពិន័យ (Fine Amount) <span class="text-danger">*</span>
@@ -643,12 +758,12 @@
         </div>
     </div>
 
-    <!-- ==================== VIEW: MEMBERS (FORM ON TOP + ACTION EDIT/DELETE + QR CODE) ==================== -->
+    <!-- ==================== VIEW: MEMBERS (SPLIT KHMER NAME & FULL NAME IN ENGLISH + QR CODE) ==================== -->
     <div id="view-members" class="app-view">
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
             <div>
                 <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;">សមាជិកបណ្ណាល័យ & បង្កើត QR Code (Members)</h2>
-                <p class="text-muted mb-0">បែបបទចុះឈ្មោះ/កែប្រែសមាជិក និងបង្កើតកាត QR Code សម្រាប់សិស្សម្នាក់ៗ ឬទាំងអស់</p>
+                <p class="text-muted mb-0">បំបែកជួរឈរឈ្មោះជា <code>Khmer Name</code> និង <code>Full Name in English</code> ព្រមទាំងបង្កើតកាត QR Code</p>
             </div>
             <div class="d-flex gap-2">
                 <button class="btn btn-dark shadow-sm" onclick="generateBatchQrCodes(false)">
@@ -675,8 +790,12 @@
                     <input type="hidden" id="mem_edit_id" value="">
                     <div class="row g-3 align-items-end">
                         <div class="col-md-3">
-                            <label class="form-label fw-bold">ឈ្មោះពេញ (Full Name) <span class="text-danger">*</span></label>
-                            <input type="text" id="mem_full_name" class="form-control" required placeholder="ឧ. គង់ ពិសិដ្ឋ">
+                            <label class="form-label fw-bold">ឈ្មោះភាសាខ្មែរ (Khmer Name) <span class="text-danger">*</span></label>
+                            <input type="text" id="mem_khmer_name" class="form-control" required placeholder="ឧ. គង់ ពិសិដ្ឋ">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Full Name in English <span class="text-danger">*</span></label>
+                            <input type="text" id="mem_full_name_en" class="form-control" required placeholder="e.g. Kong Piseth">
                         </div>
                         <div class="col-md-2">
                             <label class="form-label fw-bold">លេខកូដ (Member Code)</label>
@@ -701,19 +820,19 @@
                             <label class="form-label fw-bold">លេខទូរស័ព្ទ (Phone)</label>
                             <input type="text" id="mem_phone" class="form-control" placeholder="012 345 678">
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label class="form-label fw-bold">អ៊ីមែល (Email)</label>
                             <input type="email" id="mem_email" class="form-control" placeholder="student@rttc.edu.kh">
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label fw-bold">ស្ថានភាព</label>
                             <select id="mem_status" class="form-select">
                                 <option value="សកម្ម (Active)">សកម្ម (Active)</option>
                                 <option value="ផ្អាក (Inactive)">ផ្អាក (Inactive)</option>
                             </select>
                         </div>
-                        <div class="col-md-5 text-end">
-                            <button type="submit" id="memberSubmitBtn" class="btn btn-primary px-4 fw-bold shadow-sm">
+                        <div class="col-md-4 text-end">
+                            <button type="submit" id="memberSubmitBtn" class="btn btn-primary px-4 fw-bold shadow-sm w-100">
                                 <i class="fas fa-save me-1"></i> រក្សាទុកសមាជិក
                             </button>
                         </div>
@@ -722,11 +841,11 @@
             </div>
         </div>
 
-        <!-- Members List Table with Checkboxes, QR Code, Edit, Delete -->
+        <!-- Members List Table -->
         <div class="card border-0 shadow-sm rounded-3">
             <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                 <h6 class="mb-0 fw-bold"><i class="fas fa-users text-primary me-2"></i>បញ្ជីសមាជិកបណ្ណាល័យទាំងអស់</h6>
-                <input type="text" id="memberSearchInput" class="form-control form-control-sm" style="max-width: 280px;" placeholder="ស្វែងរកឈ្មោះ ឬលេខកូដ..." onkeyup="filterMembersTable()">
+                <input type="text" id="memberSearchInput" class="form-control form-control-sm" style="max-width: 280px;" placeholder="ស្វែងរកឈ្មោះខ្មែរ, English, ឬលេខកូដ..." onkeyup="filterMembersTable()">
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -734,12 +853,12 @@
                         <thead class="table-light">
                             <tr>
                                 <th style="width: 40px;"><input type="checkbox" class="form-check-input" id="selectAllMembersCheckbox" onchange="toggleSelectAllMembers(this)"></th>
-                                <th>អត្តលេខគណនី (ID)</th>
+                                <th>អត្តលេខ (ID)</th>
                                 <th>លេខកូដសមាជិក</th>
-                                <th>ឈ្មោះពេញ</th>
+                                <th>ឈ្មោះភាសាខ្មែរ (Khmer Name)</th>
+                                <th>Full Name in English</th>
                                 <th>ភេទ</th>
                                 <th>ប្រភេទ</th>
-                                <th>លេខទូរស័ព្ទ</th>
                                 <th>QR Code</th>
                                 <th class="text-end pe-3">សកម្មភាព (Action)</th>
                             </tr>
@@ -751,20 +870,32 @@
         </div>
     </div>
 
-    <!-- ==================== VIEW: LIBRARIAN ATTENDANCE (សម្រង់វត្តមានរបស់បណ្ណារក្ស) ==================== -->
+    <!-- ==================== VIEW: LIBRARIAN ATTENDANCE (SHIFT-CONDITIONAL: MORNING ONLY OR AFTERNOON ONLY) ==================== -->
     <div id="view-attendance" class="app-view">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
             <div>
-                <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;"><i class="fas fa-user-clock text-warning me-2"></i>សម្រង់វត្តមានរបស់បណ្ណារក្ស (Librarian Attendance)</h2>
-                <p class="text-muted mb-0">កត់ត្រាម៉ោងចូល-ចេញវេនព្រឹក និងវេនរសៀលរបស់បណ្ណារក្សប្រចាំថ្ងៃ (Google Sheet: <code>tbl_librarian_attendance</code>)</p>
+                <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;"><i class="fas fa-user-clock text-warning me-2"></i>សម្រង់វត្តមានរបស់បណ្ណារក្ស (Librarian Shift Attendance)</h2>
+                <p class="text-muted mb-0">បើជ្រើសរើសវេនព្រឹក បង្ហាញតែ Form សម្រាប់ពេលព្រឹកប៉ុណ្ណោះ | បើជ្រើសរើសវេនរសៀល បង្ហាញតែ Form សម្រាប់ពេលរសៀលប៉ុណ្ណោះ</p>
+            </div>
+            <!-- Shift Selector Toggle Buttons -->
+            <div class="btn-group shadow-sm no-print" role="group">
+                <input type="radio" class="btn-check" name="att_shift_selector" id="shift_sel_morning" value="morning" checked onchange="toggleAttendanceShiftForm()">
+                <label class="btn btn-outline-warning text-dark fw-bold px-3" for="shift_sel_morning">
+                    <i class="fas fa-sun text-warning me-1"></i> វេនព្រឹក (Morning Shift)
+                </label>
+
+                <input type="radio" class="btn-check" name="att_shift_selector" id="shift_sel_afternoon" value="afternoon" onchange="toggleAttendanceShiftForm()">
+                <label class="btn btn-outline-info text-dark fw-bold px-3" for="shift_sel_afternoon">
+                    <i class="fas fa-cloud-sun text-info me-1"></i> វេនរសៀល (Afternoon Shift)
+                </label>
             </div>
         </div>
 
-        <!-- Librarian Attendance Form -->
-        <div class="card border-0 shadow-sm rounded-3 mb-4 border-top border-warning border-4" id="attFormCard">
+        <!-- Shift-Specific Librarian Attendance Form -->
+        <div class="card border-0 shadow-sm rounded-3 mb-4 border-top border-warning border-4 no-print" id="attFormCard">
             <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                 <h5 class="mb-0 fw-bold text-dark" id="attFormTitle">
-                    <i class="fas fa-calendar-check text-warning me-2"></i>បែបបទសម្រង់វត្តមានបណ្ណារក្ស (ព្រឹកចូល-ចេញ និង រសៀលចូល-ចេញ)
+                    <i class="fas fa-sun text-warning me-2"></i>បែបបទសម្រង់វត្តមានបណ្ណារក្ស — សម្រាប់តែវេនព្រឹកប៉ុណ្ណោះ (Morning Shift Only)
                 </h5>
                 <button type="button" id="cancelEditAttBtn" class="btn btn-sm btn-outline-secondary d-none" onclick="resetAttendanceForm()">
                     <i class="fas fa-times me-1"></i> បោះបង់ការកែប្រែ
@@ -774,59 +905,73 @@
                 <form onsubmit="handleSaveAttendance(event)">
                     <input type="hidden" id="att_edit_id" value="">
                     <div class="row g-3">
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">ឈ្មោះបណ្ណារក្ស (Librarian Name) <span class="text-danger">*</span></label>
-                            <input type="text" id="att_name" class="form-control" required placeholder="ឧ. សុខ សម្បត្តិ">
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Full Name in English <span class="text-danger">*</span></label>
+                            <input type="text" id="att_name_en" class="form-control" required placeholder="e.g. Sok Sambath">
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">ឈ្មោះភាសាខ្មែរ (Khmer Name) <span class="text-danger">*</span></label>
+                            <input type="text" id="att_name_kh" class="form-control" required placeholder="ឧ. សុខ សម្បត្តិ">
+                        </div>
+                        <div class="col-md-3">
                             <label class="form-label fw-bold">អត្តលេខបណ្ណារក្ស (Staff ID)</label>
                             <input type="text" id="att_code" class="form-control" placeholder="ឧ. LIB-001">
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label class="form-label fw-bold">កាលបរិច្ឆេទ (Date) <span class="text-danger">*</span></label>
                             <input type="date" id="att_date" class="form-control" required>
                         </div>
 
-                        <!-- Morning Shift -->
-                        <div class="col-md-6">
-                            <div class="p-3 border rounded-3 bg-light">
-                                <div class="fw-bold text-primary mb-2"><i class="fas fa-sun me-1 text-warning"></i> វេនព្រឹក (Morning Shift)</div>
-                                <div class="row g-2">
-                                    <div class="col-6">
-                                        <label class="form-label small fw-bold">ម៉ោងចូលព្រឹក (Morning In)</label>
-                                        <div class="input-group input-group-sm">
-                                            <input type="time" id="att_m_in" class="form-control" value="07:30">
-                                            <button type="button" class="btn btn-outline-primary" onclick="setNowTime('att_m_in')" title="ម៉ោងបច្ចុប្បន្ន"><i class="fas fa-clock"></i></button>
+                        <!-- ONLY SHOWN WHEN SHIFT == MORNING (បើពេលព្រឹក បង្ហាញតែ Form សម្រាប់តែសម្រង់ពេលព្រឹក) -->
+                        <div class="col-12" id="morningShiftFormBox">
+                            <div class="p-3 border border-warning rounded-3 bg-warning-subtle">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-bold text-dark"><i class="fas fa-sun text-warning me-2 fs-5"></i>ម៉ោងចូល-ចេញ សម្រាប់វេនព្រឹក (Morning Shift Check-In & Check-Out)</span>
+                                    <span class="badge bg-warning text-dark">វេនព្រឹក (07:30 - 11:30)</span>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">ម៉ោងចូលព្រឹក (Morning In) <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white"><i class="fas fa-sign-in-alt text-success"></i></span>
+                                            <input type="time" id="att_m_in" class="form-control fw-bold" value="07:30">
+                                            <button type="button" class="btn btn-outline-dark bg-white" onclick="setNowTime('att_m_in')"><i class="fas fa-clock me-1"></i> ម៉ោងឥឡូវនេះ</button>
                                         </div>
                                     </div>
-                                    <div class="col-6">
-                                        <label class="form-label small fw-bold">ម៉ោងចេញព្រឹក (Morning Out)</label>
-                                        <div class="input-group input-group-sm">
-                                            <input type="time" id="att_m_out" class="form-control" value="11:30">
-                                            <button type="button" class="btn btn-outline-primary" onclick="setNowTime('att_m_out')" title="ម៉ោងបច្ចុប្បន្ន"><i class="fas fa-clock"></i></button>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">ម៉ោងចេញព្រឹក (Morning Out) <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white"><i class="fas fa-sign-out-alt text-danger"></i></span>
+                                            <input type="time" id="att_m_out" class="form-control fw-bold" value="11:30">
+                                            <button type="button" class="btn btn-outline-dark bg-white" onclick="setNowTime('att_m_out')"><i class="fas fa-clock me-1"></i> ម៉ោងឥឡូវនេះ</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Afternoon Shift -->
-                        <div class="col-md-6">
-                            <div class="p-3 border rounded-3 bg-light">
-                                <div class="fw-bold text-info mb-2"><i class="fas fa-cloud-sun me-1 text-info"></i> វេនរសៀល (Afternoon Shift)</div>
-                                <div class="row g-2">
-                                    <div class="col-6">
-                                        <label class="form-label small fw-bold">ម៉ោងចូលរសៀល (Afternoon In)</label>
-                                        <div class="input-group input-group-sm">
-                                            <input type="time" id="att_a_in" class="form-control" value="13:30">
-                                            <button type="button" class="btn btn-outline-info" onclick="setNowTime('att_a_in')" title="ម៉ោងបច្ចុប្បន្ន"><i class="fas fa-clock"></i></button>
+                        <!-- ONLY SHOWN WHEN SHIFT == AFTERNOON (បើពេលរសៀល បង្ហាញតែ Form សម្រាប់ពេលរសៀលតែប៉ុណ្ណោះ) -->
+                        <div class="col-12 d-none" id="afternoonShiftFormBox">
+                            <div class="p-3 border border-info rounded-3 bg-info-subtle">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-bold text-dark"><i class="fas fa-cloud-sun text-primary me-2 fs-5"></i>ម៉ោងចូល-ចេញ សម្រាប់វេនរសៀលតែប៉ុណ្ណោះ (Afternoon Shift Check-In & Check-Out)</span>
+                                    <span class="badge bg-info text-dark">វេនរសៀល (13:30 - 17:00)</span>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">ម៉ោងចូលរសៀល (Afternoon In) <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white"><i class="fas fa-sign-in-alt text-primary"></i></span>
+                                            <input type="time" id="att_a_in" class="form-control fw-bold" value="13:30">
+                                            <button type="button" class="btn btn-outline-dark bg-white" onclick="setNowTime('att_a_in')"><i class="fas fa-clock me-1"></i> ម៉ោងឥឡូវនេះ</button>
                                         </div>
                                     </div>
-                                    <div class="col-6">
-                                        <label class="form-label small fw-bold">ម៉ោងចេញរសៀល (Afternoon Out)</label>
-                                        <div class="input-group input-group-sm">
-                                            <input type="time" id="att_a_out" class="form-control" value="17:00">
-                                            <button type="button" class="btn btn-outline-info" onclick="setNowTime('att_a_out')" title="ម៉ោងបច្ចុប្បន្ន"><i class="fas fa-clock"></i></button>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">ម៉ោងចេញរសៀល (Afternoon Out) <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white"><i class="fas fa-sign-out-alt text-danger"></i></span>
+                                            <input type="time" id="att_a_out" class="form-control fw-bold" value="17:00">
+                                            <button type="button" class="btn btn-outline-dark bg-white" onclick="setNowTime('att_a_out')"><i class="fas fa-clock me-1"></i> ម៉ោងឥឡូវនេះ</button>
                                         </div>
                                     </div>
                                 </div>
@@ -836,19 +981,19 @@
                         <div class="col-md-4">
                             <label class="form-label fw-bold">ស្ថានភាពវត្តមាន</label>
                             <select id="att_status" class="form-select">
-                                <option value="វត្តមានពេញម៉ោង (Present)">វត្តមានពេញម៉ោង (Present)</option>
-                                <option value="វត្តមាន១ពេល (Half-Day)">វត្តមាន១ពេល (Half-Day)</option>
+                                <option value="វត្តមាន (Present)">វត្តមាន (Present)</option>
+                                <option value="មកយឺត (Late)">មកយឺត (Late)</option>
                                 <option value="ច្បាប់ឈប់សម្រាក (Leave)">ច្បាប់ឈប់សម្រាក (Leave)</option>
                                 <option value="បេសកកម្ម (Mission)">បេសកកម្ម (Mission)</option>
                             </select>
                         </div>
                         <div class="col-md-5">
                             <label class="form-label fw-bold">កំណត់សម្គាល់ (Remarks)</label>
-                            <input type="text" id="att_remarks" class="form-control" placeholder="ឧ. វេនប្រចាំការធម្មតា">
+                            <input type="text" id="att_remarks" class="form-control" placeholder="ឧ. ប្រចាំការផ្នែកខ្ចី-សងសៀវភៅ">
                         </div>
                         <div class="col-md-3 d-flex align-items-end">
-                            <button type="submit" id="attSubmitBtn" class="btn btn-warning w-100 fw-bold shadow-sm">
-                                <i class="fas fa-save me-1"></i> កត់ត្រាវត្តមានបណ្ណារក្ស
+                            <button type="submit" id="attSubmitBtn" class="btn btn-warning w-100 py-2 fw-bold shadow-sm">
+                                <i class="fas fa-save me-1"></i> កត់ត្រាវត្តមានវេននេះ
                             </button>
                         </div>
                     </div>
@@ -859,8 +1004,8 @@
         <!-- Librarian Attendance Table -->
         <div class="card border-0 shadow-sm rounded-3">
             <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                <h6 class="mb-0 fw-bold"><i class="fas fa-list-ul text-warning me-2"></i>តារាងសម្រង់វត្តមានបណ្ណារក្សប្រចាំថ្ងៃ</h6>
-                <button class="btn btn-sm btn-outline-dark" onclick="window.print()"><i class="fas fa-print me-1"></i> បោះពុម្ពតារាងវត្តមាន</button>
+                <h6 class="mb-0 fw-bold"><i class="fas fa-list-ul text-warning me-2"></i>តារាងសម្រង់វត្តមានបណ្ណារក្ស (បំបែក Full Name in English និង Khmer Name)</h6>
+                <button class="btn btn-sm btn-outline-dark no-print" onclick="window.print()"><i class="fas fa-print me-1"></i> បោះពុម្ពតារាងវត្តមាន</button>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -869,9 +1014,11 @@
                             <tr>
                                 <th>ID</th>
                                 <th>កាលបរិច្ឆេទ</th>
-                                <th>បណ្ណារក្ស</th>
-                                <th class="text-center bg-warning-subtle">ព្រឹកចូល - ព្រឹកចេញ</th>
-                                <th class="text-center bg-info-subtle">រសៀលចូល - រសៀលចេញ</th>
+                                <th>កូដ</th>
+                                <th>Full Name in English</th>
+                                <th>ឈ្មោះភាសាខ្មែរ (Khmer Name)</th>
+                                <th>វេនប្រចាំការ (Shift)</th>
+                                <th class="text-center">ម៉ោងចូល - ចេញ</th>
                                 <th>ស្ថានភាព & កំណត់សម្គាល់</th>
                                 <th class="text-end pe-3 no-print">សកម្មភាព</th>
                             </tr>
@@ -1099,7 +1246,7 @@
     </div>
 </div>
 
-<!-- Modal: QR Code Generator (Single Student or Batch All Students) -->
+<!-- Modal: QR Code Generator -->
 <div class="modal fade" id="qrCodeModal" tabindex="-1">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
@@ -1132,6 +1279,11 @@
 let API_URL = localStorage.getItem("RTTC_API_URL") || "https://script.google.com/macros/s/AKfycby_placeholder_deploy_url/exec";
 
 const INITIAL_DB = {
+    librarians: [
+        { id: 1, librarian_code: "LIB-001", full_name_en: "Sok Sambath", khmer_name: "សុខ សម្បត្តិ", password: "123456", role: "Head Librarian", status: "Active" },
+        { id: 2, librarian_code: "LIB-002", full_name_en: "Chan Moniroth", khmer_name: "ចាន់ មុនីរតន៍", password: "123456", role: "Librarian", status: "Active" },
+        { id: 3, librarian_code: "LIB-003", full_name_en: "Kong Chanda", khmer_name: "គង់ ចិន្តា", password: "123456", role: "Assistant Librarian", status: "Active" }
+    ],
     books: [
         { id: 1, isbnno: "978-99950-0-123-4", ddc_no: "005.133", book_name: "មូលដ្ឋានគ្រឹះនៃការសរសេរកម្មវិធីកុំព្យូទ័រ", book_sub: "Fundamentals of Computer Programming", category: "វិទ្យាសាស្ត្រកុំព្យូទ័រ (Computer Science)", author: "បណ្ឌិត សេង សុភាព (Dr. Seng Sopheap)", publisher: "វិទ្យាស្ថានជាតិបច្ចេកវិទ្យា (NIPTICT)", book_amount: 5, place: "ជួរ A (Aisle A)", location_shelf: "ធ្នើរ 01 (Shelf 01)", book_resource: "ក្រអយក (MoEYS)", number_saroper: "SP-2024-001", availability: "មាន (Available)" },
         { id: 2, isbnno: "978-99950-0-567-8", ddc_no: "658.872", book_name: "យុទ្ធសាស្ត្រទីផ្សារឌីជីថល និងពាណិជ្ជកម្មអេឡិចត្រូនិច", book_sub: "Digital Marketing & E-Commerce Strategies", category: "គ្រប់គ្រង និងពាណិជ្ជកម្ម (Management & Business)", author: "ចាន់ សុខា (Chan Sokha)", publisher: "សាកលវិទ្យាល័យភូមិន្ទភ្នំពេញ (RUPP Press)", book_amount: 3, place: "ជួរ A (Aisle A)", location_shelf: "ធ្នើរ 02 (Shelf 02)", book_resource: "ក្រអយក (MoEYS)", number_saroper: "SP-2024-002", availability: "មាន (Available)" },
@@ -1151,10 +1303,10 @@ const INITIAL_DB = {
         { id: 4, place_name: "ជួរ B (Aisle B)", place_shelf: "ធ្នើរ 02 (Shelf 02)", description: "ផ្នែកអក្សរសាស្ត្រ និងភាសា" }
     ],
     members: [
-        { id: 1, member_code: "RTTC-STU-001", full_name: "គង់ ពិសិដ្ឋ (Kong Piseth)", gender: "ប្រុស (Male)", phone: "012 345 678", email: "piseth.kong@rttc.edu.kh", member_type: "គរុសិស្ស (Student)", status: "សកម្ម (Active)" },
-        { id: 2, member_code: "RTTC-STU-002", full_name: "សុខ ធីតា (Sok Thida)", gender: "ស្រី (Female)", phone: "098 765 432", email: "thida.sok@rttc.edu.kh", member_type: "គរុសិស្ស (Student)", status: "សកម្ម (Active)" },
-        { id: 3, member_code: "RTTC-TCH-001", full_name: "លោកគ្រូ កែវ វិបុល (Keo Vibol)", gender: "ប្រុស (Male)", phone: "017 888 999", email: "vibol.keo@rttc.edu.kh", member_type: "គ្រូបង្រៀន (Teacher)", status: "សកម្ម (Active)" },
-        { id: 4, member_code: "RTTC-TCH-002", full_name: "អ្នកគ្រូ ម៉េង ស្រីពៅ (Meng Sreypov)", gender: "ស្រី (Female)", phone: "085 222 333", email: "sreypov.meng@rttc.edu.kh", member_type: "គ្រូបង្រៀន (Teacher)", status: "សកម្ម (Active)" }
+        { id: 1, member_code: "RTTC-STU-001", khmer_name: "គង់ ពិសិដ្ឋ", full_name_en: "Kong Piseth", full_name: "គង់ ពិសិដ្ឋ (Kong Piseth)", gender: "ប្រុស (Male)", phone: "012 345 678", email: "piseth.kong@rttc.edu.kh", member_type: "គរុសិស្ស (Student)", status: "សកម្ម (Active)" },
+        { id: 2, member_code: "RTTC-STU-002", khmer_name: "សុខ ធីតា", full_name_en: "Sok Thida", full_name: "សុខ ធីតា (Sok Thida)", gender: "ស្រី (Female)", phone: "098 765 432", email: "thida.sok@rttc.edu.kh", member_type: "គរុសិស្ស (Student)", status: "សកម្ម (Active)" },
+        { id: 3, member_code: "RTTC-TCH-001", khmer_name: "លោកគ្រូ កែវ វិបុល", full_name_en: "Keo Vibol", full_name: "លោកគ្រូ កែវ វិបុល (Keo Vibol)", gender: "ប្រុស (Male)", phone: "017 888 999", email: "vibol.keo@rttc.edu.kh", member_type: "គ្រូបង្រៀន (Teacher)", status: "សកម្ម (Active)" },
+        { id: 4, member_code: "RTTC-TCH-002", khmer_name: "អ្នកគ្រូ ម៉េង ស្រីពៅ", full_name_en: "Meng Sreypov", full_name: "អ្នកគ្រូ ម៉េង ស្រីពៅ (Meng Sreypov)", gender: "ស្រី (Female)", phone: "085 222 333", email: "sreypov.meng@rttc.edu.kh", member_type: "គ្រូបង្រៀន (Teacher)", status: "សកម្ម (Active)" }
     ],
     loans: [
         { id: 1, loan_code: "LN-2024-001", book_id: 1, copy_id: 2, member_id: 1, member_name: "គង់ ពិសិដ្ឋ (Kong Piseth)", loan_date: "2024-03-01", due_date: "2024-03-15", return_date: "", status: "កំពុងខ្ចី (Active)", fine: 0, remarks: "ខ្ចីស្រាវជ្រាវ (Research loan)" },
@@ -1163,8 +1315,8 @@ const INITIAL_DB = {
         { id: 3, loan_code: "LN-2024-003", book_id: 2, copy_id: 4, member_id: 2, member_name: "សុខ ធីតា (Sok Thida)", loan_date: "2024-02-01", due_date: "2024-02-15", return_date: "2024-02-18", status: "បានសងរួច (Returned)", fine: 1500, remarks: "ស្ថានភាព: រហែក | ពិន័យ: 1,500៛" }
     ],
     attendance: [
-        { id: 1, librarian_code: "LIB-001", librarian_name: "សុខ សម្បត្តិ", attendance_date: "2024-03-01", morning_in: "07:30", morning_out: "11:30", afternoon_in: "13:30", afternoon_out: "17:00", status: "វត្តមានពេញម៉ោង (Present)", remarks: "វេនប្រចាំការព្រឹក-រសៀល" },
-        { id: 2, librarian_code: "LIB-002", librarian_name: "ចាន់ មុនីរតន៍", attendance_date: "2024-03-01", morning_in: "07:30", morning_out: "11:30", afternoon_in: "13:30", afternoon_out: "17:00", status: "វត្តមានពេញម៉ោង (Present)", remarks: "ទទួលបន្ទុកផ្នែកខ្ចី-សង" }
+        { id: 1, librarian_code: "LIB-001", full_name_en: "Sok Sambath", khmer_name: "សុខ សម្បត្តិ", attendance_date: "2024-03-01", shift: "វេនព្រឹក (Morning)", morning_in: "07:30", morning_out: "11:30", afternoon_in: "", afternoon_out: "", status: "វត្តមាន (Present)", remarks: "ប្រចាំការវេនព្រឹក" },
+        { id: 2, librarian_code: "LIB-002", full_name_en: "Chan Moniroth", khmer_name: "ចាន់ មុនីរតន៍", attendance_date: "2024-03-01", shift: "វេនរសៀល (Afternoon)", morning_in: "", morning_out: "", afternoon_in: "13:30", afternoon_out: "17:00", status: "វត្តមាន (Present)", remarks: "ប្រចាំការវេនរសៀល" }
     ],
     visits: [
         { id: 1, visit_date: "2024-03-01", member_id: 1, member_code: "RTTC-STU-001", full_name: "គង់ ពិសិដ្ឋ (Kong Piseth)", gender: "ប្រុស (Male)", member_type: "គរុសិស្ស (Student)", time_in: "08:15", time_out: "09:45", purpose: "ស្រាវជ្រាវកិច្ចការសាលា (Research)", remarks: "សិក្សាឯកសារវិទ្យាសាស្ត្រកុំព្យូទ័រ" },
@@ -1186,6 +1338,7 @@ function saveLocalStore(key, data) {
     localStorage.setItem("RTTC_DB_" + key, JSON.stringify(data));
 }
 
+let allLibrarians = getLocalStore("librarians");
 let allBooks = getLocalStore("books");
 let allMembers = getLocalStore("members");
 let allCategories = getLocalStore("categories");
@@ -1193,6 +1346,106 @@ let allPlaces = getLocalStore("places");
 let allLoans = getLocalStore("loans");
 let allAttendance = getLocalStore("attendance");
 let allVisits = getLocalStore("visits");
+
+// ==================== LIBRARIAN AUTHENTICATION (LOGIN / LOGOUT) ====================
+let currentLibrarian = null;
+try {
+    const savedLib = localStorage.getItem("RTTC_LOGGED_IN_LIBRARIAN");
+    if (savedLib) currentLibrarian = JSON.parse(savedLib);
+} catch(e) {}
+
+function syncLoginKhmerName(enVal) {
+    const clean = String(enVal || "").toLowerCase().trim();
+    const match = allLibrarians.find(l => String(l.full_name_en || "").toLowerCase() === clean);
+    if (match) {
+        document.getElementById("login_khmer_name").value = match.khmer_name || "";
+    }
+}
+
+function fillLoginDemo(enName, khName, code) {
+    document.getElementById("login_full_name_en").value = enName;
+    document.getElementById("login_khmer_name").value = khName;
+    document.getElementById("login_password").value = "123456";
+}
+
+function handleLibrarianLogin(e) {
+    e.preventDefault();
+    const enName = document.getElementById("login_full_name_en").value.trim();
+    const khName = document.getElementById("login_khmer_name").value.trim();
+    const pass = document.getElementById("login_password").value.trim();
+
+    if (!enName || !khName) {
+        Swal.fire("ព្រមាន!", "សូមបញ្ចូល Full Name in English និងឈ្មោះភាសាខ្មែរ!", "warning");
+        return;
+    }
+
+    let matched = allLibrarians.find(l => String(l.full_name_en || "").toLowerCase() === enName.toLowerCase());
+    if (!matched) {
+        const nextId = allLibrarians.length > 0 ? Math.max(...allLibrarians.map(l => Number(l.id) || 0)) + 1 : 1;
+        matched = {
+            id: nextId,
+            librarian_code: "LIB-" + String(nextId).padStart(3, "0"),
+            full_name_en: enName,
+            khmer_name: khName,
+            role: "Librarian"
+        };
+        allLibrarians.push(matched);
+        saveLocalStore("librarians", allLibrarians);
+    } else {
+        matched.khmer_name = khName || matched.khmer_name;
+    }
+
+    currentLibrarian = matched;
+    localStorage.setItem("RTTC_LOGGED_IN_LIBRARIAN", JSON.stringify(currentLibrarian));
+    applyLoggedInState();
+
+    Swal.fire({
+        title: "ស្វាគមន៍ការចូលប្រព័ន្ធ!",
+        text: `${currentLibrarian.khmer_name} (${currentLibrarian.full_name_en})`,
+        icon: "success",
+        timer: 1400,
+        showConfirmButton: false
+    });
+}
+
+function handleLibrarianLogout() {
+    Swal.fire({
+        title: "ចាកចេញពីប្រព័ន្ធ (Logout)?",
+        text: "តើអ្នកពិតជាចង់ចាកចេញពីគណនីបណ្ណារក្សមែនទេ?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        confirmButtonText: "ចាកចេញ",
+        cancelButtonText: "បោះបង់"
+    }).then(r => {
+        if (r.isConfirmed) {
+            currentLibrarian = null;
+            localStorage.removeItem("RTTC_LOGGED_IN_LIBRARIAN");
+            document.getElementById("loginOverlay").classList.remove("d-none");
+        }
+    });
+}
+
+function applyLoggedInState() {
+    const overlay = document.getElementById("loginOverlay");
+    if (!currentLibrarian) {
+        overlay.classList.remove("d-none");
+        return;
+    }
+    overlay.classList.add("d-none");
+    document.getElementById("sidebarLibKhmerName").innerText = currentLibrarian.khmer_name || "";
+    document.getElementById("sidebarLibEnName").innerText = `${currentLibrarian.full_name_en} (${currentLibrarian.librarian_code || "LIB-001"})`;
+    const dashWelcome = document.getElementById("dashWelcomeLibName");
+    if (dashWelcome) {
+        dashWelcome.innerText = `${currentLibrarian.khmer_name} (${currentLibrarian.full_name_en})`;
+    }
+    // Pre-fill Librarian Attendance Form with logged-in Librarian's English and Khmer names
+    if (document.getElementById("att_name_en") && !document.getElementById("att_edit_id").value) {
+        document.getElementById("att_name_en").value = currentLibrarian.full_name_en || "";
+        document.getElementById("att_name_kh").value = currentLibrarian.khmer_name || "";
+        document.getElementById("att_code").value = currentLibrarian.librarian_code || "LIB-001";
+    }
+}
 
 function isBookAvailable(b) {
     if (!b) return false;
@@ -1217,6 +1470,21 @@ function isLoanActive(l) {
     if (!l) return false;
     const st = String(l.status || "").toLowerCase();
     return st.includes("active") || st.includes("borrowed") || st.includes("កំពុងខ្ចី");
+}
+
+function getMemberDisplayName(m) {
+    if (!m) return "";
+    if (m.khmer_name && m.full_name_en) return `${m.khmer_name} (${m.full_name_en})`;
+    return m.full_name || m.khmer_name || m.full_name_en || "";
+}
+
+function splitCompositeName(fullStr) {
+    const s = String(fullStr || "").trim();
+    const match = s.match(/^(.+?)\s*\(([^)]+)\)$/);
+    if (match) {
+        return { khmer_name: match[1].trim(), full_name_en: match[2].trim() };
+    }
+    return { khmer_name: s, full_name_en: s };
 }
 
 function isApiConfigured() {
@@ -1372,7 +1640,9 @@ async function apiPost(action, data = {}) {
         mems.push({
             id: nextId,
             member_code: data.member_code || ("RTTC-STU-" + String(nextId).padStart(3, "0")),
-            full_name: data.full_name,
+            khmer_name: data.khmer_name,
+            full_name_en: data.full_name_en,
+            full_name: `${data.khmer_name} (${data.full_name_en})`,
             gender: data.gender || "ប្រុស (Male)",
             member_type: data.member_type || "គរុសិស្ស (Student)",
             phone: data.phone || "",
@@ -1385,7 +1655,9 @@ async function apiPost(action, data = {}) {
         const mems = getLocalStore("members");
         mems.forEach(m => {
             if (String(m.id) === String(data.id)) {
-                m.full_name = data.full_name;
+                m.khmer_name = data.khmer_name;
+                m.full_name_en = data.full_name_en;
+                m.full_name = `${data.khmer_name} (${data.full_name_en})`;
                 m.member_code = data.member_code;
                 m.gender = data.gender;
                 m.member_type = data.member_type;
@@ -1443,15 +1715,18 @@ async function apiPost(action, data = {}) {
     } else if (action === "addLibrarianAttendance") {
         const atts = getLocalStore("attendance");
         const nextId = atts.length > 0 ? Math.max(...atts.map(a => Number(a.id) || 0)) + 1 : 1;
+        const shiftLabel = data.shift === "afternoon" ? "វេនរសៀល (Afternoon)" : "វេនព្រឹក (Morning)";
         atts.unshift({
             id: nextId,
             librarian_code: data.librarian_code || ("LIB-" + String(nextId).padStart(3, "0")),
-            librarian_name: data.librarian_name,
+            full_name_en: data.full_name_en,
+            khmer_name: data.khmer_name,
             attendance_date: data.attendance_date,
-            morning_in: data.morning_in,
-            morning_out: data.morning_out,
-            afternoon_in: data.afternoon_in,
-            afternoon_out: data.afternoon_out,
+            shift: shiftLabel,
+            morning_in: data.shift === "morning" ? data.morning_in : "",
+            morning_out: data.shift === "morning" ? data.morning_out : "",
+            afternoon_in: data.shift === "afternoon" ? data.afternoon_in : "",
+            afternoon_out: data.shift === "afternoon" ? data.afternoon_out : "",
             status: data.status,
             remarks: data.remarks
         });
@@ -1459,15 +1734,18 @@ async function apiPost(action, data = {}) {
         allAttendance = atts;
     } else if (action === "updateLibrarianAttendance") {
         const atts = getLocalStore("attendance");
+        const shiftLabel = data.shift === "afternoon" ? "វេនរសៀល (Afternoon)" : "វេនព្រឹក (Morning)";
         atts.forEach(a => {
             if (String(a.id) === String(data.id)) {
-                a.librarian_name = data.librarian_name;
+                a.full_name_en = data.full_name_en;
+                a.khmer_name = data.khmer_name;
                 a.librarian_code = data.librarian_code;
                 a.attendance_date = data.attendance_date;
-                a.morning_in = data.morning_in;
-                a.morning_out = data.morning_out;
-                a.afternoon_in = data.afternoon_in;
-                a.afternoon_out = data.afternoon_out;
+                a.shift = shiftLabel;
+                a.morning_in = data.shift === "morning" ? data.morning_in : "";
+                a.morning_out = data.shift === "morning" ? data.morning_out : "";
+                a.afternoon_in = data.shift === "afternoon" ? data.afternoon_in : "";
+                a.afternoon_out = data.shift === "afternoon" ? data.afternoon_out : "";
                 a.status = data.status;
                 a.remarks = data.remarks;
             }
@@ -1696,7 +1974,7 @@ async function deleteJsCategory(id) {
     });
 }
 
-// ==================== CIRCULATION (MULTI-BOOK BORROW, RETURN, GROUPED ACTIVE LOANS SUB-LIST) ====================
+// ==================== CIRCULATION ====================
 async function initCirculationView(forceReload = false) {
     if (forceReload || allMembers.length === 0) {
         const mRes = await apiCall("getMembers");
@@ -1709,17 +1987,16 @@ async function initCirculationView(forceReload = false) {
     const lRes = await apiCall("getLoans");
     allLoans = lRes.data || [];
 
-    // 1. Populate Member Select in Borrow Form
     const mSelect = document.getElementById("inline_member_select");
     if (mSelect) {
         mSelect.innerHTML = `<option value=""></option>`;
         allMembers.forEach(m => {
-            mSelect.innerHTML += `<option value="${m.id}" data-name="${m.full_name}">${m.member_code} - ${m.full_name} (${m.phone || "គ្មានលេខ"})</option>`;
+            const dispName = getMemberDisplayName(m);
+            mSelect.innerHTML += `<option value="${m.id}" data-name="${dispName}">${m.member_code} - ${dispName} (${m.phone || "គ្មានលេខ"})</option>`;
         });
         initOrRefreshSelect2("#inline_member_select", "ស្វែងរកឈ្មោះសិស្ស ឬលេខកូដ...", false);
     }
 
-    // 2. Populate Multi-Book Select in Borrow Form
     const bSelect = document.getElementById("inline_book_select");
     if (bSelect) {
         bSelect.innerHTML = ``;
@@ -1738,7 +2015,6 @@ async function initCirculationView(forceReload = false) {
     if (document.getElementById("inline_loan_date")) document.getElementById("inline_loan_date").value = today;
     if (document.getElementById("inline_due_date")) document.getElementById("inline_due_date").value = dueDate;
 
-    // 3. Populate Return Form Active Loans Dropdown & Side Grouped Sub-lists
     populateReturnLoanDropdown();
     renderGroupedActiveLoans();
     renderLoansTable(allLoans);
@@ -1799,14 +2075,12 @@ function populateReturnLoanDropdown() {
     initOrRefreshSelect2("#ret_js_loan_select", "ស្វែងរកឈ្មោះសិស្ស ឬលេខកូដខ្ចីដែលយកសៀវភៅមកសង...", false);
 }
 
-// Group Active Loans by Borrower Name and render Borrowed Books as a Sub-List!
 function renderGroupedActiveLoans() {
     const activeLoans = allLoans.filter(isLoanActive);
     const container1 = document.getElementById("groupedActiveLoansBorrowSide");
     const container2 = document.getElementById("groupedActiveLoansReturnSide");
     const countBadge = document.getElementById("activeBorrowerGroupCount");
 
-    // Group by member_id / member_name
     const groups = {};
     activeLoans.forEach(l => {
         const key = String(l.member_id || l.member_name || "unknown");
@@ -1814,7 +2088,7 @@ function renderGroupedActiveLoans() {
             const memObj = allMembers.find(m => String(m.id) === String(l.member_id));
             groups[key] = {
                 member_id: l.member_id,
-                member_name: l.member_name || (memObj ? memObj.full_name : "Member #" + l.member_id),
+                member_name: l.member_name || getMemberDisplayName(memObj) || ("Member #" + l.member_id),
                 member_code: memObj ? memObj.member_code : ("ID #" + l.member_id),
                 items: []
             };
@@ -2048,10 +2322,17 @@ async function handleJsSubmitReturn(e) {
     });
 }
 
-// ==================== MEMBERS (ADD/EDIT FORM + DELETE + QR CODE) ====================
+// ==================== MEMBERS (SPLIT KHMER NAME & FULL NAME IN ENGLISH + QR CODE) ====================
 async function loadMembers() {
     const res = await apiCall("getMembers");
-    allMembers = res.data || [];
+    allMembers = (res.data || []).map(m => {
+        if (!m.khmer_name || !m.full_name_en) {
+            const parsed = splitCompositeName(m.full_name || "");
+            m.khmer_name = m.khmer_name || parsed.khmer_name;
+            m.full_name_en = m.full_name_en || parsed.full_name_en;
+        }
+        return m;
+    });
     renderMembersTable(allMembers);
 }
 
@@ -2069,10 +2350,10 @@ function renderMembersTable(members) {
                 <td><input type="checkbox" class="form-check-input member-row-check" value="${m.id}"></td>
                 <td class="fw-bold text-secondary">#${m.id}</td>
                 <td><span class="badge bg-primary-subtle text-primary border">${m.member_code || "RTTC-" + m.id}</span></td>
-                <td class="fw-bold">${m.full_name}</td>
+                <td class="fw-bold text-dark">${m.khmer_name || m.full_name || "-"}</td>
+                <td class="fw-semibold text-primary">${m.full_name_en || "-"}</td>
                 <td>${m.gender || "ប្រុស (Male)"}</td>
                 <td><span class="badge bg-info-subtle text-info border">${m.member_type || ""}</span></td>
-                <td>${m.phone || "-"}</td>
                 <td>
                     <button class="btn btn-sm btn-dark" onclick="openSingleMemberQr(${m.id})" title="បង្កើត QR Code សម្រាប់សិស្សនេះ">
                         <i class="fas fa-qrcode text-info me-1"></i> QR
@@ -2094,9 +2375,10 @@ function renderMembersTable(members) {
 function filterMembersTable() {
     const q = (document.getElementById("memberSearchInput")?.value || "").toLowerCase();
     const filtered = allMembers.filter(m => {
-        return (m.full_name || "").toLowerCase().includes(q) ||
+        return (m.khmer_name || "").toLowerCase().includes(q) ||
+               (m.full_name_en || "").toLowerCase().includes(q) ||
+               (m.full_name || "").toLowerCase().includes(q) ||
                (m.member_code || "").toLowerCase().includes(q) ||
-               (m.phone || "").toLowerCase().includes(q) ||
                String(m.id).includes(q);
     });
     renderMembersTable(filtered);
@@ -2106,7 +2388,8 @@ function editMemberRow(id) {
     const m = allMembers.find(item => String(item.id) === String(id));
     if (!m) return;
     document.getElementById("mem_edit_id").value = m.id;
-    document.getElementById("mem_full_name").value = m.full_name || "";
+    document.getElementById("mem_khmer_name").value = m.khmer_name || "";
+    document.getElementById("mem_full_name_en").value = m.full_name_en || "";
     document.getElementById("mem_code").value = m.member_code || "";
     document.getElementById("mem_gender").value = m.gender || "ប្រុស (Male)";
     document.getElementById("mem_type").value = m.member_type || "គរុសិស្ស (Student)";
@@ -2116,7 +2399,7 @@ function editMemberRow(id) {
 
     document.getElementById("memberFormTitle").innerHTML = `<i class="fas fa-user-edit me-2 text-warning"></i>កែប្រែព័ត៌មានសមាជិក (អត្តលេខគណនី #${m.id})`;
     document.getElementById("memberSubmitBtn").innerHTML = `<i class="fas fa-check me-1"></i> រក្សាទុកការកែប្រែ`;
-    document.getElementById("memberSubmitBtn").className = "btn btn-warning px-4 fw-bold shadow-sm";
+    document.getElementById("memberSubmitBtn").className = "btn btn-warning px-4 fw-bold shadow-sm w-100";
     document.getElementById("cancelEditMemberBtn").classList.remove("d-none");
     document.getElementById("memberFormCard").scrollIntoView({ behavior: "smooth", block: "center" });
 }
@@ -2126,16 +2409,20 @@ function resetMemberForm() {
     document.getElementById("mem_edit_id").value = "";
     document.getElementById("memberFormTitle").innerHTML = `<i class="fas fa-user-plus me-2"></i>បែបបទបន្ថែមសមាជិកថ្មី (Add New Member)`;
     document.getElementById("memberSubmitBtn").innerHTML = `<i class="fas fa-save me-1"></i> រក្សាទុកសមាជិក`;
-    document.getElementById("memberSubmitBtn").className = "btn btn-primary px-4 fw-bold shadow-sm";
+    document.getElementById("memberSubmitBtn").className = "btn btn-primary px-4 fw-bold shadow-sm w-100";
     document.getElementById("cancelEditMemberBtn").classList.add("d-none");
 }
 
 async function handleSaveMember(e) {
     e.preventDefault();
     const editId = document.getElementById("mem_edit_id").value;
+    const khName = document.getElementById("mem_khmer_name").value.trim();
+    const enName = document.getElementById("mem_full_name_en").value.trim();
     const payload = {
         id: editId,
-        full_name: document.getElementById("mem_full_name").value.trim(),
+        khmer_name: khName,
+        full_name_en: enName,
+        full_name: `${khName} (${enName})`,
         member_code: document.getElementById("mem_code").value.trim(),
         gender: document.getElementById("mem_gender").value,
         member_type: document.getElementById("mem_type").value,
@@ -2159,7 +2446,7 @@ async function deleteMemberRow(id) {
     const m = allMembers.find(item => String(item.id) === String(id));
     Swal.fire({
         title: "តើអ្នកប្រាកដជាចង់លុបសមាជិកនេះឬ?",
-        text: m ? `${m.member_code} - ${m.full_name}` : `ID #${id}`,
+        text: m ? `${m.member_code} - ${getMemberDisplayName(m)}` : `ID #${id}`,
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#d33",
@@ -2180,7 +2467,7 @@ function toggleSelectAllMembers(masterCheckbox) {
     });
 }
 
-// ==================== QR CODE GENERATOR FOR STUDENTS (SINGLE & ALL) ====================
+// ==================== QR CODE GENERATOR ====================
 function renderQrCardsIntoModal(membersList, titleText) {
     document.getElementById("qrModalTitle").innerHTML = `<i class="fas fa-qrcode text-info me-2"></i>${titleText}`;
     const container = document.getElementById("qrCardsContainer");
@@ -2197,10 +2484,10 @@ function renderQrCardsIntoModal(membersList, titleText) {
         card.innerHTML = `
             <div class="qr-badge-header">បណ្ណាល័យ គរុកោសល្យភូមិភាគ (RTTC)</div>
             <div id="${domId}" class="qr-canvas-box"></div>
-            <div class="fw-bold text-dark mt-2" style="font-size: 0.95rem;">${m.full_name}</div>
+            <div class="fw-bold text-dark mt-2" style="font-size: 0.95rem;">${m.khmer_name || m.full_name}</div>
+            <div class="small text-primary fw-semibold">${m.full_name_en || ""}</div>
             <div class="badge bg-primary mt-1">លេខកូដ: ${memCode}</div>
             <div class="small text-muted mt-1">អត្តលេខគណនី (Account ID): <strong>#${accId}</strong></div>
-            <div class="small text-secondary">${m.member_type || "គរុសិស្ស"}</div>
         `;
         container.appendChild(card);
 
@@ -2225,7 +2512,7 @@ function renderQrCardsIntoModal(membersList, titleText) {
 function openSingleMemberQr(id) {
     const m = allMembers.find(item => String(item.id) === String(id));
     if (!m) return;
-    renderQrCardsIntoModal([m], `កាត QR Code សម្រាប់៖ ${m.full_name} (${m.member_code})`);
+    renderQrCardsIntoModal([m], `កាត QR Code សម្រាប់៖ ${getMemberDisplayName(m)} (${m.member_code})`);
 }
 
 function generateBatchQrCodes(generateAll = true) {
@@ -2250,12 +2537,37 @@ function printQrCodes() {
     window.print();
 }
 
-// ==================== LIBRARIAN ATTENDANCE (សម្រង់វត្តមានរបស់បណ្ណារក្ស) ====================
+// ==================== LIBRARIAN ATTENDANCE (SHIFT-CONDITIONAL: MORNING ONLY OR AFTERNOON ONLY) ====================
 function setNowTime(inputId) {
     const now = new Date();
     const hh = String(now.getHours()).padStart(2, "0");
     const mm = String(now.getMinutes()).padStart(2, "0");
     document.getElementById(inputId).value = `${hh}:${mm}`;
+}
+
+function toggleAttendanceShiftForm() {
+    const isMorning = document.getElementById("shift_sel_morning").checked;
+    const morningBox = document.getElementById("morningShiftFormBox");
+    const afternoonBox = document.getElementById("afternoonShiftFormBox");
+    const titleEl = document.getElementById("attFormTitle");
+    const cardEl = document.getElementById("attFormCard");
+    const submitBtn = document.getElementById("attSubmitBtn");
+
+    if (isMorning) {
+        morningBox.classList.remove("d-none");
+        afternoonBox.classList.add("d-none");
+        titleEl.innerHTML = `<i class="fas fa-sun text-warning me-2"></i>បែបបទសម្រង់វត្តមានបណ្ណារក្ស — សម្រាប់តែវេនព្រឹកប៉ុណ្ណោះ (Morning Shift Form)`;
+        cardEl.className = "card border-0 shadow-sm rounded-3 mb-4 border-top border-warning border-4 no-print";
+        submitBtn.className = "btn btn-warning w-100 py-2 fw-bold shadow-sm";
+        submitBtn.innerHTML = `<i class="fas fa-save me-1"></i> កត់ត្រាវត្តមានវេនព្រឹក`;
+    } else {
+        morningBox.classList.add("d-none");
+        afternoonBox.classList.remove("d-none");
+        titleEl.innerHTML = `<i class="fas fa-cloud-sun text-info me-2"></i>បែបបទសម្រង់វត្តមានបណ្ណារក្ស — សម្រាប់តែវេនរសៀលប៉ុណ្ណោះ (Afternoon Shift Form)`;
+        cardEl.className = "card border-0 shadow-sm rounded-3 mb-4 border-top border-info border-4 no-print";
+        submitBtn.className = "btn btn-info text-white w-100 py-2 fw-bold shadow-sm";
+        submitBtn.innerHTML = `<i class="fas fa-save me-1"></i> កត់ត្រាវត្តមានវេនរសៀល`;
+    }
 }
 
 async function loadAttendance() {
@@ -2265,6 +2577,24 @@ async function loadAttendance() {
     if (!document.getElementById("att_date").value) {
         document.getElementById("att_date").value = today;
     }
+
+    // Auto-detect current shift by time of day (Before 12:00 => Morning, 12:00+ => Afternoon)
+    if (!document.getElementById("att_edit_id").value) {
+        const currentHour = new Date().getHours();
+        if (currentHour >= 12) {
+            document.getElementById("shift_sel_afternoon").checked = true;
+        } else {
+            document.getElementById("shift_sel_morning").checked = true;
+        }
+        toggleAttendanceShiftForm();
+
+        if (currentLibrarian) {
+            document.getElementById("att_name_en").value = currentLibrarian.full_name_en || "";
+            document.getElementById("att_name_kh").value = currentLibrarian.khmer_name || "";
+            document.getElementById("att_code").value = currentLibrarian.librarian_code || "LIB-001";
+        }
+    }
+
     renderAttendanceTable(allAttendance);
 }
 
@@ -2273,28 +2603,30 @@ function renderAttendanceTable(records) {
     if (!tbody) return;
     tbody.innerHTML = "";
     if (records.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">មិនទាន់មានទិន្នន័យសម្រង់វត្តមានបណ្ណារក្សនៅឡើយទេ</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted">មិនទាន់មានទិន្នន័យសម្រង់វត្តមានបណ្ណារក្សនៅឡើយទេ</td></tr>`;
         return;
     }
     records.forEach(a => {
+        const isAfternoon = String(a.shift || "").toLowerCase().includes("afternoon") || String(a.shift || "").includes("រសៀល") || (!a.morning_in && a.afternoon_in);
+        const shiftBadge = isAfternoon
+            ? `<span class="badge bg-info-subtle text-info border"><i class="fas fa-cloud-sun me-1"></i>វេនរសៀល (Afternoon)</span>`
+            : `<span class="badge bg-warning-subtle text-dark border"><i class="fas fa-sun text-warning me-1"></i>វេនព្រឹក (Morning)</span>`;
+
+        const timeDisplay = isAfternoon
+            ? `<span class="badge bg-info text-dark me-1">ចូលរសៀល: ${a.afternoon_in || "--:--"}</span><span class="badge bg-secondary">ចេញរសៀល: ${a.afternoon_out || "--:--"}</span>`
+            : `<span class="badge bg-success me-1">ចូលព្រឹក: ${a.morning_in || "--:--"}</span><span class="badge bg-secondary">ចេញព្រឹក: ${a.morning_out || "--:--"}</span>`;
+
         tbody.innerHTML += `
             <tr>
                 <td class="fw-bold text-secondary">#${a.id}</td>
                 <td><i class="far fa-calendar-alt text-muted me-1"></i>${a.attendance_date || ""}</td>
+                <td><span class="badge bg-light text-dark border">${a.librarian_code || "LIB-" + a.id}</span></td>
+                <td class="fw-bold text-primary">${a.full_name_en || a.librarian_name || "-"}</td>
+                <td class="fw-bold text-dark">${a.khmer_name || a.librarian_name || "-"}</td>
+                <td>${shiftBadge}</td>
+                <td class="text-center">${timeDisplay}</td>
                 <td>
-                    <div class="fw-bold text-primary">${a.librarian_name}</div>
-                    <div class="small text-muted">កូដ: ${a.librarian_code || "LIB-" + a.id}</div>
-                </td>
-                <td class="text-center">
-                    <span class="badge bg-success-subtle text-success border me-1">ចូល: ${a.morning_in || "--:--"}</span>
-                    <span class="badge bg-secondary-subtle text-secondary border">ចេញ: ${a.morning_out || "--:--"}</span>
-                </td>
-                <td class="text-center">
-                    <span class="badge bg-info-subtle text-info border me-1">ចូល: ${a.afternoon_in || "--:--"}</span>
-                    <span class="badge bg-secondary-subtle text-secondary border">ចេញ: ${a.afternoon_out || "--:--"}</span>
-                </td>
-                <td>
-                    <span class="badge bg-primary">${a.status || "វត្តមានពេញម៉ោង"}</span>
+                    <span class="badge bg-primary">${a.status || "វត្តមាន"}</span>
                     <div class="small text-muted mt-1">${a.remarks || ""}</div>
                 </td>
                 <td class="text-end pe-3 no-print">
@@ -2310,48 +2642,63 @@ function editAttendanceRow(id) {
     const a = allAttendance.find(item => String(item.id) === String(id));
     if (!a) return;
     document.getElementById("att_edit_id").value = a.id;
-    document.getElementById("att_name").value = a.librarian_name || "";
+    document.getElementById("att_name_en").value = a.full_name_en || a.librarian_name || "";
+    document.getElementById("att_name_kh").value = a.khmer_name || a.librarian_name || "";
     document.getElementById("att_code").value = a.librarian_code || "";
     document.getElementById("att_date").value = a.attendance_date || "";
-    document.getElementById("att_m_in").value = a.morning_in || "07:30";
-    document.getElementById("att_m_out").value = a.morning_out || "11:30";
-    document.getElementById("att_a_in").value = a.afternoon_in || "13:30";
-    document.getElementById("att_a_out").value = a.afternoon_out || "17:00";
-    document.getElementById("att_status").value = a.status || "វត្តមានពេញម៉ោង (Present)";
-    document.getElementById("att_remarks").value = a.remarks || "";
 
-    document.getElementById("attFormTitle").innerHTML = `<i class="fas fa-edit text-primary me-2"></i>កែប្រែសម្រង់វត្តមានបណ្ណារក្ស #${a.id}`;
-    document.getElementById("attSubmitBtn").innerHTML = `<i class="fas fa-check me-1"></i> រក្សាទុកការកែប្រែ`;
+    const isAfternoon = String(a.shift || "").toLowerCase().includes("afternoon") || String(a.shift || "").includes("រសៀល") || (!a.morning_in && a.afternoon_in);
+    if (isAfternoon) {
+        document.getElementById("shift_sel_afternoon").checked = true;
+        document.getElementById("att_a_in").value = a.afternoon_in || "13:30";
+        document.getElementById("att_a_out").value = a.afternoon_out || "17:00";
+    } else {
+        document.getElementById("shift_sel_morning").checked = true;
+        document.getElementById("att_m_in").value = a.morning_in || "07:30";
+        document.getElementById("att_m_out").value = a.morning_out || "11:30";
+    }
+    toggleAttendanceShiftForm();
+
+    document.getElementById("att_status").value = a.status || "វត្តមាន (Present)";
+    document.getElementById("att_remarks").value = a.remarks || "";
     document.getElementById("cancelEditAttBtn").classList.remove("d-none");
 }
 
 function resetAttendanceForm() {
     document.getElementById("att_edit_id").value = "";
-    document.getElementById("att_name").value = "";
-    document.getElementById("att_code").value = "";
+    if (currentLibrarian) {
+        document.getElementById("att_name_en").value = currentLibrarian.full_name_en || "";
+        document.getElementById("att_name_kh").value = currentLibrarian.khmer_name || "";
+        document.getElementById("att_code").value = currentLibrarian.librarian_code || "LIB-001";
+    }
     document.getElementById("att_date").value = new Date().toISOString().split("T")[0];
     document.getElementById("att_m_in").value = "07:30";
     document.getElementById("att_m_out").value = "11:30";
     document.getElementById("att_a_in").value = "13:30";
     document.getElementById("att_a_out").value = "17:00";
     document.getElementById("att_remarks").value = "";
-    document.getElementById("attFormTitle").innerHTML = `<i class="fas fa-calendar-check text-warning me-2"></i>បែបបទសម្រង់វត្តមានបណ្ណារក្ស (ព្រឹកចូល-ចេញ និង រសៀលចូល-ចេញ)`;
-    document.getElementById("attSubmitBtn").innerHTML = `<i class="fas fa-save me-1"></i> កត់ត្រាវត្តមានបណ្ណារក្ស`;
     document.getElementById("cancelEditAttBtn").classList.add("d-none");
+    toggleAttendanceShiftForm();
 }
 
 async function handleSaveAttendance(e) {
     e.preventDefault();
     const editId = document.getElementById("att_edit_id").value;
+    const isMorning = document.getElementById("shift_sel_morning").checked;
+    const shiftValue = isMorning ? "morning" : "afternoon";
+
     const payload = {
         id: editId,
-        librarian_name: document.getElementById("att_name").value.trim(),
+        full_name_en: document.getElementById("att_name_en").value.trim(),
+        khmer_name: document.getElementById("att_name_kh").value.trim(),
+        librarian_name: `${document.getElementById("att_name_kh").value.trim()} (${document.getElementById("att_name_en").value.trim()})`,
         librarian_code: document.getElementById("att_code").value.trim(),
         attendance_date: document.getElementById("att_date").value,
-        morning_in: document.getElementById("att_m_in").value,
-        morning_out: document.getElementById("att_m_out").value,
-        afternoon_in: document.getElementById("att_a_in").value,
-        afternoon_out: document.getElementById("att_a_out").value,
+        shift: shiftValue,
+        morning_in: isMorning ? document.getElementById("att_m_in").value : "",
+        morning_out: isMorning ? document.getElementById("att_m_out").value : "",
+        afternoon_in: !isMorning ? document.getElementById("att_a_in").value : "",
+        afternoon_out: !isMorning ? document.getElementById("att_a_out").value : "",
         status: document.getElementById("att_status").value,
         remarks: document.getElementById("att_remarks").value.trim()
     };
@@ -2361,7 +2708,7 @@ async function handleSaveAttendance(e) {
         Swal.fire("ជោគជ័យ!", "បានកែប្រែសម្រង់វត្តមានបណ្ណារក្ស", "success");
     } else {
         await apiPost("addLibrarianAttendance", payload);
-        Swal.fire("ជោគជ័យ!", "បានកត់ត្រាសម្រង់វត្តមានបណ្ណារក្សរួចរាល់", "success");
+        Swal.fire("ជោគជ័យ!", `បានកត់ត្រាវត្តមានបណ្ណារក្សសម្រាប់ ${isMorning ? "វេនព្រឹក" : "វេនរសៀល"} រួចរាល់!`, "success");
     }
     resetAttendanceForm();
     loadAttendance();
@@ -2376,7 +2723,7 @@ async function deleteAttendanceRow(id) {
     });
 }
 
-// ==================== REPORTS (1. LOANS, 2. BOOKS, 3. STUDENT VISITS) ====================
+// ==================== REPORTS ====================
 async function renderLoanReport() {
     if (allLoans.length === 0) await apiCall("getLoans");
     if (allBooks.length === 0) await apiCall("getBooks");
@@ -2507,7 +2854,7 @@ async function initVisitReport() {
     if (mSel) {
         mSel.innerHTML = `<option value="">-- ជ្រើសរើសសិស្ស --</option>`;
         allMembers.forEach(m => {
-            mSel.innerHTML += `<option value="${m.id}">${m.member_code} - ${m.full_name}</option>`;
+            mSel.innerHTML += `<option value="${m.id}">${m.member_code} - ${getMemberDisplayName(m)}</option>`;
         });
         initOrRefreshSelect2("#visit_member_select", "ជ្រើសរើសសិស្ស...", false);
     }
@@ -2545,7 +2892,7 @@ async function handleAddStudentVisit(e) {
         visit_date: document.getElementById("visit_date").value,
         member_id: mObj.id,
         member_code: mObj.member_code,
-        full_name: mObj.full_name,
+        full_name: getMemberDisplayName(mObj),
         gender: mObj.gender || "ប្រុស (Male)",
         member_type: mObj.member_type || "គរុសិស្ស (Student)",
         time_in: document.getElementById("visit_time_in").value,
@@ -2557,7 +2904,7 @@ async function handleAddStudentVisit(e) {
     await apiPost("addStudentVisit", payload);
     document.getElementById("visit_qr_input").value = "";
     document.getElementById("visit_remarks").value = "";
-    Swal.fire("ជោគជ័យ!", `បានកត់ត្រាវត្តមាន៖ ${mObj.full_name} ចូលបណ្ណាល័យ`, "success");
+    Swal.fire("ជោគជ័យ!", `បានកត់ត្រាវត្តមាន៖ ${getMemberDisplayName(mObj)} ចូលបណ្ណាល័យ`, "success");
     renderVisitReport();
 }
 
@@ -2641,6 +2988,7 @@ async function loadDropdowns() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    applyLoggedInState();
     loadDashboard();
     loadDropdowns();
     initCirculationView(false);
