@@ -91,6 +91,73 @@
             100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
         }
 
+                /* ACLEDA-Style QR Scanner Reticle & Capture Animation */
+        .acleda-inline-stage {
+            position: relative;
+            width: 100%;
+            max-width: 340px;
+            aspect-ratio: 1 / 1;
+            margin: 0 auto;
+            border-radius: 1.25rem;
+            overflow: hidden;
+            background: #07152b;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #inappQrVideoBox { width: 100%; height: 100%; position: absolute; inset: 0; }
+        #inappQrVideoBox video { width: 100% !important; height: 100% !important; object-fit: cover !important; }
+        .acleda-reticle-box {
+            position: relative;
+            width: 210px;
+            height: 210px;
+            z-index: 10;
+            pointer-events: none;
+            animation: acledaBreath 2.3s ease-in-out infinite;
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes acledaBreath {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(0.96); }
+        }
+        .acleda-reticle-box.capture-locked {
+            animation: none !important;
+            transform: scale(0.84) !important;
+            filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.95));
+        }
+        .acleda-corner {
+            position: absolute;
+            width: 38px;
+            height: 38px;
+            border-color: #f59e0b;
+            border-style: solid;
+            border-width: 0;
+            transition: all 0.25s ease;
+        }
+        .acleda-reticle-box.capture-locked .acleda-corner {
+            border-color: #10b981 !important;
+            width: 48px;
+            height: 48px;
+        }
+        .ac-tl { top: 0; left: 0; border-top-width: 5px; border-left-width: 5px; border-top-left-radius: 14px; }
+        .ac-tr { top: 0; right: 0; border-top-width: 5px; border-right-width: 5px; border-top-right-radius: 14px; }
+        .ac-bl { bottom: 0; left: 0; border-bottom-width: 5px; border-left-width: 5px; border-bottom-left-radius: 14px; }
+        .ac-br { bottom: 0; right: 0; border-bottom-width: 5px; border-right-width: 5px; border-bottom-right-radius: 14px; }
+        .acleda-laser {
+            position: absolute;
+            left: 10px;
+            right: 10px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #38bdf8, #fcd34d, #38bdf8, transparent);
+            box-shadow: 0 0 12px 2px rgba(245, 158, 11, 0.8);
+            animation: acledaLaserSweep 2s ease-in-out infinite;
+        }
+        @keyframes acledaLaserSweep {
+            0%, 100% { top: 12px; opacity: 0.45; }
+            50% { top: calc(100% - 14px); opacity: 1; }
+        }
+
         /* ==================== LOGIN OVERLAY SCREEN ==================== */
         #loginOverlay {
             position: fixed;
@@ -555,12 +622,12 @@
                         <span class="badge bg-secondary-subtle text-secondary border">បានស្កេនចេញរួច៖ <strong id="dashCheckedOutTodayCount">0</strong> នាក់</span>
                     </div>
                 </div>
-                <div class="d-flex flex-wrap gap-2">
-                    <button class="btn btn-sm btn-primary fw-bold shadow-sm" onclick="switchView('scan')">
-                        <i class="fas fa-qrcode me-1"></i> ស្កេន QR ចូល / ចេញ
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <button type="button" id="dashCameraPowerBtn" class="btn btn-sm btn-success fw-bold shadow-sm" onclick="toggleLibrarianCameraPower()" title="បណ្ណារក្សបញ្ជាបិទ ឬបើកកាមេរ៉ាស្កេន QR របស់សិស្ស">
+                        <i class="fas fa-video me-1"></i> កាមេរ៉ាស្កេនសិស្ស៖ កំពុងបើក (ចុចបិទ)
                     </button>
                     <a href="scan.html" target="_blank" class="btn btn-sm btn-dark fw-bold shadow-sm">
-                        <i class="fas fa-external-link-alt text-info me-1"></i> បើកទំព័រ scan.html
+                        <i class="fas fa-external-link-alt text-warning me-1"></i> បើកទម្រង់សិស្សស្កេនដាច់ដោយឡែក (scan.html)
                     </a>
                 </div>
             </div>
@@ -1360,9 +1427,12 @@
                 <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;"><i class="fas fa-qrcode text-primary me-2"></i>ស្កេន QR Code ចូល និងចេញបណ្ណាល័យ (Student Scan In / Scan Out)</h2>
                 <p class="text-muted mb-0">សិស្សអាចស្កេន QR Code នៅទីនេះ ឬបើកទំព័រដាច់ដោយឡែក <code>scan.html</code> សម្រាប់ដាក់នៅមាត់ទ្វារបណ្ណាល័យ</p>
             </div>
-            <div class="d-flex gap-2">
+            <div class="d-flex flex-wrap gap-2">
+                <button type="button" id="scanViewCameraPowerBtn" class="btn btn-success fw-bold shadow-sm" onclick="toggleLibrarianCameraPower()">
+                    <i class="fas fa-video me-1"></i> បណ្ណារក្ស៖ កាមេរ៉ាកំពុងបើក (ចុចដើម្បីបិទ)
+                </button>
                 <a href="scan.html" target="_blank" class="btn btn-dark fw-bold shadow-sm">
-                    <i class="fas fa-external-link-alt text-info me-1"></i> បើកទំព័រ Kiosk ដាច់ដោយឡែក (scan.html)
+                    <i class="fas fa-external-link-alt text-warning me-1"></i> បើកទម្រង់សិស្សស្កេនដាច់ដោយឡែក (scan.html)
                 </a>
             </div>
         </div>
@@ -1375,6 +1445,26 @@
                         <span class="badge bg-primary-subtle text-primary border">Auto Check-In / Out</span>
                     </div>
                     <div class="card-body p-4">
+                        <!-- ACLEDA-Style Auto-Focus Camera Stage inside Scan View -->
+                        <div class="mb-3 text-center">
+                            <div class="acleda-inline-stage" id="inappCameraStage">
+                                <div id="inappQrVideoBox"></div>
+                                <div class="acleda-reticle-box" id="inappAcledaReticle">
+                                    <div class="acleda-corner ac-tl"></div>
+                                    <div class="acleda-corner ac-tr"></div>
+                                    <div class="acleda-corner ac-bl"></div>
+                                    <div class="acleda-corner ac-br"></div>
+                                    <div class="acleda-laser"></div>
+                                </div>
+                                <div id="inappCameraPausedOverlay" class="position-absolute top-0 start-0 w-100 h-100 d-none flex-column align-items-center justify-content-center p-3 text-center" style="background: rgba(7,21,43,0.94); z-index: 20;">
+                                    <i class="fas fa-video-slash text-danger fs-1 mb-2"></i>
+                                    <div class="fw-bold text-white">កាមេរ៉ាត្រូវបានបិទដោយបណ្ណារក្ស</div>
+                                    <div class="small text-light opacity-75 mb-2">នៅពេលមិនមានសិស្សចូលអាន កាមេរ៉ាត្រូវបានបិទ</div>
+                                    <button type="button" class="btn btn-sm btn-warning fw-bold" onclick="toggleLibrarianCameraPower()">បើកកាមេរ៉ាឡើងវិញ</button>
+                                </div>
+                            </div>
+                            <div class="small text-muted mt-1" id="inappCameraStatusText"><i class="fas fa-crosshairs text-warning me-1"></i>Auto-Focus QR Scanner (ដូច App ACLEDA)</div>
+                        </div>
                         <form onsubmit="handleInAppQrScan(event)">
                             <div class="mb-3">
                                 <label class="form-label fw-bold">១. ប្រភេទនៃការស្កេន (Scan Mode)</label>
@@ -1855,6 +1945,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.all.min.js"></script>
 <!-- QRCode.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
 <script>
 let API_URL = localStorage.getItem("RTTC_API_URL") || "https://script.google.com/macros/s/AKfycby_placeholder_deploy_url/exec";
@@ -2105,6 +2196,7 @@ function handleLibrarianLogin(e) {
     currentLibrarian = matched;
     localStorage.setItem("RTTC_LOGGED_IN_LIBRARIAN", JSON.stringify(currentLibrarian));
     applyLoggedInState();
+    updateLibrarianCameraButtonsUI();
 
     Swal.fire({
         title: "ស្វាគមន៍ការចូលប្រព័ន្ធ!",
@@ -2206,6 +2298,7 @@ function toggleSubmenu(submenuId, chevId) {
 }
 
 function switchView(viewName, el) {
+    if (viewName !== "scan" && typeof stopInAppCameraScanner === "function") stopInAppCameraScanner();
     document.querySelectorAll(".app-view").forEach(v => v.classList.remove("active"));
     const target = document.getElementById("view-" + viewName);
     if (target) target.classList.add("active");
@@ -2673,6 +2766,142 @@ function renderDashboardReadingTable() {
     });
 }
 
+// ==================== LIBRARIAN CAMERA POWER CONTROL & REAL-TIME SYNC WITH scan.html ====================
+const librarianScanChannel = ("BroadcastChannel" in window) ? new BroadcastChannel("rttc_library_scan_channel") : null;
+let inappHtml5QrScanner = null;
+let inappCameraStreaming = false;
+let inappScanLock = false;
+
+function isStudentCameraEnabled() {
+    return localStorage.getItem("RTTC_CAMERA_ENABLED") !== "false";
+}
+
+function updateLibrarianCameraButtonsUI() {
+    const enabled = isStudentCameraEnabled();
+    const dashBtn = document.getElementById("dashCameraPowerBtn");
+    const scanBtn = document.getElementById("scanViewCameraPowerBtn");
+    const pausedOverlay = document.getElementById("inappCameraPausedOverlay");
+
+    if (dashBtn) {
+        dashBtn.className = enabled ? "btn btn-sm btn-success fw-bold shadow-sm" : "btn btn-sm btn-danger fw-bold shadow-sm";
+        dashBtn.innerHTML = enabled
+            ? `<i class="fas fa-video me-1"></i> កាមេរ៉ាស្កេនសិស្ស៖ កំពុងបើក (ចុចបិទ)`
+            : `<i class="fas fa-video-slash me-1"></i> កាមេរ៉ាស្កេនសិស្ស៖ កំពុងបិទ (ចុចបើក)`;
+    }
+    if (scanBtn) {
+        scanBtn.className = enabled ? "btn btn-success fw-bold shadow-sm" : "btn btn-danger fw-bold shadow-sm";
+        scanBtn.innerHTML = enabled
+            ? `<i class="fas fa-video me-1"></i> បណ្ណារក្ស៖ កាមេរ៉ាកំពុងបើក (ចុចដើម្បីបិទ)`
+            : `<i class="fas fa-video-slash me-1"></i> បណ្ណារក្ស៖ កាមេរ៉ាត្រូវបានបិទ (ចុចដើម្បីបើក)`;
+    }
+    if (pausedOverlay) {
+        if (enabled) {
+            pausedOverlay.classList.add("d-none");
+            pausedOverlay.classList.remove("d-flex");
+        } else {
+            pausedOverlay.classList.remove("d-none");
+            pausedOverlay.classList.add("d-flex");
+        }
+    }
+}
+
+async function toggleLibrarianCameraPower() {
+    const nextState = !isStudentCameraEnabled();
+    localStorage.setItem("RTTC_CAMERA_ENABLED", nextState ? "true" : "false");
+    if (librarianScanChannel) {
+        librarianScanChannel.postMessage({ type: "CAMERA_STATE_CHANGED", enabled: nextState });
+    }
+    updateLibrarianCameraButtonsUI();
+
+    if (!nextState) {
+        await stopInAppCameraScanner();
+        Swal.fire({
+            icon: "info",
+            title: "បានបិទកាមេរ៉ាស្កេន QR (Camera Off)",
+            text: "កាមេរ៉ាស្កេនរបស់សិស្ស (ទាំងលើ scan.html និងក្នុងប្រព័ន្ធ) ត្រូវបានបិទជាបណ្តោះអាសន្ន។",
+            timer: 1800,
+            showConfirmButton: false
+        });
+    } else {
+        if (document.getElementById("view-scan")?.classList.contains("active")) {
+            await startInAppCameraScanner();
+        }
+        Swal.fire({
+            icon: "success",
+            title: "បានបើកកាមេរ៉ាស្កេន QR (Camera On)",
+            text: "កាមេរ៉ាស្កេន Auto-Focus សម្រាប់សិស្សបានដំណើរការឡើងវិញ។",
+            timer: 1800,
+            showConfirmButton: false
+        });
+    }
+}
+
+async function startInAppCameraScanner() {
+    if (!isStudentCameraEnabled() || inappCameraStreaming) return;
+    try {
+        if (!inappHtml5QrScanner && typeof Html5Qrcode !== "undefined") {
+            inappHtml5QrScanner = new Html5Qrcode("inappQrVideoBox");
+        }
+        if (inappHtml5QrScanner) {
+            await inappHtml5QrScanner.start(
+                { facingMode: "environment" },
+                { fps: 14, qrbox: { width: 200, height: 200 }, aspectRatio: 1.0 },
+                async (decodedText) => {
+                    if (inappScanLock) return;
+                    inappScanLock = true;
+                    const reticle = document.getElementById("inappAcledaReticle");
+                    if (reticle) reticle.classList.add("capture-locked");
+                    document.getElementById("inapp_qr_input").value = decodedText;
+                    syncInAppQrToMember(decodedText);
+                    await new Promise(r => setTimeout(r, 280));
+                    await handleInAppQrScan({ preventDefault: () => {} });
+                    setTimeout(() => {
+                        if (reticle) reticle.classList.remove("capture-locked");
+                        inappScanLock = false;
+                    }, 1800);
+                },
+                () => {}
+            );
+            inappCameraStreaming = true;
+        }
+    } catch (e) {
+        inappCameraStreaming = false;
+    }
+}
+
+async function stopInAppCameraScanner() {
+    if (inappHtml5QrScanner && inappCameraStreaming) {
+        try { await inappHtml5QrScanner.stop(); } catch (e) {}
+        inappCameraStreaming = false;
+    }
+}
+
+window.addEventListener("storage", (e) => {
+    if (e.key === "RTTC_CAMERA_ENABLED") {
+        updateLibrarianCameraButtonsUI();
+        if (!isStudentCameraEnabled()) stopInAppCameraScanner();
+    }
+    if (e.key === "RTTC_DB_visits") {
+        allVisits = getLocalStore("visits");
+        renderDashboardReadingTable();
+        renderInAppTodayVisits();
+    }
+});
+
+if (librarianScanChannel) {
+    librarianScanChannel.onmessage = (ev) => {
+        if (ev.data && ev.data.type === "CAMERA_STATE_CHANGED") {
+            updateLibrarianCameraButtonsUI();
+            if (!isStudentCameraEnabled()) stopInAppCameraScanner();
+        }
+        if (ev.data && ev.data.type === "VISIT_UPDATED") {
+            allVisits = getLocalStore("visits");
+            renderDashboardReadingTable();
+            renderInAppTodayVisits();
+        }
+    };
+}
+
 // ==================== IN-APP QR SCAN CHECK-IN / CHECK-OUT VIEW ====================
 async function loadScanView() {
     await apiCall("getMembers");
@@ -2687,7 +2916,9 @@ async function loadScanView() {
         });
         initOrRefreshSelect2("#inapp_scan_member", "ជ្រើសរើសសិស្ស...", false);
     }
+    updateLibrarianCameraButtonsUI();
     renderInAppTodayVisits();
+    if (isStudentCameraEnabled()) startInAppCameraScanner();
 }
 
 function syncInAppQrToMember(val) {
@@ -4576,6 +4807,7 @@ async function loadDropdowns() {
 
 document.addEventListener("DOMContentLoaded", () => {
     applyLoggedInState();
+    updateLibrarianCameraButtonsUI();
     loadDashboard();
     loadDropdowns();
     initCirculationView(false);
