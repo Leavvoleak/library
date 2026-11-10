@@ -40,7 +40,7 @@
             border-radius: 1.25rem;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
             width: 100%;
-            max-width: 480px;
+            max-width: 460px;
             overflow: hidden;
             animation: fadeIn 0.3s ease-out;
         }
@@ -155,6 +155,25 @@
         .app-view.active { display: block; animation: fadeIn 0.2s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* Scrollable panels & sticky table headers */
+        .scrollable-panel {
+            max-height: 460px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+        .scrollable-table-box {
+            max-height: 480px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+        .scrollable-table-box thead th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background-color: #f8fafc;
+            box-shadow: inset 0 -1px 0 #dee2e6;
+        }
+
         /* Borrower Group & Sub-list styling */
         .borrower-group-card {
             border: 1px solid #e2e8f0;
@@ -186,6 +205,28 @@
         }
         .borrowed-books-sublist li:last-child { border-bottom: none; }
 
+        /* Classic AddBook Horizontal Form Styling (Matching user screenshot) */
+        .book-info-card-header {
+            background-color: #0d6efd;
+            color: #ffffff;
+            padding: 0.75rem 1.25rem;
+            font-family: 'Hanuman', serif;
+            font-weight: 700;
+            font-size: 1.05rem;
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
+        }
+        .book-form-row {
+            margin-bottom: 0.85rem;
+            align-items: center;
+        }
+        .book-form-row label {
+            font-family: 'Hanuman', 'Kantumruy Pro', sans-serif;
+            font-size: 0.92rem;
+            color: #334155;
+            font-weight: 600;
+        }
+
         /* QR Card Grid for Printing */
         .qr-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
         .qr-badge-card { border: 2px solid #cbd5e1; border-radius: 0.75rem; padding: 1rem; text-align: center; background: #fff; page-break-inside: avoid; }
@@ -207,7 +248,7 @@
 </head>
 <body>
 
-<!-- ==================== LIBRARIAN LOGIN SCREEN OVERLAY ==================== -->
+<!-- ==================== LIBRARIAN LOGIN SCREEN OVERLAY (NO KHMER NAME FIELD) ==================== -->
 <div id="loginOverlay">
     <div class="login-card">
         <div class="login-header">
@@ -225,26 +266,18 @@
                     <label class="form-label fw-bold">១. ឈ្មោះបណ្ណារក្សជាភាសាអង់គ្លេស (Full Name in English) <span class="text-danger">*</span></label>
                     <div class="input-group">
                         <span class="input-group-text bg-light"><i class="fas fa-user-tie text-primary"></i></span>
-                        <input type="text" id="login_full_name_en" class="form-control" list="librarianEnList" required placeholder="e.g. Sok Sambath" oninput="syncLoginKhmerName(this.value)">
+                        <input type="text" id="login_full_name_en" class="form-control" list="librarianEnList" required placeholder="e.g. Sok Sambath">
                     </div>
                     <datalist id="librarianEnList">
-                        <option value="Sok Sambath">សុខ សម្បត្តិ (LIB-001)</option>
-                        <option value="Chan Moniroth">ចាន់ មុនីរតន៍ (LIB-002)</option>
-                        <option value="Kong Chanda">គង់ ចិន្តា (LIB-003)</option>
+                        <option value="Sok Sambath">LIB-001</option>
+                        <option value="Chan Moniroth">LIB-002</option>
+                        <option value="Kong Chanda">LIB-003</option>
                     </datalist>
                     <div class="form-text">វាយបញ្ចូល Full Name in English (ឧ. <code>Sok Sambath</code>)</div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label fw-bold">២. ឈ្មោះជាភាសាខ្មែរ (Khmer Name) <span class="text-danger">*</span></label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light"><i class="fas fa-id-badge text-success"></i></span>
-                        <input type="text" id="login_khmer_name" class="form-control" required placeholder="ឧ. សុខ សម្បត្តិ">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-bold">៣. លេខកូដសម្ងាត់ (Password / Staff Code)</label>
+                    <label class="form-label fw-bold">២. លេខកូដសម្ងាត់ (Password / Staff Code)</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light"><i class="fas fa-lock text-secondary"></i></span>
                         <input type="password" id="login_password" class="form-control" value="123456" required placeholder="123456">
@@ -255,14 +288,14 @@
                 <div class="mb-4">
                     <div class="small text-muted mb-1">ជ្រើសរើសគណនីបណ្ណារក្សរហ័ស (Quick Fill):</div>
                     <div class="d-flex flex-wrap gap-1">
-                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="fillLoginDemo('Sok Sambath', 'សុខ សម្បត្តិ', 'LIB-001')">
-                            <i class="fas fa-user-check me-1"></i> Sok Sambath (សុខ សម្បត្តិ)
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="fillLoginDemo('Sok Sambath')">
+                            <i class="fas fa-user-check me-1"></i> Sok Sambath
                         </button>
-                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="fillLoginDemo('Chan Moniroth', 'ចាន់ មុនីរតន៍', 'LIB-002')">
-                            <i class="fas fa-user-check me-1"></i> Chan Moniroth (ចាន់ មុនីរតន៍)
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="fillLoginDemo('Chan Moniroth')">
+                            <i class="fas fa-user-check me-1"></i> Chan Moniroth
                         </button>
-                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="fillLoginDemo('Kong Chanda', 'គង់ ចិន្តា', 'LIB-003')">
-                            <i class="fas fa-user-check me-1"></i> Kong Chanda (គង់ ចិន្តា)
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="fillLoginDemo('Kong Chanda')">
+                            <i class="fas fa-user-check me-1"></i> Kong Chanda
                         </button>
                     </div>
                 </div>
@@ -290,8 +323,8 @@
         <div class="d-flex justify-content-between align-items-center">
             <div>
                 <div class="small text-info fw-bold"><i class="fas fa-user-shield me-1"></i> បណ្ណារក្សកំពុងប្រចាំការ៖</div>
-                <div class="fw-bold text-white mt-1" id="sidebarLibKhmerName" style="font-size: 0.92rem;">សុខ សម្បត្តិ</div>
-                <div class="small text-light opacity-75" id="sidebarLibEnName" style="font-size: 0.78rem;">Sok Sambath (LIB-001)</div>
+                <div class="fw-bold text-white mt-1" id="sidebarLibEnName" style="font-size: 0.92rem;">Sok Sambath</div>
+                <div class="small text-light opacity-75" id="sidebarLibKhmerName" style="font-size: 0.78rem;">សុខ សម្បត្តិ (LIB-001)</div>
             </div>
             <button type="button" class="btn btn-sm btn-outline-danger py-1 px-2" onclick="handleLibrarianLogout()" title="ចាកចេញពីប្រព័ន្ធ (Logout)">
                 <i class="fas fa-power-off"></i>
@@ -380,7 +413,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;">ផ្ទាំងគ្រប់គ្រងទិន្នន័យបណ្ណាល័យ RTTC</h2>
-                <p class="text-muted mb-0"><i class="fas fa-cloud text-primary me-1"></i> Google Sheets Backend | សូមស្វាគមន៍បណ្ណារក្ស៖ <strong id="dashWelcomeLibName" class="text-primary">សុខ សម្បត្តិ (Sok Sambath)</strong></p>
+                <p class="text-muted mb-0"><i class="fas fa-cloud text-primary me-1"></i> Google Sheets Backend | សូមស្វាគមន៍បណ្ណារក្ស៖ <strong id="dashWelcomeLibName" class="text-primary">Sok Sambath (សុខ សម្បត្តិ)</strong></p>
             </div>
             <div class="d-flex gap-2">
                 <button class="btn btn-warning btn-sm fw-bold" onclick="switchView('attendance')"><i class="fas fa-user-clock me-1"></i> ចុះវត្តមានបណ្ណារក្ស</button>
@@ -441,9 +474,9 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;">បញ្ជីសៀវភៅទាំងអស់ (Books Catalog)</h2>
-                <p class="text-muted mb-0">ស្វែងរកតាមចំណងជើង, DDC, ឬលេខសារពើភ័ណ្ឌ (Number Saroper)</p>
+                <p class="text-muted mb-0">ស្វែងរកតាមចំណងជើង, DDC, ឬលេខសារពើភ័ណ្ឌ (Number Saroper) និងចុច «កែប្រែ» ដើម្បី Update ព័ត៌មានសៀវភៅ</p>
             </div>
-            <button class="btn btn-primary" onclick="switchView('addBook')"><i class="fas fa-plus me-1"></i> ចុះឈ្មោះសៀវភៅថ្មី</button>
+            <button class="btn btn-primary" onclick="resetBookForm(); switchView('addBook')"><i class="fas fa-plus me-1"></i> ចុះឈ្មោះសៀវភៅថ្មី</button>
         </div>
         <div class="card border-0 shadow-sm rounded-3 mb-3 p-3">
             <div class="input-group">
@@ -453,10 +486,10 @@
         </div>
         <div class="card border-0 shadow-sm rounded-3">
             <div class="card-body p-0">
-                <div class="table-responsive">
+                <div class="table-responsive scrollable-table-box">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
-                            <tr><th>ID</th><th>ព័ត៌មានសៀវភៅ</th><th>DDC & សារពើភ័ណ្ឌ</th><th>អ្នកនិពន្ធ</th><th>ប្រភេទ & ទីតាំង</th><th>ស្ថានភាពស្តុក</th><th class="text-end pe-3">សកម្មភាព</th></tr>
+                            <tr><th>ID</th><th>ព័ត៌មានសៀវភៅ</th><th>DDC & សារពើភ័ណ្ឌ</th><th>អ្នកនិពន្ធ</th><th>ប្រភេទ & ទូ/ធ្នើរ</th><th>ស្ថានភាពស្តុក</th><th class="text-end pe-3">សកម្មភាព (Update/Delete)</th></tr>
                         </thead>
                         <tbody id="booksTableBody"></tbody>
                     </table>
@@ -465,46 +498,238 @@
         </div>
     </div>
 
-    <!-- ==================== VIEW: ADD BOOK ==================== -->
+    <!-- ==================== VIEW: ADD / UPDATE BOOK (MATCHING UPLOADED SCREENSHOT) ==================== -->
     <div id="view-addBook" class="app-view">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
             <div>
-                <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;">ចុះឈ្មោះសៀវភៅថ្មី (Add Book)</h2>
-                <p class="text-muted mb-0">កត់ត្រាសៀវភៅថ្មីចូលទៅក្នុង Google Sheet (<code>tbl_book</code>)</p>
+                <h3 class="fw-bold mb-0" style="font-family: 'Hanuman', serif;" id="addBookPageHeading">ចុះឈ្មោះសៀវភៅថ្មី / កែប្រែព័ត៌មានសៀវភៅ</h3>
             </div>
-            <button class="btn btn-outline-secondary" onclick="switchView('books')"><i class="fas fa-arrow-left me-1"></i> បញ្ជីសៀវភៅ</button>
+            <div class="d-flex align-items-center gap-2" style="min-width: 340px;">
+                <select id="quickSelectBookToEdit" class="form-select form-select-sm" onchange="loadBookIntoForm(this.value)">
+                    <option value="">-- ជ្រើសរើសសៀវភៅដែលមានស្រាប់ដើម្បី Update --</option>
+                </select>
+                <button class="btn btn-sm btn-outline-secondary text-nowrap" onclick="switchView('books')"><i class="fas fa-list me-1"></i> បញ្ជីសៀវភៅ</button>
+            </div>
         </div>
-        <div class="card border-0 shadow-sm rounded-3 p-4">
-            <form id="jsAddBookForm" onsubmit="handleJsAddBook(event)">
-                <div class="row g-3">
-                    <div class="col-md-6"><label class="form-label fw-bold">ចំណងជើងសៀវភៅ *</label><input type="text" id="f_name" class="form-control" required placeholder="ចំណងជើងសៀវភៅ"></div>
-                    <div class="col-md-6"><label class="form-label fw-bold">ចំណងជើងរង</label><input type="text" id="f_sub" class="form-control"></div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold">ប្រភេទសៀវភៅ *</label>
-                        <div class="input-group">
-                            <select id="f_cat" class="form-select" required></select>
-                            <button type="button" class="btn btn-outline-primary" onclick="openAddCategoryModal()"><i class="fas fa-plus"></i></button>
+
+        <div class="card border-0 shadow-sm rounded-3 mb-4">
+            <div class="book-info-card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-info-circle me-1"></i> <span id="bookFormHeaderLabel">ព័ត៌មានសៀវភៅ</span></span>
+                <button type="button" id="cancelBookEditBtn" class="btn btn-sm btn-light text-danger fw-bold d-none" onclick="resetBookForm()">
+                    <i class="fas fa-times me-1"></i> បោះបង់ការកែប្រែ (ត្រឡប់ទៅបញ្ចូលថ្មី)
+                </button>
+            </div>
+
+            <div class="card-body p-4" style="font-family: 'Hanuman', 'Kantumruy Pro', sans-serif;">
+                <form id="jsAddBookForm" onsubmit="handleJsAddBook(event)">
+                    <input type="hidden" id="f_edit_book_id" value="">
+
+                    <div class="row g-4">
+                        <!-- LEFT COLUMN (Matches screenshot) -->
+                        <div class="col-lg-6">
+                            <!-- 1. លេខ.ISBN + Open Library + G-Books -->
+                            <div class="row book-form-row">
+                                <label class="col-lg-4 col-form-label" for="f_isbn">លេខ.ISBN</label>
+                                <div class="col-lg-8 d-flex gap-1">
+                                    <input type="text" id="f_isbn" class="form-control text-danger" placeholder="ISBN">
+                                    <button type="button" class="btn btn-info btn-sm text-white text-nowrap px-2" onclick="searchBookOpenLibrary()">Open Library</button>
+                                    <button type="button" class="btn btn-secondary btn-sm text-nowrap px-2" onclick="searchBookGoogle()">G-Books</button>
+                                </div>
+                            </div>
+
+                            <!-- 2. លេខ.DDC -->
+                            <div class="row book-form-row">
+                                <label class="col-lg-4 col-form-label" for="f_ddc">លេខ.DDC</label>
+                                <div class="col-lg-8">
+                                    <input type="text" id="f_ddc" class="form-control text-danger">
+                                </div>
+                            </div>
+
+                            <!-- 3. លេខរៀងចំណងជើង -->
+                            <div class="row book-form-row">
+                                <label class="col-lg-4 col-form-label" for="f_book_desc">លេខរៀងចំណងជើង</label>
+                                <div class="col-lg-8">
+                                    <input type="text" id="f_book_desc" class="form-control text-danger">
+                                </div>
+                            </div>
+
+                            <!-- 4. ឈ្មោះសៀវភៅ * -->
+                            <div class="row book-form-row">
+                                <label class="col-lg-4 col-form-label" for="f_name">ឈ្មោះសៀវភៅ <span class="text-danger">*</span></label>
+                                <div class="col-lg-8">
+                                    <input type="text" id="f_name" class="form-control text-danger" required>
+                                </div>
+                            </div>
+
+                            <!-- 5. ចំណងជើងរង -->
+                            <div class="row book-form-row">
+                                <label class="col-lg-4 col-form-label" for="f_sub">ចំណងជើងរង</label>
+                                <div class="col-lg-8">
+                                    <input type="text" id="f_sub" class="form-control text-danger">
+                                </div>
+                            </div>
+
+                            <!-- 6. ប្រភេទសៀវភៅ * -->
+                            <div class="row book-form-row">
+                                <label class="col-lg-4 col-form-label" for="f_cat">ប្រភេទសៀវភៅ <span class="text-danger">*</span></label>
+                                <div class="col-lg-8">
+                                    <select id="f_cat" class="form-select" required></select>
+                                </div>
+                            </div>
+
+                            <!-- 7. ឈ្មោះអ្នកនិពន្ធ -->
+                            <div class="row book-form-row">
+                                <label class="col-lg-4 col-form-label" for="f_author">ឈ្មោះអ្នកនិពន្ធ</label>
+                                <div class="col-lg-8">
+                                    <input type="text" id="f_author" class="form-control text-danger">
+                                </div>
+                            </div>
+
+                            <!-- 8. ឈ្មោះរោងបោះពុម្ភ -->
+                            <div class="row book-form-row">
+                                <label class="col-lg-4 col-form-label" for="f_publisher">ឈ្មោះរោងបោះពុម្ភ</label>
+                                <div class="col-lg-8">
+                                    <input type="text" id="f_publisher" class="form-control text-danger">
+                                </div>
+                            </div>
+
+                            <!-- 9. បោះពុម្ភលើកទី -->
+                            <div class="row book-form-row">
+                                <label class="col-lg-4 col-form-label" for="f_edition">បោះពុម្ភលើកទី</label>
+                                <div class="col-lg-8">
+                                    <input type="text" id="f_edition" class="form-control text-danger">
+                                </div>
+                            </div>
+
+                            <!-- 10. ឆ្នាំបោះពុម្ភ -->
+                            <div class="row book-form-row">
+                                <label class="col-lg-4 col-form-label" for="f_year">ឆ្នាំបោះពុម្ភ</label>
+                                <div class="col-lg-8">
+                                    <input type="text" id="f_year" class="form-control text-danger">
+                                </div>
+                            </div>
+
+                            <!-- 11. បោះពុម្ភដោយប្រទេស -->
+                            <div class="row book-form-row">
+                                <label class="col-lg-4 col-form-label" for="f_country">បោះពុម្ភដោយប្រទេស</label>
+                                <div class="col-lg-8">
+                                    <input type="text" id="f_country" class="form-control text-danger">
+                                </div>
+                            </div>
+
+                            <!-- 12. ភាសា -->
+                            <div class="row book-form-row">
+                                <label class="col-lg-4 col-form-label" for="f_lang">ភាសា</label>
+                                <div class="col-lg-8">
+                                    <select id="f_lang" class="form-select">
+                                        <option value="">ជ្រើសរើសភាសា</option>
+                                        <option value="ភាសាខ្មែរ (Khmer)">ភាសាខ្មែរ (Khmer)</option>
+                                        <option value="English">English</option>
+                                        <option value="ភាសាខ្មែរ/អង់គ្លេស">ភាសាខ្មែរ/អង់គ្លេស</option>
+                                        <option value="French">French</option>
+                                        <option value="Chinese">Chinese</option>
+                                        <option value="Thai">Thai</option>
+                                        <option value="Vietnamese">Vietnamese</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- 13. ចំនួនសៀវភៅ * -->
+                            <div class="row book-form-row">
+                                <label class="col-lg-4 col-form-label" for="f_qty">ចំនួនសៀវភៅ <span class="text-danger">*</span></label>
+                                <div class="col-lg-8">
+                                    <input type="number" id="f_qty" class="form-control text-danger" value="1" min="1" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RIGHT COLUMN (Matches screenshot) -->
+                        <div class="col-lg-6">
+                            <!-- 1. ទូ * -->
+                            <div class="row book-form-row">
+                                <label class="col-lg-4 col-form-label" for="f_place">ទូ <span class="text-danger">*</span></label>
+                                <div class="col-lg-8">
+                                    <select id="f_place" class="form-select" required></select>
+                                </div>
+                            </div>
+
+                            <!-- 2. លេខDDCសៀវភៅតាមទូ * -->
+                            <div class="row book-form-row">
+                                <label class="col-lg-4 col-form-label" for="f_shelf">លេខDDCសៀវភៅតាមទូ <span class="text-danger">*</span></label>
+                                <div class="col-lg-8">
+                                    <select id="f_shelf" class="form-select" required></select>
+                                </div>
+                            </div>
+
+                            <!-- 3. លេខរ៉ូមាំង ឬចំនួនទំព័រ -->
+                            <div class="row book-form-row">
+                                <label class="col-lg-4 col-form-label" for="f_pages">លេខរ៉ូមាំង ឬចំនួនទំព័រ</label>
+                                <div class="col-lg-8">
+                                    <input type="text" id="f_pages" class="form-control text-danger">
+                                </div>
+                            </div>
+
+                            <!-- 4. ប្រភពនៃសៀវភៅ -->
+                            <div class="row book-form-row">
+                                <label class="col-lg-4 col-form-label" for="f_resource">ប្រភពនៃសៀវភៅ</label>
+                                <div class="col-lg-8">
+                                    <input type="text" id="f_resource" class="form-control text-danger">
+                                </div>
+                            </div>
+
+                            <!-- 5. លេខបញ្ជីសារពើភ័ណ្ឌ * -->
+                            <div class="row book-form-row">
+                                <label class="col-lg-4 col-form-label" for="f_saroper">លេខបញ្ជីសារពើភ័ណ្ឌ<span class="text-danger">*</span></label>
+                                <div class="col-lg-8">
+                                    <textarea id="f_saroper" class="form-control text-danger" rows="2" placeholder="ឧ. 01,02,03..." required></textarea>
+                                </div>
+                            </div>
+
+                            <!-- 6. ថ្ងៃចុះបញ្ជី * -->
+                            <div class="row book-form-row">
+                                <label class="col-lg-4 col-form-label" for="f_date_saroper">ថ្ងៃចុះបញ្ជី<span class="text-danger">*</span></label>
+                                <div class="col-lg-8">
+                                    <input type="date" id="f_date_saroper" class="form-control text-danger" required>
+                                </div>
+                            </div>
+
+                            <!-- 7. មានក្នុងបណ្ណាល័យ * -->
+                            <div class="row book-form-row">
+                                <label class="col-lg-4 col-form-label" for="f_availability">មានក្នុងបណ្ណាល័យ<span class="text-danger">*</span></label>
+                                <div class="col-lg-8">
+                                    <select id="f_availability" class="form-select" required>
+                                        <option value="">សូមជ្រើសរើស</option>
+                                        <option value="មាន (Available)" selected>មាន</option>
+                                        <option value="មិនមាន (Unavailable)">មិនមាន</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- 8. ប៊ូតុង បញ្ជូនទិន្ន័យ / Update -->
+                            <div class="row book-form-row mt-3">
+                                <div class="col-lg-8 offset-lg-4">
+                                    <button type="submit" id="bookSubmitBtn" class="btn btn-primary px-4 fw-bold shadow-sm">
+                                        <i class="fas fa-plus-circle me-1"></i>បញ្ជូនទិន្ន័យ
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 9. រូបភាពសៀវភៅ -->
+                            <div class="row book-form-row mt-3">
+                                <label class="col-lg-4 col-form-label">រូបភាពសៀវភៅ</label>
+                                <div class="col-lg-8">
+                                    <input type="url" id="f_cover" class="form-control form-control-sm mb-2" placeholder="URL រូបភាពក្របសៀវភៅ (https://...)" oninput="previewCoverUrl(this.value)">
+                                    <img id="f_cover_preview" src="" alt="Cover Preview" style="max-width: 110px; border-radius: 6px; border: 1px solid #cbd5e1; display: none;">
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-4"><label class="form-label fw-bold">អ្នកនិពន្ធ</label><input type="text" id="f_author" class="form-control"></div>
-                    <div class="col-md-4"><label class="form-label fw-bold">រោងពុម្ព</label><input type="text" id="f_publisher" class="form-control"></div>
-                    <div class="col-md-4"><label class="form-label fw-bold">ចំណាត់ថ្នាក់ដឺវី (DDC) *</label><input type="text" id="f_ddc" class="form-control" required placeholder="ឧ. 370.71"></div>
-                    <div class="col-md-4"><label class="form-label fw-bold">លេខបញ្ជីសារពើភ័ណ្ឌ (Number Saroper) *</label><input type="text" id="f_saroper" class="form-control" required placeholder="ឧ. SP-2024-004"></div>
-                    <div class="col-md-4"><label class="form-label fw-bold">ISBN</label><input type="text" id="f_isbn" class="form-control"></div>
-                    <div class="col-md-4"><label class="form-label fw-bold">ទីតាំង/ជួរ</label><select id="f_place" class="form-select"></select></div>
-                    <div class="col-md-4"><label class="form-label fw-bold">លេខធ្នើរ</label><input type="text" id="f_shelf" class="form-control" placeholder="ធ្នើរ 01"></div>
-                    <div class="col-md-4"><label class="form-label fw-bold">ចំនួនក្បាលសៀវភៅ *</label><input type="number" id="f_qty" class="form-control" value="1" min="1" required></div>
-                    <div class="col-md-6"><label class="form-label fw-bold">ប្រភពសៀវភៅ (ក្រអយក)</label><input type="text" id="f_resource" class="form-control" placeholder="ក្រអយក / អង្គការឧបត្ថម្ភ"></div>
-                    <div class="col-md-6"><label class="form-label fw-bold">URL ក្របសៀវភៅ</label><input type="url" id="f_cover" class="form-control" placeholder="https://..."></div>
-                    <div class="col-12 mt-4 text-end">
-                        <button type="submit" class="btn btn-primary px-4"><i class="fas fa-save me-1"></i> រក្សាទុកក្នុង Google Sheet</button>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
 
-    <!-- ==================== VIEW: CATEGORIES ==================== -->
+    <!-- ==================== VIEW: CATEGORIES (SCROLLABLE + SEARCH BOX) ==================== -->
     <div id="view-categories" class="app-view">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
@@ -516,18 +741,27 @@
             </button>
         </div>
         <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold"><i class="fas fa-tags text-primary me-2"></i>បញ្ជីប្រភេទសៀវភៅទាំងអស់</h6>
+                <div class="input-group" style="max-width: 320px;">
+                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" id="categorySearchInput" class="form-control form-control-sm border-start-0" placeholder="ស្វែងរកកូដ ឬឈ្មោះប្រភេទសៀវភៅ..." onkeyup="filterCategoriesTable()">
+                </div>
+            </div>
             <div class="card-body p-0">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr><th>ID</th><th>កូដប្រភេទ</th><th>ឈ្មោះប្រភេទសៀវភៅ</th><th>ការពិពណ៌នា</th><th>ស្ថានភាព</th><th class="text-end pe-3">សកម្មភាព</th></tr>
-                    </thead>
-                    <tbody id="categoriesTableBody"></tbody>
-                </table>
+                <div class="table-responsive scrollable-table-box">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr><th>ID</th><th>កូដប្រភេទ</th><th>ឈ្មោះប្រភេទសៀវភៅ</th><th>ការពិពណ៌នា</th><th>ស្ថានភាព</th><th class="text-end pe-3">សកម្មភាព</th></tr>
+                        </thead>
+                        <tbody id="categoriesTableBody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- ==================== CIRCULATION SUB-VIEW 1: ខ្ចីសៀវភៅ (MULTI-BOOK BORROW FORM) ==================== -->
+    <!-- ==================== CIRCULATION SUB-VIEW 1: ខ្ចីសៀវភៅ (MULTI-BOOK BORROW FORM + SCROLLABLE SEARCHABLE ACTIVE LOANS) ==================== -->
     <div id="view-loan-borrow" class="app-view">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
@@ -555,7 +789,6 @@
                                 <div class="form-text">វាយឈ្មោះខ្មែរ, Full Name in English, ឬលេខកូដសមាជិក (ឧ. RTTC-STU-001)</div>
                             </div>
 
-                            <!-- Multi-select Books Dropdown + Live Selected Books Sub-list -->
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
                                     <label class="form-label fw-bold mb-0">២. ជ្រើសរើសសៀវភៅដែលត្រូវខ្ចី (អាចជ្រើសរើសបានច្រើនក្បាល) <span class="text-danger">*</span></label>
@@ -592,21 +825,27 @@
                 </div>
             </div>
 
-            <!-- Grouped Active Loans by Borrower with Sub-list of Borrowed Books -->
+            <!-- Grouped Active Loans by Borrower with Search Box & Scrollable Sub-list -->
             <div class="col-lg-5">
                 <div class="card border-0 shadow-sm rounded-3 h-100">
-                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0 fw-bold"><i class="fas fa-users text-primary me-2"></i>សៀវភៅដែលកំពុងខ្ចីថ្មីៗ (Active Loans តាមឈ្មោះអ្នកខ្ចី)</h6>
-                        <span class="badge bg-warning text-dark" id="activeBorrowerGroupCount">0 នាក់</span>
+                    <div class="card-header bg-white py-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0 fw-bold"><i class="fas fa-users text-primary me-2"></i>បញ្ជីអ្នកកំពុងខ្ចី និងសៀវភៅរង (ចុចជ្រើសរើសសង)</h6>
+                            <span class="badge bg-warning text-dark" id="activeBorrowerGroupCount">0 នាក់</span>
+                        </div>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                            <input type="text" id="searchGroupedBorrowSide" class="form-control border-start-0" placeholder="ស្វែងរកឈ្មោះអ្នកខ្ចី, លេខកូដ, ឬចំណងជើងសៀវភៅ..." oninput="renderGroupedActiveLoans(this.value)">
+                        </div>
                     </div>
-                    <div class="card-body p-3" id="groupedActiveLoansBorrowSide" style="max-height: 540px; overflow-y: auto;">
+                    <div class="card-body p-3 scrollable-panel" id="groupedActiveLoansBorrowSide">
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ==================== CIRCULATION SUB-VIEW 2: សងសៀវភៅ (RETURN FORM) ==================== -->
+    <!-- ==================== CIRCULATION SUB-VIEW 2: សងសៀវភៅ (RETURN FORM + SCROLLABLE SEARCHABLE ACTIVE LOANS) ==================== -->
     <div id="view-loan-return" class="app-view">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
@@ -700,12 +939,17 @@
                 </div>
             </div>
 
+            <!-- Right Panel: Scrollable + Searchable Active Loans Sub-list -->
             <div class="col-lg-5">
                 <div class="card border-0 shadow-sm rounded-3 h-100">
                     <div class="card-header bg-white py-3">
-                        <h6 class="mb-0 fw-bold"><i class="fas fa-hand-point-left text-success me-2"></i>បញ្ជីអ្នកកំពុងខ្ចី និងសៀវភៅរង (ចុចជ្រើសរើសសង)</h6>
+                        <h6 class="mb-2 fw-bold"><i class="fas fa-hand-point-left text-success me-2"></i>បញ្ជីអ្នកកំពុងខ្ចី និងសៀវភៅរង (ចុចជ្រើសរើសសង)</h6>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                            <input type="text" id="searchGroupedReturnSide" class="form-control border-start-0" placeholder="ស្វែងរកឈ្មោះអ្នកខ្ចី, កូដខ្ចី, ឬចំណងជើងសៀវភៅ..." oninput="renderGroupedActiveLoans(this.value)">
+                        </div>
                     </div>
-                    <div class="card-body p-3" id="groupedActiveLoansReturnSide" style="max-height: 540px; overflow-y: auto;">
+                    <div class="card-body p-3 scrollable-panel" id="groupedActiveLoansReturnSide">
                     </div>
                 </div>
             </div>
@@ -738,7 +982,7 @@
                 <input type="text" id="loansTableFilter" class="form-control form-control-sm" style="max-width: 300px;" placeholder="ស្វែងរកកូដ, ឈ្មោះសិស្ស, ឬស្ថានភាព..." onkeyup="filterLoansTable()">
             </div>
             <div class="card-body p-0">
-                <div class="table-responsive">
+                <div class="table-responsive scrollable-table-box">
                     <table class="table table-hover align-middle mb-0" id="jsLoansTable">
                         <thead class="table-light">
                             <tr>
@@ -758,12 +1002,12 @@
         </div>
     </div>
 
-    <!-- ==================== VIEW: MEMBERS (SPLIT KHMER NAME & FULL NAME IN ENGLISH + QR CODE) ==================== -->
+    <!-- ==================== VIEW: MEMBERS (AUTO-GENERATED MEMBER CODE + QR CODE) ==================== -->
     <div id="view-members" class="app-view">
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
             <div>
                 <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;">សមាជិកបណ្ណាល័យ & បង្កើត QR Code (Members)</h2>
-                <p class="text-muted mb-0">បំបែកជួរឈរឈ្មោះជា <code>Khmer Name</code> និង <code>Full Name in English</code> ព្រមទាំងបង្កើតកាត QR Code</p>
+                <p class="text-muted mb-0">លេខកូដសមាជិក (Member Code) ត្រូវបានបង្កើតដោយស្វ័យប្រវត្តិ ព្រមទាំងអាចបង្កើតកាត QR Code</p>
             </div>
             <div class="d-flex gap-2">
                 <button class="btn btn-dark shadow-sm" onclick="generateBatchQrCodes(false)">
@@ -798,22 +1042,22 @@
                             <input type="text" id="mem_full_name_en" class="form-control" required placeholder="e.g. Kong Piseth">
                         </div>
                         <div class="col-md-2">
-                            <label class="form-label fw-bold">លេខកូដ (Member Code)</label>
-                            <input type="text" id="mem_code" class="form-control" placeholder="RTTC-STU-005">
+                            <label class="form-label fw-bold">ប្រភេទសមាជិក</label>
+                            <select id="mem_type" class="form-select" onchange="generateAutoMemberCode()">
+                                <option value="គរុសិស្ស (Student)">គរុសិស្ស (Student)</option>
+                                <option value="គ្រូបង្រៀន (Teacher)">គ្រូបង្រៀន (Teacher)</option>
+                                <option value="បុគ្គលិក (Staff)">បុគ្គលិក (Staff)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">លេខកូដ <span class="badge bg-info-subtle text-info border">ស្វ័យប្រវត្តិ</span></label>
+                            <input type="text" id="mem_code" class="form-control bg-light fw-bold text-primary" readonly>
                         </div>
                         <div class="col-md-2">
                             <label class="form-label fw-bold">ភេទ (Gender)</label>
                             <select id="mem_gender" class="form-select">
                                 <option value="ប្រុស (Male)">ប្រុស (Male)</option>
                                 <option value="ស្រី (Female)">ស្រី (Female)</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label fw-bold">ប្រភេទសមាជិក</label>
-                            <select id="mem_type" class="form-select">
-                                <option value="គរុសិស្ស (Student)">គរុសិស្ស (Student)</option>
-                                <option value="គ្រូបង្រៀន (Teacher)">គ្រូបង្រៀន (Teacher)</option>
-                                <option value="បុគ្គលិក (Staff)">បុគ្គលិក (Staff)</option>
                             </select>
                         </div>
                         <div class="col-md-3">
@@ -848,7 +1092,7 @@
                 <input type="text" id="memberSearchInput" class="form-control form-control-sm" style="max-width: 280px;" placeholder="ស្វែងរកឈ្មោះខ្មែរ, English, ឬលេខកូដ..." onkeyup="filterMembersTable()">
             </div>
             <div class="card-body p-0">
-                <div class="table-responsive">
+                <div class="table-responsive scrollable-table-box">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
@@ -877,7 +1121,6 @@
                 <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;"><i class="fas fa-user-clock text-warning me-2"></i>សម្រង់វត្តមានរបស់បណ្ណារក្ស (Librarian Shift Attendance)</h2>
                 <p class="text-muted mb-0">បើជ្រើសរើសវេនព្រឹក បង្ហាញតែ Form សម្រាប់ពេលព្រឹកប៉ុណ្ណោះ | បើជ្រើសរើសវេនរសៀល បង្ហាញតែ Form សម្រាប់ពេលរសៀលប៉ុណ្ណោះ</p>
             </div>
-            <!-- Shift Selector Toggle Buttons -->
             <div class="btn-group shadow-sm no-print" role="group">
                 <input type="radio" class="btn-check" name="att_shift_selector" id="shift_sel_morning" value="morning" checked onchange="toggleAttendanceShiftForm()">
                 <label class="btn btn-outline-warning text-dark fw-bold px-3" for="shift_sel_morning">
@@ -891,7 +1134,6 @@
             </div>
         </div>
 
-        <!-- Shift-Specific Librarian Attendance Form -->
         <div class="card border-0 shadow-sm rounded-3 mb-4 border-top border-warning border-4 no-print" id="attFormCard">
             <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                 <h5 class="mb-0 fw-bold text-dark" id="attFormTitle">
@@ -922,7 +1164,7 @@
                             <input type="date" id="att_date" class="form-control" required>
                         </div>
 
-                        <!-- ONLY SHOWN WHEN SHIFT == MORNING (បើពេលព្រឹក បង្ហាញតែ Form សម្រាប់តែសម្រង់ពេលព្រឹក) -->
+                        <!-- ONLY SHOWN WHEN SHIFT == MORNING -->
                         <div class="col-12" id="morningShiftFormBox">
                             <div class="p-3 border border-warning rounded-3 bg-warning-subtle">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
@@ -950,7 +1192,7 @@
                             </div>
                         </div>
 
-                        <!-- ONLY SHOWN WHEN SHIFT == AFTERNOON (បើពេលរសៀល បង្ហាញតែ Form សម្រាប់ពេលរសៀលតែប៉ុណ្ណោះ) -->
+                        <!-- ONLY SHOWN WHEN SHIFT == AFTERNOON -->
                         <div class="col-12 d-none" id="afternoonShiftFormBox">
                             <div class="p-3 border border-info rounded-3 bg-info-subtle">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
@@ -1001,7 +1243,6 @@
             </div>
         </div>
 
-        <!-- Librarian Attendance Table -->
         <div class="card border-0 shadow-sm rounded-3">
             <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                 <h6 class="mb-0 fw-bold"><i class="fas fa-list-ul text-warning me-2"></i>តារាងសម្រង់វត្តមានបណ្ណារក្ស (បំបែក Full Name in English និង Khmer Name)</h6>
@@ -1030,7 +1271,7 @@
         </div>
     </div>
 
-    <!-- ==================== REPORT SUB-VIEW 1: របាយការណ៍ ខ្ចី-សង (LOAN & RETURN REPORT) ==================== -->
+    <!-- ==================== REPORT SUB-VIEW 1: របាយការណ៍ ខ្ចី-សង ==================== -->
     <div id="view-report-loans" class="app-view">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
@@ -1088,7 +1329,7 @@
         </div>
     </div>
 
-    <!-- ==================== REPORT SUB-VIEW 2: របាយការណ៍ បញ្ជីសៀវភៅ (BOOK INVENTORY REPORT) ==================== -->
+    <!-- ==================== REPORT SUB-VIEW 2: របាយការណ៍ បញ្ជីសៀវភៅ ==================== -->
     <div id="view-report-books" class="app-view">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
@@ -1127,7 +1368,7 @@
             <div class="card-body p-0">
                 <table class="table table-bordered table-hover align-middle mb-0" id="reportBooksTable">
                     <thead class="table-light">
-                        <tr><th>ល.រ</th><th>លេខសារពើភ័ណ្ឌ</th><th>លេខ DDC</th><th>ចំណងជើងសៀវភៅ</th><th>អ្នកនិពន្ធ</th><th>ប្រភេទសៀវភៅ</th><th>ទីតាំង/ធ្នើរ</th><th>ប្រភព (ក្រអយក)</th><th>ចំនួនសរុប</th><th>ស្ថានភាព</th></tr>
+                        <tr><th>ល.រ</th><th>លេខសារពើភ័ណ្ឌ</th><th>លេខ DDC</th><th>ចំណងជើងសៀវភៅ</th><th>អ្នកនិពន្ធ</th><th>ប្រភេទសៀវភៅ</th><th>ទូ/ធ្នើរ</th><th>ប្រភព</th><th>ចំនួនសរុប</th><th>ស្ថានភាព</th></tr>
                     </thead>
                     <tbody id="reportBooksBody"></tbody>
                 </table>
@@ -1135,7 +1376,7 @@
         </div>
     </div>
 
-    <!-- ==================== REPORT SUB-VIEW 3: របាយការណ៍ សិស្សចូលបណ្ណាល័យ (STUDENT LIBRARY VISITS REPORT) ==================== -->
+    <!-- ==================== REPORT SUB-VIEW 3: របាយការណ៍ សិស្សចូលបណ្ណាល័យ ==================== -->
     <div id="view-report-visits" class="app-view">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
@@ -1285,9 +1526,9 @@ const INITIAL_DB = {
         { id: 3, librarian_code: "LIB-003", full_name_en: "Kong Chanda", khmer_name: "គង់ ចិន្តា", password: "123456", role: "Assistant Librarian", status: "Active" }
     ],
     books: [
-        { id: 1, isbnno: "978-99950-0-123-4", ddc_no: "005.133", book_name: "មូលដ្ឋានគ្រឹះនៃការសរសេរកម្មវិធីកុំព្យូទ័រ", book_sub: "Fundamentals of Computer Programming", category: "វិទ្យាសាស្ត្រកុំព្យូទ័រ (Computer Science)", author: "បណ្ឌិត សេង សុភាព (Dr. Seng Sopheap)", publisher: "វិទ្យាស្ថានជាតិបច្ចេកវិទ្យា (NIPTICT)", book_amount: 5, place: "ជួរ A (Aisle A)", location_shelf: "ធ្នើរ 01 (Shelf 01)", book_resource: "ក្រអយក (MoEYS)", number_saroper: "SP-2024-001", availability: "មាន (Available)" },
-        { id: 2, isbnno: "978-99950-0-567-8", ddc_no: "658.872", book_name: "យុទ្ធសាស្ត្រទីផ្សារឌីជីថល និងពាណិជ្ជកម្មអេឡិចត្រូនិច", book_sub: "Digital Marketing & E-Commerce Strategies", category: "គ្រប់គ្រង និងពាណិជ្ជកម្ម (Management & Business)", author: "ចាន់ សុខា (Chan Sokha)", publisher: "សាកលវិទ្យាល័យភូមិន្ទភ្នំពេញ (RUPP Press)", book_amount: 3, place: "ជួរ A (Aisle A)", location_shelf: "ធ្នើរ 02 (Shelf 02)", book_resource: "ក្រអយក (MoEYS)", number_saroper: "SP-2024-002", availability: "មាន (Available)" },
-        { id: 3, isbnno: "978-99950-0-891-2", ddc_no: "959.6", book_name: "ប្រវត្តិសាស្ត្រខ្មែរ និងអារ្យធម៌អង្គរ", book_sub: "History of Cambodia & Angkor Civilization", category: "ប្រវត្តិសាស្ត្រ និងភូមិសាស្ត្រ (History & Geography)", author: "សាស្ត្រាចារ្យ រស់ ចន្ត្រាបុត្រ (Ros Chantrabot)", publisher: "វិទ្យាស្ថានពុទ្ធសាសនបណ្ឌិត្យ (Buddhist Institute)", book_amount: 4, place: "ជួរ B (Aisle B)", location_shelf: "ធ្នើរ 01 (Shelf 01)", book_resource: "ក្រអយក (MoEYS)", number_saroper: "SP-2024-003", availability: "មាន (Available)" }
+        { id: 1, isbnno: "978-99950-0-123-4", ddc_no: "005.133", book_desc: "1", book_name: "មូលដ្ឋានគ្រឹះនៃការសរសេរកម្មវិធីកុំព្យូទ័រ", book_sub: "Fundamentals of Computer Programming", category: "វិទ្យាសាស្ត្រកុំព្យូទ័រ (Computer Science)", author: "បណ្ឌិត សេង សុភាព (Dr. Seng Sopheap)", publisher: "វិទ្យាស្ថានជាតិបច្ចេកវិទ្យា (NIPTICT)", book_edition: "1", year_published: "2022", country_published: "កម្ពុជា (Cambodia)", language: "ភាសាខ្មែរ (Khmer)", book_amount: 5, place: "ជួរ A (Aisle A)", location_shelf: "ធ្នើរ 01 (Shelf 01)", page_num: "320", book_resource: "ក្រអយក (MoEYS)", number_saroper: "SP-2024-001", date_saroper: "2024-01-15", availability: "មាន (Available)", cover_url: "" },
+        { id: 2, isbnno: "978-99950-0-567-8", ddc_no: "658.872", book_desc: "2", book_name: "យុទ្ធសាស្ត្រទីផ្សារឌីជីថល និងពាណិជ្ជកម្មអេឡិចត្រូនិច", book_sub: "Digital Marketing & E-Commerce Strategies", category: "គ្រប់គ្រង និងពាណិជ្ជកម្ម (Management & Business)", author: "ចាន់ សុខា (Chan Sokha)", publisher: "សាកលវិទ្យាល័យភូមិន្ទភ្នំពេញ (RUPP Press)", book_edition: "2", year_published: "2023", country_published: "កម្ពុជា (Cambodia)", language: "ភាសាខ្មែរ/អង់គ្លេស", book_amount: 3, place: "ជួរ A (Aisle A)", location_shelf: "ធ្នើរ 02 (Shelf 02)", page_num: "280", book_resource: "ក្រអយក (MoEYS)", number_saroper: "SP-2024-002", date_saroper: "2024-02-10", availability: "មាន (Available)", cover_url: "" },
+        { id: 3, isbnno: "978-99950-0-891-2", ddc_no: "959.6", book_desc: "3", book_name: "ប្រវត្តិសាស្ត្រខ្មែរ និងអារ្យធម៌អង្គរ", book_sub: "History of Cambodia & Angkor Civilization", category: "ប្រវត្តិសាស្ត្រ និងភូមិសាស្ត្រ (History & Geography)", author: "សាស្ត្រាចារ្យ រស់ ចន្ត្រាបុត្រ (Ros Chantrabot)", publisher: "វិទ្យាស្ថានពុទ្ធសាសនបណ្ឌិត្យ (Buddhist Institute)", book_edition: "3", year_published: "2021", country_published: "កម្ពុជា (Cambodia)", language: "ភាសាខ្មែរ (Khmer)", book_amount: 4, place: "ជួរ B (Aisle B)", location_shelf: "ធ្នើរ 01 (Shelf 01)", page_num: "450", book_resource: "ក្រអយក (MoEYS)", number_saroper: "SP-2024-003", date_saroper: "2024-03-01", availability: "មាន (Available)", cover_url: "" }
     ],
     categories: [
         { id: 1, category_name: "វិទ្យាសាស្ត្រកុំព្យូទ័រ (Computer Science)", category_code: "CS-000", description: "កម្មវិធីកុំព្យូទ័រ បណ្តាញ និងប្រព័ន្ធព័ត៌មានវិទ្យា", status: "សកម្ម (Active)" },
@@ -1347,35 +1588,25 @@ let allLoans = getLocalStore("loans");
 let allAttendance = getLocalStore("attendance");
 let allVisits = getLocalStore("visits");
 
-// ==================== LIBRARIAN AUTHENTICATION (LOGIN / LOGOUT) ====================
+// ==================== LIBRARIAN AUTHENTICATION (FULL NAME IN ENGLISH ONLY ON LOGIN FORM) ====================
 let currentLibrarian = null;
 try {
     const savedLib = localStorage.getItem("RTTC_LOGGED_IN_LIBRARIAN");
     if (savedLib) currentLibrarian = JSON.parse(savedLib);
 } catch(e) {}
 
-function syncLoginKhmerName(enVal) {
-    const clean = String(enVal || "").toLowerCase().trim();
-    const match = allLibrarians.find(l => String(l.full_name_en || "").toLowerCase() === clean);
-    if (match) {
-        document.getElementById("login_khmer_name").value = match.khmer_name || "";
-    }
-}
-
-function fillLoginDemo(enName, khName, code) {
+function fillLoginDemo(enName) {
     document.getElementById("login_full_name_en").value = enName;
-    document.getElementById("login_khmer_name").value = khName;
     document.getElementById("login_password").value = "123456";
 }
 
 function handleLibrarianLogin(e) {
     e.preventDefault();
     const enName = document.getElementById("login_full_name_en").value.trim();
-    const khName = document.getElementById("login_khmer_name").value.trim();
     const pass = document.getElementById("login_password").value.trim();
 
-    if (!enName || !khName) {
-        Swal.fire("ព្រមាន!", "សូមបញ្ចូល Full Name in English និងឈ្មោះភាសាខ្មែរ!", "warning");
+    if (!enName) {
+        Swal.fire("ព្រមាន!", "សូមបញ្ចូល Full Name in English!", "warning");
         return;
     }
 
@@ -1386,13 +1617,11 @@ function handleLibrarianLogin(e) {
             id: nextId,
             librarian_code: "LIB-" + String(nextId).padStart(3, "0"),
             full_name_en: enName,
-            khmer_name: khName,
+            khmer_name: enName,
             role: "Librarian"
         };
         allLibrarians.push(matched);
         saveLocalStore("librarians", allLibrarians);
-    } else {
-        matched.khmer_name = khName || matched.khmer_name;
     }
 
     currentLibrarian = matched;
@@ -1401,7 +1630,7 @@ function handleLibrarianLogin(e) {
 
     Swal.fire({
         title: "ស្វាគមន៍ការចូលប្រព័ន្ធ!",
-        text: `${currentLibrarian.khmer_name} (${currentLibrarian.full_name_en})`,
+        text: `${currentLibrarian.full_name_en} (${currentLibrarian.khmer_name || ""})`,
         icon: "success",
         timer: 1400,
         showConfirmButton: false
@@ -1433,13 +1662,12 @@ function applyLoggedInState() {
         return;
     }
     overlay.classList.add("d-none");
-    document.getElementById("sidebarLibKhmerName").innerText = currentLibrarian.khmer_name || "";
-    document.getElementById("sidebarLibEnName").innerText = `${currentLibrarian.full_name_en} (${currentLibrarian.librarian_code || "LIB-001"})`;
+    document.getElementById("sidebarLibEnName").innerText = currentLibrarian.full_name_en || "";
+    document.getElementById("sidebarLibKhmerName").innerText = `${currentLibrarian.khmer_name || currentLibrarian.full_name_en} (${currentLibrarian.librarian_code || "LIB-001"})`;
     const dashWelcome = document.getElementById("dashWelcomeLibName");
     if (dashWelcome) {
-        dashWelcome.innerText = `${currentLibrarian.khmer_name} (${currentLibrarian.full_name_en})`;
+        dashWelcome.innerText = `${currentLibrarian.full_name_en} (${currentLibrarian.khmer_name || ""})`;
     }
-    // Pre-fill Librarian Attendance Form with logged-in Librarian's English and Khmer names
     if (document.getElementById("att_name_en") && !document.getElementById("att_edit_id").value) {
         document.getElementById("att_name_en").value = currentLibrarian.full_name_en || "";
         document.getElementById("att_name_kh").value = currentLibrarian.khmer_name || "";
@@ -1453,9 +1681,10 @@ function isBookAvailable(b) {
     const num = parseInt(raw, 10);
     if (!isNaN(num)) return num > 0;
     const lower = raw.toLowerCase();
+    if (lower.includes("unavailable") || lower.includes("មិនមាន") || lower.includes("អស់")) return false;
     if (lower.includes("available") || lower.includes("មាន") || lower.includes("នៅទំនេរ")) return true;
     const amt = parseInt(b.book_amount, 10);
-    return (!isNaN(amt) && amt > 0 && raw !== "0" && !lower.includes("អស់"));
+    return (!isNaN(amt) && amt > 0 && raw !== "0");
 }
 
 function formatBookAvailability(b) {
@@ -1513,6 +1742,12 @@ function switchView(viewName, el) {
 
     if (viewName === "dashboard") loadDashboard();
     if (viewName === "books") loadBooks();
+    if (viewName === "addBook") {
+        loadDropdowns();
+        if (!document.getElementById("f_date_saroper").value) {
+            document.getElementById("f_date_saroper").value = new Date().toISOString().split("T")[0];
+        }
+    }
     if (viewName === "categories") loadCategories();
     if (viewName === "loan-borrow" || viewName === "loan-return" || viewName === "loan-list") initCirculationView();
     if (viewName === "members") loadMembers();
@@ -1597,20 +1832,36 @@ async function apiPost(action, data = {}) {
         const nextId = bks.length > 0 ? Math.max(...bks.map(b => Number(b.id) || 0)) + 1 : 1;
         bks.push({
             id: nextId,
+            isbnno: data.isbnno,
+            ddc_no: data.ddc_no,
+            book_desc: data.book_desc,
             book_name: data.book_name,
             book_sub: data.book_sub,
             category: data.category,
             author: data.author,
             publisher: data.publisher,
-            ddc_no: data.ddc_no,
-            number_saroper: data.number_saroper,
-            isbnno: data.isbnno,
+            book_edition: data.book_edition,
+            year_published: data.year_published,
+            country_published: data.country_published,
+            language: data.language,
+            book_amount: Number(data.book_amount) || 1,
             place: data.place,
             location_shelf: data.location_shelf,
-            book_amount: Number(data.book_amount) || 1,
-            availability: Number(data.book_amount) || 1,
+            page_num: data.page_num,
             book_resource: data.book_resource,
+            number_saroper: data.number_saroper,
+            date_saroper: data.date_saroper,
+            availability: data.availability || "មាន (Available)",
             cover_url: data.cover_url
+        });
+        saveLocalStore("books", bks);
+        allBooks = bks;
+    } else if (action === "updateBook") {
+        const bks = getLocalStore("books");
+        bks.forEach(b => {
+            if (String(b.id) === String(data.id)) {
+                Object.assign(b, data);
+            }
         });
         saveLocalStore("books", bks);
         allBooks = bks;
@@ -1639,7 +1890,7 @@ async function apiPost(action, data = {}) {
         const nextId = mems.length > 0 ? Math.max(...mems.map(m => Number(m.id) || 0)) + 1 : 1;
         mems.push({
             id: nextId,
-            member_code: data.member_code || ("RTTC-STU-" + String(nextId).padStart(3, "0")),
+            member_code: data.member_code,
             khmer_name: data.khmer_name,
             full_name_en: data.full_name_en,
             full_name: `${data.khmer_name} (${data.full_name_en})`,
@@ -1836,7 +2087,7 @@ async function loadDashboard() {
     }
 }
 
-// ==================== BOOKS ====================
+// ==================== BOOKS & UPDATE BOOK ====================
 async function loadBooks() {
     const res = await apiCall("getBooks");
     if (res.success) {
@@ -1862,8 +2113,13 @@ function renderBooksTable(books) {
                 <td>${b.author || "N/A"}</td>
                 <td><span class="badge bg-secondary">${b.category || "N/A"}</span><div class="small text-muted">${b.place || ""} (${b.location_shelf || ""})</div></td>
                 <td><span class="badge bg-success">${formatBookAvailability(b)}</span></td>
-                <td class="text-end pe-3">
-                    <button class="btn btn-sm btn-outline-danger" onclick="deleteJsBook(${b.id})"><i class="fas fa-trash"></i></button>
+                <td class="text-end pe-3 text-nowrap">
+                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editJsBook(${b.id})" title="កែប្រែព័ត៌មានសៀវភៅ (Update)">
+                        <i class="fas fa-edit"></i> កែប្រែ
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteJsBook(${b.id})" title="លុប">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </td>
             </tr>
         `;
@@ -1879,6 +2135,139 @@ function filterBooksTable() {
                (b.number_saroper || "").toLowerCase().includes(q);
     });
     renderBooksTable(filtered);
+}
+
+function editJsBook(id) {
+    switchView("addBook");
+    setTimeout(() => {
+        loadBookIntoForm(id);
+    }, 80);
+}
+
+function loadBookIntoForm(id) {
+    if (!id) {
+        resetBookForm();
+        return;
+    }
+    const b = allBooks.find(item => String(item.id) === String(id));
+    if (!b) return;
+
+    document.getElementById("f_edit_book_id").value = b.id;
+    document.getElementById("quickSelectBookToEdit").value = String(b.id);
+    document.getElementById("f_isbn").value = b.isbnno || b.isbn || "";
+    document.getElementById("f_ddc").value = b.ddc_no || "";
+    document.getElementById("f_book_desc").value = b.book_desc || b.id || "";
+    document.getElementById("f_name").value = b.book_name || "";
+    document.getElementById("f_sub").value = b.book_sub || "";
+    document.getElementById("f_cat").value = b.category || "";
+    document.getElementById("f_author").value = b.author || "";
+    document.getElementById("f_publisher").value = b.publisher || "";
+    document.getElementById("f_edition").value = b.book_edition || "";
+    document.getElementById("f_year").value = b.year_published || "";
+    document.getElementById("f_country").value = b.country_published || "";
+    document.getElementById("f_lang").value = b.language || "ភាសាខ្មែរ (Khmer)";
+    document.getElementById("f_qty").value = b.book_amount || 1;
+    document.getElementById("f_place").value = b.place || "";
+    document.getElementById("f_shelf").value = b.location_shelf || "";
+    document.getElementById("f_pages").value = b.page_num || "";
+    document.getElementById("f_resource").value = b.book_resource || "";
+    document.getElementById("f_saroper").value = b.number_saroper || "";
+    document.getElementById("f_date_saroper").value = b.date_saroper || new Date().toISOString().split("T")[0];
+
+    const isUnavail = String(b.availability || "").toLowerCase().includes("unavailable") || String(b.availability || "").includes("មិនមាន") || String(b.availability) === "0";
+    document.getElementById("f_availability").value = isUnavail ? "មិនមាន (Unavailable)" : "មាន (Available)";
+
+    document.getElementById("f_cover").value = b.cover_url || "";
+    previewCoverUrl(b.cover_url || "");
+
+    document.getElementById("bookFormHeaderLabel").innerText = `កែប្រែព័ត៌មានសៀវភៅ (Update Book #${b.id}: ${b.book_name})`;
+    document.getElementById("bookSubmitBtn").innerHTML = `<i class="fas fa-save me-1"></i>ធ្វើបច្ចុប្បន្នភាពទិន្នន័យ (Update Book)`;
+    document.getElementById("bookSubmitBtn").className = "btn btn-warning px-4 fw-bold shadow-sm";
+    document.getElementById("cancelBookEditBtn").classList.remove("d-none");
+}
+
+function resetBookForm() {
+    document.getElementById("jsAddBookForm").reset();
+    document.getElementById("f_edit_book_id").value = "";
+    if (document.getElementById("quickSelectBookToEdit")) document.getElementById("quickSelectBookToEdit").value = "";
+    document.getElementById("f_date_saroper").value = new Date().toISOString().split("T")[0];
+    document.getElementById("f_availability").value = "មាន (Available)";
+    previewCoverUrl("");
+    document.getElementById("bookFormHeaderLabel").innerText = "ព័ត៌មានសៀវភៅ";
+    document.getElementById("bookSubmitBtn").innerHTML = `<i class="fas fa-plus-circle me-1"></i>បញ្ជូនទិន្ន័យ`;
+    document.getElementById("bookSubmitBtn").className = "btn btn-primary px-4 fw-bold shadow-sm";
+    document.getElementById("cancelBookEditBtn").classList.add("d-none");
+}
+
+function previewCoverUrl(url) {
+    const img = document.getElementById("f_cover_preview");
+    if (!img) return;
+    if (url && url.trim() !== "") {
+        img.src = url.trim();
+        img.style.display = "inline-block";
+    } else {
+        img.src = "";
+        img.style.display = "none";
+    }
+}
+
+// Open Library & Google Books ISBN Search (from original addBook.php)
+async function searchBookOpenLibrary() {
+    const isbn = document.getElementById("f_isbn").value.trim();
+    if (!isbn) {
+        Swal.fire("សូមបញ្ចូល ISBN", "សូមបំពេញលេខ ISBN របស់សៀវភៅជាមុនសិន", "warning");
+        return;
+    }
+    try {
+        Swal.fire({ title: "កំពុងស្វែងរកពី Open Library...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        const res = await fetch(`https://openlibrary.org/isbn/${isbn}.json`);
+        if (!res.ok) throw new Error("សៀវភៅមិនត្រូវបានរកឃើញទេ");
+        const book = await res.json();
+        document.getElementById("f_name").value = book.title || "";
+        document.getElementById("f_publisher").value = (book.publishers || []).join(", ") || "";
+        document.getElementById("f_year").value = book.publish_date || "";
+        document.getElementById("f_pages").value = book.number_of_pages || "";
+        document.getElementById("f_edition").value = book.edition_name || "1";
+        if (book.dewey_decimal_class && book.dewey_decimal_class[0]) {
+            document.getElementById("f_ddc").value = book.dewey_decimal_class[0];
+        }
+        if (book.covers && book.covers[0]) {
+            const cUrl = `https://covers.openlibrary.org/b/id/${book.covers[0]}-M.jpg`;
+            document.getElementById("f_cover").value = cUrl;
+            previewCoverUrl(cUrl);
+        }
+        Swal.close();
+    } catch (err) {
+        Swal.fire("មិនរកឃើញ", "មិនអាចទាញយកទិន្នន័យតាម ISBN នេះពី Open Library បានទេ", "error");
+    }
+}
+
+async function searchBookGoogle() {
+    const isbn = document.getElementById("f_isbn").value.trim();
+    if (!isbn) {
+        Swal.fire("សូមបញ្ចូល ISBN", "សូមបំពេញលេខ ISBN របស់សៀវភៅជាមុនសិន", "warning");
+        return;
+    }
+    try {
+        Swal.fire({ title: "កំពុងស្វែងរកពី Google Books...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${encodeURIComponent(isbn)}`);
+        const data = await res.json();
+        if (!data.items || data.items.length === 0) throw new Error("Not found");
+        const v = data.items[0].volumeInfo || {};
+        document.getElementById("f_name").value = v.title || "";
+        document.getElementById("f_sub").value = v.subtitle || "";
+        document.getElementById("f_author").value = (v.authors || []).join(", ") || "";
+        document.getElementById("f_publisher").value = v.publisher || "";
+        document.getElementById("f_year").value = v.publishedDate || "";
+        document.getElementById("f_pages").value = v.pageCount || "";
+        if (v.imageLinks && v.imageLinks.thumbnail) {
+            document.getElementById("f_cover").value = v.imageLinks.thumbnail;
+            previewCoverUrl(v.imageLinks.thumbnail);
+        }
+        Swal.close();
+    } catch (err) {
+        Swal.fire("មិនរកឃើញ", "មិនអាចទាញយកទិន្នន័យតាម ISBN នេះពី Google Books បានទេ", "error");
+    }
 }
 
 async function deleteJsBook(id) {
@@ -1898,37 +2287,64 @@ async function deleteJsBook(id) {
 
 async function handleJsAddBook(e) {
     e.preventDefault();
+    const editId = document.getElementById("f_edit_book_id").value;
     const payload = {
-        book_name: document.getElementById("f_name").value,
-        book_sub: document.getElementById("f_sub").value,
+        id: editId,
+        isbnno: document.getElementById("f_isbn").value.trim(),
+        ddc_no: document.getElementById("f_ddc").value.trim(),
+        book_desc: document.getElementById("f_book_desc").value.trim(),
+        book_name: document.getElementById("f_name").value.trim(),
+        book_sub: document.getElementById("f_sub").value.trim(),
         category: document.getElementById("f_cat").value,
-        author: document.getElementById("f_author").value,
-        publisher: document.getElementById("f_publisher").value,
-        ddc_no: document.getElementById("f_ddc").value,
-        number_saroper: document.getElementById("f_saroper").value,
-        isbnno: document.getElementById("f_isbn").value,
+        author: document.getElementById("f_author").value.trim(),
+        publisher: document.getElementById("f_publisher").value.trim(),
+        book_edition: document.getElementById("f_edition").value.trim(),
+        year_published: document.getElementById("f_year").value.trim(),
+        country_published: document.getElementById("f_country").value.trim(),
+        language: document.getElementById("f_lang").value,
+        book_amount: document.getElementById("f_qty").value,
         place: document.getElementById("f_place").value,
         location_shelf: document.getElementById("f_shelf").value,
-        book_amount: document.getElementById("f_qty").value,
-        book_resource: document.getElementById("f_resource").value,
-        cover_url: document.getElementById("f_cover").value
+        page_num: document.getElementById("f_pages").value.trim(),
+        book_resource: document.getElementById("f_resource").value.trim(),
+        number_saroper: document.getElementById("f_saroper").value.trim(),
+        date_saroper: document.getElementById("f_date_saroper").value,
+        availability: document.getElementById("f_availability").value,
+        cover_url: document.getElementById("f_cover").value.trim()
     };
+
     Swal.fire({ title: "កំពុងរក្សាទុកក្នុង Google Sheets...", didOpen: () => Swal.showLoading() });
-    await apiPost("addBook", payload);
-    Swal.fire("ជោគជ័យ!", "បានកត់ត្រាសៀវភៅថ្មីចូល Google Sheets", "success").then(() => {
-        document.getElementById("jsAddBookForm").reset();
-        switchView("books");
-    });
+    if (editId) {
+        await apiPost("updateBook", payload);
+        Swal.fire("ជោគជ័យ!", "បានធ្វើបច្ចុប្បន្នភាពព័ត៌មានសៀវភៅរួចរាល់!", "success").then(() => {
+            resetBookForm();
+            switchView("books");
+        });
+    } else {
+        await apiPost("addBook", payload);
+        Swal.fire("ជោគជ័យ!", "បានកត់ត្រាសៀវភៅថ្មីចូល Google Sheets", "success").then(() => {
+            resetBookForm();
+            switchView("books");
+        });
+    }
 }
 
-// ==================== CATEGORIES ====================
+// ==================== CATEGORIES (SCROLLABLE + SEARCHABLE) ====================
 async function loadCategories() {
     const res = await apiCall("getCategories");
     allCategories = res.data || [];
+    renderCategoriesTable(allCategories);
+}
+
+function renderCategoriesTable(cats) {
     const tbody = document.getElementById("categoriesTableBody");
     if (!tbody) return;
     tbody.innerHTML = "";
-    allCategories.forEach(c => {
+    if (cats.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">មិនមានទិន្នន័យប្រភេទសៀវភៅដែលស្វែងរកទេ</td></tr>`;
+        return;
+    }
+    cats.forEach(c => {
         tbody.innerHTML += `
             <tr>
                 <td>${c.id}</td>
@@ -1942,6 +2358,16 @@ async function loadCategories() {
             </tr>
         `;
     });
+}
+
+function filterCategoriesTable() {
+    const q = (document.getElementById("categorySearchInput")?.value || "").toLowerCase();
+    const filtered = allCategories.filter(c => {
+        return (c.category_name || "").toLowerCase().includes(q) ||
+               (c.category_code || "").toLowerCase().includes(q) ||
+               (c.description || "").toLowerCase().includes(q);
+    });
+    renderCategoriesTable(filtered);
 }
 
 function openAddCategoryModal() {
@@ -2016,7 +2442,7 @@ async function initCirculationView(forceReload = false) {
     if (document.getElementById("inline_due_date")) document.getElementById("inline_due_date").value = dueDate;
 
     populateReturnLoanDropdown();
-    renderGroupedActiveLoans();
+    renderGroupedActiveLoans("");
     renderLoansTable(allLoans);
 }
 
@@ -2075,7 +2501,9 @@ function populateReturnLoanDropdown() {
     initOrRefreshSelect2("#ret_js_loan_select", "ស្វែងរកឈ្មោះសិស្ស ឬលេខកូដខ្ចីដែលយកសៀវភៅមកសង...", false);
 }
 
-function renderGroupedActiveLoans() {
+// Render Grouped Active Loans with Search Filtering & Scrollable Sub-list!
+function renderGroupedActiveLoans(searchQuery = "") {
+    const q = String(searchQuery || "").toLowerCase().trim();
     const activeLoans = allLoans.filter(isLoanActive);
     const container1 = document.getElementById("groupedActiveLoansBorrowSide");
     const container2 = document.getElementById("groupedActiveLoansReturnSide");
@@ -2083,13 +2511,28 @@ function renderGroupedActiveLoans() {
 
     const groups = {};
     activeLoans.forEach(l => {
+        const bookObj = allBooks.find(b => String(b.id) === String(l.book_id));
+        const bName = bookObj ? bookObj.book_name : ("Book #" + l.book_id);
+        const saroper = bookObj ? (bookObj.number_saroper || "") : "";
+        const memObj = allMembers.find(m => String(m.id) === String(l.member_id));
+        const mName = l.member_name || getMemberDisplayName(memObj) || ("Member #" + l.member_id);
+        const mCode = memObj ? memObj.member_code : ("ID #" + l.member_id);
+
+        if (q) {
+            const matchLoan = mName.toLowerCase().includes(q) ||
+                              mCode.toLowerCase().includes(q) ||
+                              bName.toLowerCase().includes(q) ||
+                              saroper.toLowerCase().includes(q) ||
+                              String(l.loan_code || "").toLowerCase().includes(q);
+            if (!matchLoan) return;
+        }
+
         const key = String(l.member_id || l.member_name || "unknown");
         if (!groups[key]) {
-            const memObj = allMembers.find(m => String(m.id) === String(l.member_id));
             groups[key] = {
                 member_id: l.member_id,
-                member_name: l.member_name || getMemberDisplayName(memObj) || ("Member #" + l.member_id),
-                member_code: memObj ? memObj.member_code : ("ID #" + l.member_id),
+                member_name: mName,
+                member_code: mCode,
                 items: []
             };
         }
@@ -2100,7 +2543,7 @@ function renderGroupedActiveLoans() {
     if (countBadge) countBadge.innerText = `${groupArray.length} នាក់ (${activeLoans.length} ក្បាល)`;
 
     if (groupArray.length === 0) {
-        const emptyHtml = `<div class="text-center py-4 text-muted">មិនមានសៀវភៅកំពុងខ្ចីទេ</div>`;
+        const emptyHtml = `<div class="text-center py-4 text-muted">មិនមានទិន្នន័យសៀវភៅកំពុងខ្ចីដែលស្វែងរកទេ</div>`;
         if (container1) container1.innerHTML = emptyHtml;
         if (container2) container2.innerHTML = emptyHtml;
         return;
@@ -2322,7 +2765,21 @@ async function handleJsSubmitReturn(e) {
     });
 }
 
-// ==================== MEMBERS (SPLIT KHMER NAME & FULL NAME IN ENGLISH + QR CODE) ====================
+// ==================== MEMBERS (AUTO-GENERATED MEMBER CODE + QR CODE) ====================
+function generateAutoMemberCode() {
+    if (document.getElementById("mem_edit_id").value) return; // Don't overwrite when editing an existing member
+    const typeVal = document.getElementById("mem_type")?.value || "គរុសិស្ស (Student)";
+    let prefix = "RTTC-STU-";
+    if (typeVal.includes("Teacher") || typeVal.includes("គ្រូបង្រៀន")) prefix = "RTTC-TCH-";
+    else if (typeVal.includes("Staff") || typeVal.includes("បុគ្គលិក")) prefix = "RTTC-STF-";
+
+    const nextId = allMembers.length > 0 ? Math.max(...allMembers.map(m => Number(m.id) || 0)) + 1 : 1;
+    const codeEl = document.getElementById("mem_code");
+    if (codeEl) {
+        codeEl.value = prefix + String(nextId).padStart(3, "0");
+    }
+}
+
 async function loadMembers() {
     const res = await apiCall("getMembers");
     allMembers = (res.data || []).map(m => {
@@ -2333,6 +2790,7 @@ async function loadMembers() {
         }
         return m;
     });
+    generateAutoMemberCode();
     renderMembersTable(allMembers);
 }
 
@@ -2359,7 +2817,7 @@ function renderMembersTable(members) {
                         <i class="fas fa-qrcode text-info me-1"></i> QR
                     </button>
                 </td>
-                <td class="text-end pe-3">
+                <td class="text-end pe-3 text-nowrap">
                     <button class="btn btn-sm btn-outline-primary me-1" onclick="editMemberRow(${m.id})" title="កែប្រែ">
                         <i class="fas fa-edit"></i> កែប្រែ
                     </button>
@@ -2407,6 +2865,7 @@ function editMemberRow(id) {
 function resetMemberForm() {
     document.getElementById("memberInlineForm").reset();
     document.getElementById("mem_edit_id").value = "";
+    generateAutoMemberCode();
     document.getElementById("memberFormTitle").innerHTML = `<i class="fas fa-user-plus me-2"></i>បែបបទបន្ថែមសមាជិកថ្មី (Add New Member)`;
     document.getElementById("memberSubmitBtn").innerHTML = `<i class="fas fa-save me-1"></i> រក្សាទុកសមាជិក`;
     document.getElementById("memberSubmitBtn").className = "btn btn-primary px-4 fw-bold shadow-sm w-100";
@@ -2436,7 +2895,7 @@ async function handleSaveMember(e) {
         Swal.fire("ជោគជ័យ!", "បានកែប្រែព័ត៌មានសមាជិករួចរាល់", "success");
     } else {
         await apiPost("addMember", payload);
-        Swal.fire("ជោគជ័យ!", "បានបន្ថែមសមាជិកថ្មីរួចរាល់", "success");
+        Swal.fire("ជោគជ័យ!", `បានបន្ថែមសមាជិកថ្មី (លេខកូដស្វ័យប្រវត្តិ: ${payload.member_code})`, "success");
     }
     resetMemberForm();
     loadMembers();
@@ -2537,7 +2996,7 @@ function printQrCodes() {
     window.print();
 }
 
-// ==================== LIBRARIAN ATTENDANCE (SHIFT-CONDITIONAL: MORNING ONLY OR AFTERNOON ONLY) ====================
+// ==================== LIBRARIAN ATTENDANCE ====================
 function setNowTime(inputId) {
     const now = new Date();
     const hh = String(now.getHours()).padStart(2, "0");
@@ -2578,7 +3037,6 @@ async function loadAttendance() {
         document.getElementById("att_date").value = today;
     }
 
-    // Auto-detect current shift by time of day (Before 12:00 => Morning, 12:00+ => Afternoon)
     if (!document.getElementById("att_edit_id").value) {
         const currentHour = new Date().getHours();
         if (currentHour >= 12) {
@@ -2976,13 +3434,31 @@ async function loadDropdowns() {
         const pRes = await apiCall("getPlaces");
         const catSelect = document.getElementById("f_cat");
         const plSelect = document.getElementById("f_place");
+        const shSelect = document.getElementById("f_shelf");
+        const quickEditSelect = document.getElementById("quickSelectBookToEdit");
+
         if (catSelect) {
-            catSelect.innerHTML = "<option value=''>-- ជ្រើសរើសប្រភេទ --</option>";
+            catSelect.innerHTML = "<option value=''>ជ្រើសរើសប្រភេទ</option>";
             (cRes.data || []).forEach(c => { catSelect.innerHTML += `<option value="${c.category_name}">${c.category_name}</option>`; });
         }
         if (plSelect) {
-            plSelect.innerHTML = "<option value=''>-- ជ្រើសរើសជួរ/ទីតាំង --</option>";
-            (pRes.data || []).forEach(p => { plSelect.innerHTML += `<option value="${p.place_name}">${p.place_name} (${p.place_shelf || ""})</option>`; });
+            plSelect.innerHTML = "<option value=''>ជ្រើសរើសលេខទូ</option>";
+            const uniquePlaces = [...new Set((pRes.data || []).map(p => p.place_name).filter(Boolean))];
+            uniquePlaces.forEach(pName => { plSelect.innerHTML += `<option value="${pName}">${pName}</option>`; });
+        }
+        if (shSelect) {
+            shSelect.innerHTML = "<option value=''>លេខDDCសៀវភៅតាមទូ</option>";
+            const uniqueShelves = [...new Set((pRes.data || []).map(p => p.place_shelf).filter(Boolean))];
+            uniqueShelves.forEach(sName => { shSelect.innerHTML += `<option value="${sName}">${sName}</option>`; });
+            ["000 - វិទ្យាសាស្ត្រកុំព្យូទ័រ", "300 - វិទ្យាសាស្ត្រសង្គម", "370 - អប់រំ/គរុកោសល្យ", "650 - គ្រប់គ្រង", "800 - អក្សរសាស្ត្រ", "900 - ប្រវត្តិសាស្ត្រ"].forEach(d => {
+                shSelect.innerHTML += `<option value="${d}">${d}</option>`;
+            });
+        }
+        if (quickEditSelect) {
+            quickEditSelect.innerHTML = `<option value="">-- ជ្រើសរើសសៀវភៅដែលមានស្រាប់ដើម្បី Update --</option>`;
+            allBooks.forEach(b => {
+                quickEditSelect.innerHTML += `<option value="${b.id}">#${b.id} - ${b.book_name} (${b.number_saroper || ""})</option>`;
+            });
         }
     } catch(e) {}
 }
@@ -2992,6 +3468,10 @@ document.addEventListener("DOMContentLoaded", () => {
     loadDashboard();
     loadDropdowns();
     initCirculationView(false);
+    generateAutoMemberCode();
+    if (document.getElementById("f_date_saroper")) {
+        document.getElementById("f_date_saroper").value = new Date().toISOString().split("T")[0];
+    }
 });
 </script>
 </body>
