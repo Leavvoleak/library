@@ -512,6 +512,20 @@
 <body>
 
 <div class="container-catalog">
+    <!-- API Status Notice Banner (Shown only if API is not yet connected and needs attention) -->
+    <div id="catalogApiBanner" class="alert alert-info py-2 px-3 mb-3 d-none align-items-center justify-content-between rounded-3 shadow-sm border-0" style="background: linear-gradient(90deg, #e0f2fe 0%, #f0f9ff 100%); border-left: 4px solid #0284c7 !important;">
+        <div class="small text-dark d-flex align-items-center">
+            <i class="fas fa-info-circle text-primary fs-5 me-2"></i>
+            <div>
+                <strong>ការភ្ជាប់ទិន្នន័យ Google Sheet៖</strong>
+                <span id="catalogApiBannerText">កំពុងទាញយកទិន្នន័យពី Google Sheet...</span>
+            </div>
+        </div>
+        <button type="button" class="btn btn-sm btn-primary fw-bold px-3 py-1 text-nowrap" onclick="promptConfigureApi()">
+            <i class="fas fa-link me-1"></i> កំណត់ Web App URL
+        </button>
+    </div>
+
     <!-- ==================== 1. SECTION: បណ្តុំសៀវភៅ (COLLECTIONS CAROUSEL) ==================== -->
     <div class="section-header-wrap">
         <div>
@@ -524,6 +538,7 @@
             </a>
             <button type="button" class="carousel-nav-btn" onclick="scrollCollectionCarousel(-1)" title="ថយក្រោយ"><i class="fas fa-chevron-left"></i></button>
             <button type="button" class="carousel-nav-btn" onclick="scrollCollectionCarousel(1)" title="ទៅមុខ"><i class="fas fa-chevron-right"></i></button>
+            <button type="button" class="carousel-nav-btn" onclick="promptConfigureApi()" title="កំណត់ Google Apps Script Web App URL"><i class="fas fa-cog"></i></button>
         </div>
     </div>
 
@@ -593,7 +608,60 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-let API_URL = localStorage.getItem("RTTC_API_URL") || "https://script.google.com/macros/s/AKfycby_placeholder_deploy_url/exec";
+const SPREADSHEET_ID = "13uiO2EIpeiVtUQAzv5ph46ziMy1d3m5dcVY7lxgMqVA";
+
+/**
+ * Safe LocalStorage wrapper to prevent iframe SecurityError crashes in Google Sites sandbox
+ */
+function safeGetStorage(key, fallback = null) {
+    try {
+        if (typeof window !== "undefined" && window.localStorage) {
+            return window.localStorage.getItem(key) || fallback;
+        }
+    } catch (e) {
+        // Third-party iframe storage restriction caught safely
+    }
+    return fallback;
+}
+
+function safeSetStorage(key, val) {
+    try {
+        if (typeof window !== "undefined" && window.localStorage) {
+            window.localStorage.setItem(key, val);
+        }
+    } catch (e) {}
+}
+
+/**
+ * Resolve API URL from URL Query parameters (?api=...), location hash, or safe storage
+ */
+function resolveApiUrl() {
+    try {
+        const params = new URLSearchParams(window.location.search);
+        const fromParam = params.get("api") || params.get("apiUrl") || params.get("api_url");
+        if (fromParam && fromParam.trim()) {
+            const clean = fromParam.trim();
+            safeSetStorage("RTTC_API_URL", clean);
+            return clean;
+        }
+        if (window.location.hash && window.location.hash.includes("api=")) {
+            const m = window.location.hash.match(/api=([^&]+)/);
+            if (m) {
+                const clean = decodeURIComponent(m[1]).trim();
+                safeSetStorage("RTTC_API_URL", clean);
+                return clean;
+            }
+        }
+    } catch (e) {}
+
+    const stored = safeGetStorage("RTTC_API_URL");
+    if (stored && stored.trim() && !stored.includes("placeholder_deploy_url")) {
+        return stored.trim();
+    }
+    return "";
+}
+
+let API_URL = resolveApiUrl();
 
 // Master Datasets
 let masterBooks = [];
@@ -617,42 +685,116 @@ const BANNER_GRADIENTS = [
 ];
 
 function isApiConfigured() {
-    return API_URL && !API_URL.includes("placeholder_deploy_url");
+    return Boolean(API_URL && !API_URL.includes("placeholder_deploy_url"));
 }
 
-function getLocalStore(key, fallback = []) {
-    const raw = localStorage.getItem("RTTC_DB_" + key);
-    if (raw) {
-        try { return JSON.parse(raw); } catch(e) {}
+function promptConfigureApi() {
+    const curVal = isApiConfigured() ? API_URL : "";
+    const inputVal = prompt("សូមបញ្ចូល Google Apps Script Web App URL (Exec URL):", curVal);
+    if (inputVal && inputVal.trim()) {
+        API_URL = inputVal.trim();
+        safeSetStorage("RTTC_API_URL", API_URL);
+        const banner = document.getElementById("catalogApiBanner");
+        if (banner) banner.classList.add("d-none");
+        loadCatalogData();
     }
-    return fallback;
 }
 
-function formatCleanTime(val, fallback = "--:--") {
-    if (!val) return fallback;
-    const s = String(val).replace(/^'/, "").trim();
-    if (!s) return fallback;
-    if (s.startsWith("1899") || s.startsWith("1900")) {
-        const m = s.match(/(\d{2}:\d{2})/);
-        return m ? m[1] : fallback;
+/**
+ * Direct Google Sheets GViz Fallback: Allows reading Google Sheet tbl_book directly even inside restricted iframes!
+ */
+async function fetchBooksFromGoogleSheetsGViz() {
+    const gvizUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=tbl_book`;
+    const res = await fetch(gvizUrl);
+    if (!res.ok) throw new Error("GViz response error " + res.status);
+    const text = await res.text();
+    const startIdx = text.indexOf("{");
+    const endIdx = text.lastIndexOf("}");
+    if (startIdx === -1 || endIdx === -1) throw new Error("Invalid GViz format");
+    const json = JSON.parse(text.substring(startIdx, endIdx + 1));
+    const table = json.table || {};
+    const cols = (table.cols || []).map(c => (c.label || c.id || "").trim());
+    const rows = table.rows || [];
+
+    let startRow = 0;
+    if (cols.length === 0 || !cols[0] || cols[0] === "A") {
+        if (rows.length > 0 && rows[0].c) {
+            for (let i = 0; i < rows[0].c.length; i++) {
+                cols[i] = String(rows[0].c[i]?.v || "col_" + i).trim();
+            }
+            startRow = 1;
+        }
     }
-    return s;
+
+    const books = [];
+    for (let r = startRow; r < rows.length; r++) {
+        const rowData = rows[r].c || [];
+        const item = {};
+        let hasData = false;
+        for (let c = 0; c < cols.length; c++) {
+            const key = cols[c] || "col_" + c;
+            const cell = rowData[c];
+            const val = cell ? (cell.f !== undefined ? cell.f : cell.v) : "";
+            item[key] = val !== null && val !== undefined ? String(val).trim() : "";
+            if (val !== "" && val !== null && val !== undefined) hasData = true;
+        }
+        if (hasData) {
+            if (!item.id) item.id = r;
+            books.push(item);
+        }
+    }
+    return books;
+}
+
+async function fetchCategoriesFromGoogleSheetsGViz() {
+    const gvizUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=tbl_category`;
+    const res = await fetch(gvizUrl);
+    if (!res.ok) throw new Error("GViz category response error");
+    const text = await res.text();
+    const json = JSON.parse(text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1));
+    const table = json.table || {};
+    const cols = (table.cols || []).map(c => (c.label || c.id || "").trim());
+    const rows = table.rows || [];
+
+    let startRow = 0;
+    if (cols.length === 0 || !cols[0] || cols[0] === "A") {
+        if (rows.length > 0 && rows[0].c) {
+            for (let i = 0; i < rows[0].c.length; i++) {
+                cols[i] = String(rows[0].c[i]?.v || "col_" + i).trim();
+            }
+            startRow = 1;
+        }
+    }
+
+    const cats = [];
+    for (let r = startRow; r < rows.length; r++) {
+        const rowData = rows[r].c || [];
+        const item = {};
+        for (let c = 0; c < cols.length; c++) {
+            const key = cols[c];
+            const cell = rowData[c];
+            item[key] = cell ? String(cell.v || "").trim() : "";
+        }
+        if (item.category_name || item.id) cats.push(item);
+    }
+    return cats;
 }
 
 // ==================== FETCH DATA ====================
 async function loadCatalogData() {
     renderLoadingSkeletons();
-    masterBooks = getLocalStore("books", []);
-    masterCategories = getLocalStore("categories", []);
+    let fetchSuccess = false;
 
+    // Strategy 1: Fetch via Google Apps Script Web App URL if configured
     if (isApiConfigured()) {
         try {
             const u1 = new URL(API_URL);
             u1.searchParams.append("action", "getBooks");
             const r1 = await fetch(u1);
             const j1 = await r1.json();
-            if (j1 && j1.success && Array.isArray(j1.data)) {
+            if (j1 && j1.success && Array.isArray(j1.data) && j1.data.length > 0) {
                 masterBooks = j1.data;
+                fetchSuccess = true;
             }
 
             const u2 = new URL(API_URL);
@@ -663,8 +805,37 @@ async function loadCatalogData() {
                 masterCategories = j2.data;
             }
         } catch (err) {
-            console.warn("Catalog fetch notice:", err);
+            console.warn("Apps Script fetch did not complete, trying direct Google Sheet fallback...", err);
         }
+    }
+
+    // Strategy 2: If Apps Script is not configured or failed in iframe sandbox, fetch directly from Google Sheet GViz!
+    if (!fetchSuccess) {
+        try {
+            const gvizBooks = await fetchBooksFromGoogleSheetsGViz();
+            if (Array.isArray(gvizBooks) && gvizBooks.length > 0) {
+                masterBooks = gvizBooks;
+                fetchSuccess = true;
+            }
+            try {
+                const gvizCats = await fetchCategoriesFromGoogleSheetsGViz();
+                if (Array.isArray(gvizCats) && gvizCats.length > 0) {
+                    masterCategories = gvizCats;
+                }
+            } catch (e) {}
+        } catch (gvizErr) {
+            console.warn("Direct Google Sheet GViz fetch notice:", gvizErr);
+        }
+    }
+
+    // If still no books and API URL is not set, show the configuration banner so the user can easily connect
+    const banner = document.getElementById("catalogApiBanner");
+    if (!fetchSuccess && !isApiConfigured() && banner) {
+        banner.classList.remove("d-none");
+        banner.classList.add("d-flex");
+        document.getElementById("catalogApiBannerText").innerText = "មិនទាន់បានកំណត់ Web App URL សម្រាប់ទាញយកសៀវភៅនៅឡើយទេ។ សូមចុចប៊ូតុងខាងស្តាំដើម្បីភ្ជាប់។";
+    } else if (banner) {
+        banner.classList.add("d-none");
     }
 
     renderCollectionCarousel();
