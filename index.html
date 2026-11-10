@@ -23,6 +23,74 @@
         }
         body { font-family: var(--bs-body-font-family); background-color: #f8fafc; color: #1e293b; }
 
+        /* ==================== GLOBAL LOADING SPINNER OVERLAY ==================== */
+        #globalLoadingSpinner {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 999999 !important;
+            background: rgba(15, 23, 42, 0.68) !important;
+            backdrop-filter: blur(4px);
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        #globalLoadingSpinner.d-none {
+            display: none !important;
+        }
+        .global-spinner-card {
+            background: #ffffff;
+            padding: 1.75rem 2.5rem;
+            border-radius: 1.15rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            border-top: 5px solid #0284c7;
+            min-width: 340px;
+            max-width: 90vw;
+            animation: spinnerPopIn 0.18s ease-out;
+        }
+        @keyframes spinnerPopIn {
+            from { transform: scale(0.92); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .spinner-ring-wrap {
+            position: relative;
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 1rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .spinner-ring-wrap .spinner-border {
+            width: 64px;
+            height: 64px;
+            border-width: 5px;
+        }
+        .spinner-ring-icon {
+            position: absolute;
+            font-size: 1.35rem;
+            color: #0284c7;
+        }
+        .pulse-reading-dot {
+            display: inline-block;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 0 rgba(34, 197, 94, 0.7);
+            animation: pulseReading 1.6s infinite;
+        }
+        @keyframes pulseReading {
+            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+
         /* ==================== LOGIN OVERLAY SCREEN ==================== */
         #loginOverlay {
             position: fixed;
@@ -248,6 +316,23 @@
 </head>
 <body>
 
+<!-- ==================== GLOBAL LOADING SPINNER OVERLAY ==================== -->
+<div id="globalLoadingSpinner" class="d-none no-print">
+    <div class="global-spinner-card">
+        <div class="spinner-ring-wrap">
+            <div class="spinner-border text-primary" id="globalSpinnerBorder" role="status">
+                <span class="visually-hidden">កំពុងដំណើរការ...</span>
+            </div>
+            <i class="fas fa-cloud-download-alt spinner-ring-icon" id="globalSpinnerIcon"></i>
+        </div>
+        <div class="fw-bold text-dark" id="globalSpinnerText" style="font-size: 1.05rem; font-family: 'Hanuman', serif;">កំពុងទាញយកទិន្នន័យពី Google Sheet...</div>
+        <div class="small text-secondary mt-1" id="globalSpinnerSubtext">កំពុងភ្ជាប់ទៅកាន់ RTTC_Library_Database...</div>
+        <div class="progress mt-3" style="height: 6px;">
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" style="width: 100%"></div>
+        </div>
+    </div>
+</div>
+
 <!-- ==================== LIBRARIAN LOGIN SCREEN OVERLAY (NO KHMER NAME FIELD) ==================== -->
 <div id="loginOverlay">
     <div class="login-card">
@@ -372,6 +457,10 @@
         <li id="nav-members" onclick="switchView('members', this)">
             <a href="javascript:void(0)"><span class="menu-label"><i class="fas fa-user-graduate text-success"></i> សមាជិកបណ្ណាល័យ & QR</span></a>
         </li>
+        <!-- ស្កេន QR ចូល-ចេញបណ្ណាល័យ (scan.html) -->
+        <li id="nav-scan" onclick="switchView('scan', this)">
+            <a href="javascript:void(0)"><span class="menu-label"><i class="fas fa-qrcode text-info"></i> ស្កេន QR ចូល-ចេញ (Scan)</span></a>
+        </li>
 
         <!-- សម្រង់វត្តមានរបស់បណ្ណារក្ស (Librarian Attendance) -->
         <li id="nav-attendance" onclick="switchView('attendance', this)">
@@ -457,15 +546,41 @@
         </div>
 
         <div class="card border-0 shadow-sm rounded-3">
-            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                <h6 class="mb-0 fw-bold"><i class="fas fa-book text-primary me-2"></i>សៀវភៅទើបបញ្ចូលថ្មីក្នុង Google Sheets</h6>
-                <button class="btn btn-sm btn-outline-primary" onclick="switchView('books')">មើលទាំងអស់ &rarr;</button>
+            <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div>
+                    <h6 class="mb-1 fw-bold"><i class="fas fa-user-graduate text-success me-2"></i>តារាងសិស្សកំពុងចូលអានសៀវភៅក្នុងបណ្ណាល័យក្នុងថ្ងៃនេះ (<span id="dashTodayDateText">ថ្ងៃនេះ</span>)</h6>
+                    <div class="d-flex flex-wrap gap-2 small">
+                        <span class="badge bg-success-subtle text-success border border-success"><span class="pulse-reading-dot me-1"></span>កំពុងអានក្នុងបណ្ណាល័យ៖ <strong id="dashCurrentlyReadingCount">0</strong> នាក់</span>
+                        <span class="badge bg-primary-subtle text-primary border">ចូលអានសរុបថ្ងៃនេះ៖ <strong id="dashTotalTodayVisitsCount">0</strong> នាក់</span>
+                        <span class="badge bg-secondary-subtle text-secondary border">បានស្កេនចេញរួច៖ <strong id="dashCheckedOutTodayCount">0</strong> នាក់</span>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-sm btn-primary fw-bold shadow-sm" onclick="switchView('scan')">
+                        <i class="fas fa-qrcode me-1"></i> ស្កេន QR ចូល / ចេញ
+                    </button>
+                    <a href="scan.html" target="_blank" class="btn btn-sm btn-dark fw-bold shadow-sm">
+                        <i class="fas fa-external-link-alt text-info me-1"></i> បើកទំព័រ scan.html
+                    </a>
+                </div>
             </div>
             <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0" id="dashBooksTable">
-                        <thead class="table-light"><tr><th>ចំណងជើងសៀវភៅ</th><th>DDC & សារពើភ័ណ្ឌ</th><th>អ្នកនិពន្ធ</th><th>ស្ថានភាពស្តុក</th></tr></thead>
-                        <tbody></tbody>
+                <div class="table-responsive scrollable-table-box">
+                    <table class="table table-hover align-middle mb-0" id="dashTodayReadingTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ល.រ</th>
+                                <th>លេខកូដសិស្ស</th>
+                                <th>ឈ្មោះសិស្ស / គរុសិស្ស</th>
+                                <th>ភេទ & ប្រភេទ</th>
+                                <th class="text-center">ម៉ោងស្កេនចូល (In)</th>
+                                <th class="text-center">ម៉ោងស្កេនចេញ (Out)</th>
+                                <th>គោលបំណង</th>
+                                <th>ស្ថានភាព</th>
+                                <th class="text-end pe-3">សកម្មភាព</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashTodayReadingBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -1238,6 +1353,107 @@
         </div>
     </div>
 
+    <!-- ==================== VIEW: ស្កេន QR ចូល-ចេញបណ្ណាល័យ (STUDENT SCAN IN / SCAN OUT) ==================== -->
+    <div id="view-scan" class="app-view">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+            <div>
+                <h2 class="fw-bold mb-1" style="font-family: 'Hanuman', serif;"><i class="fas fa-qrcode text-primary me-2"></i>ស្កេន QR Code ចូល និងចេញបណ្ណាល័យ (Student Scan In / Scan Out)</h2>
+                <p class="text-muted mb-0">សិស្សអាចស្កេន QR Code នៅទីនេះ ឬបើកទំព័រដាច់ដោយឡែក <code>scan.html</code> សម្រាប់ដាក់នៅមាត់ទ្វារបណ្ណាល័យ</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="scan.html" target="_blank" class="btn btn-dark fw-bold shadow-sm">
+                    <i class="fas fa-external-link-alt text-info me-1"></i> បើកទំព័រ Kiosk ដាច់ដោយឡែក (scan.html)
+                </a>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm rounded-3 border-top border-primary border-4">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold text-primary"><i class="fas fa-qrcode me-2"></i>បែបបទស្កេន QR Code ចូល / ចេញ</h5>
+                        <span class="badge bg-primary-subtle text-primary border">Auto Check-In / Out</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <form onsubmit="handleInAppQrScan(event)">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">១. ប្រភេទនៃការស្កេន (Scan Mode)</label>
+                                <div class="btn-group w-100" role="group">
+                                    <input type="radio" class="btn-check" name="inapp_scan_mode" id="inapp_mode_auto" value="auto" checked>
+                                    <label class="btn btn-outline-primary fw-bold" for="inapp_mode_auto"><i class="fas fa-magic me-1"></i>ស្វ័យប្រវត្តិ (ចូល/ចេញ)</label>
+
+                                    <input type="radio" class="btn-check" name="inapp_scan_mode" id="inapp_mode_in" value="in">
+                                    <label class="btn btn-outline-success fw-bold" for="inapp_mode_in"><i class="fas fa-sign-in-alt me-1"></i>ស្កេនចូល</label>
+
+                                    <input type="radio" class="btn-check" name="inapp_scan_mode" id="inapp_mode_out" value="out">
+                                    <label class="btn btn-outline-danger fw-bold" for="inapp_mode_out"><i class="fas fa-sign-out-alt me-1"></i>ស្កេនចេញ</label>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">២. ស្កេន QR Code ឬវាយលេខកូដសិស្ស <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-dark text-info"><i class="fas fa-qrcode"></i></span>
+                                    <input type="text" id="inapp_qr_input" class="form-control fw-bold text-primary" placeholder="ស្កេន QR (ឧ. ID:1|CODE:RTTC-STU-001)..." oninput="syncInAppQrToMember(this.value)">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">៣. ឬជ្រើសរើសឈ្មោះសិស្សពីបញ្ជី</label>
+                                <select id="inapp_scan_member" class="form-select" onchange="if(this.value) document.getElementById('inapp_qr_input').value = 'ID:' + this.value"></select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">៤. គោលបំណងចូលបណ្ណាល័យ</label>
+                                <select id="inapp_scan_purpose" class="form-select">
+                                    <option value="អានសៀវភៅ (Reading)">អានសៀវភៅ (Reading)</option>
+                                    <option value="ស្រាវជ្រាវកិច្ចការសាលា (Research)">ស្រាវជ្រាវកិច្ចការសាលា (Research)</option>
+                                    <option value="ខ្ចី-សងសៀវភៅ (Borrow/Return)">ខ្ចី-សងសៀវភៅ (Borrow/Return)</option>
+                                    <option value="ប្រើប្រាស់កុំព្យូទ័រ (Computer Lab)">ប្រើប្រាស់កុំព្យូទ័រ (Computer Lab)</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">៥. កំណត់សម្គាល់</label>
+                                <input type="text" id="inapp_scan_remarks" class="form-control" placeholder="ឧ. អានសៀវភៅក្នុងបណ្ណាល័យ">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">
+                                <i class="fas fa-check-circle me-1"></i> បញ្ជាក់ការស្កេនចូល / ចេញបណ្ណាល័យ
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm rounded-3 h-100">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold"><i class="fas fa-users text-success me-2"></i>បញ្ជីសិស្សកំពុងអានសៀវភៅក្នុងបណ្ណាល័យថ្ងៃនេះ</h6>
+                        <span class="badge bg-success" id="inappActiveReadingBadge">0 នាក់កំពុងអាន</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive scrollable-table-box">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>កូដសិស្ស</th>
+                                        <th>ឈ្មោះសិស្ស</th>
+                                        <th class="text-center">ម៉ោងចូល</th>
+                                        <th class="text-center">ម៉ោងចេញ</th>
+                                        <th>ស្ថានភាព</th>
+                                        <th class="text-end pe-3">សកម្មភាព</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inappTodayVisitsBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ==================== VIEW: LIBRARIAN ATTENDANCE (SHIFT-CONDITIONAL: MORNING ONLY OR AFTERNOON ONLY) ==================== -->
     <div id="view-attendance" class="app-view">
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
@@ -1692,6 +1908,131 @@ const INITIAL_DB = {
     ]
 };
 
+let activeSpinnerRequests = 0;
+let spinnerShownTimestamp = 0;
+
+const ACTION_KHMER_LABELS = {
+    getDashboard: "កំពុងទាញយកទិន្នន័យផ្ទាំងគ្រប់គ្រង និងសិស្សចូលអានថ្ងៃនេះ...",
+    getBooks: "កំពុងទាញយកបញ្ជីសៀវភៅពី Google Sheet (tbl_book)...",
+    getCategories: "កំពុងទាញយកប្រភេទសៀវភៅពី Google Sheet (tbl_category)...",
+    getPlaces: "កំពុងទាញយកទិន្នន័យទូ និងលេខDDCតាមទូ (tbl_place)...",
+    getMembers: "កំពុងទាញយកបញ្ជីសមាជិកបណ្ណាល័យ (tbl_members)...",
+    getLoans: "កំពុងទាញយកទិន្នន័យខ្ចី-សងសៀវភៅ (tbl_loans)...",
+    getLibrarianAttendance: "កំពុងទាញយកសម្រង់វត្តមានបណ្ណារក្ស...",
+    getStudentVisits: "កំពុងទាញយកបញ្ជីសិស្សស្កេន QR ចូល-ចេញបណ្ណាល័យ...",
+    addBook: "កំពុងបញ្ជូនទិន្នន័យសៀវភៅថ្មីទៅកាន់ Google Sheet...",
+    updateBook: "កំពុងធ្វើបច្ចុប្បន្នភាពព័ត៌មានសៀវភៅក្នុង Google Sheet...",
+    deleteBook: "កំពុងលុបទិន្នន័យសៀវភៅពី Google Sheet...",
+    addCategory: "កំពុងរក្សាទុកប្រភេទសៀវភៅថ្មីទៅកាន់ Google Sheet...",
+    deleteCategory: "កំពុងលុបប្រភេទសៀវភៅពី Google Sheet...",
+    addPlace: "កំពុងរក្សាទុកទូ និងលេខDDCតាមទូទៅកាន់ Google Sheet...",
+    updatePlace: "កំពុងកែប្រែព័ត៌មានទូ និងលេខDDCតាមទូ...",
+    deletePlace: "កំពុងលុបទូ និងលេខDDCតាមទូ...",
+    addMember: "កំពុងចុះឈ្មោះសមាជិកថ្មីទៅកាន់ Google Sheet...",
+    updateMember: "កំពុងកែប្រែព័ត៌មានសមាជិកក្នុង Google Sheet...",
+    deleteMember: "កំពុងលុបសមាជិកពី Google Sheet...",
+    issueLoan: "កំពុងកត់ត្រាការខ្ចីសៀវភៅទៅកាន់ Google Sheet...",
+    returnLoan: "កំពុងកត់ត្រាការសងសៀវភៅទៅកាន់ Google Sheet...",
+    addLibrarianAttendance: "កំពុងកត់ត្រាវត្តមានបណ្ណារក្សទៅកាន់ Google Sheet...",
+    updateLibrarianAttendance: "កំពុងកែប្រែវត្តមានបណ្ណារក្សក្នុង Google Sheet...",
+    deleteLibrarianAttendance: "កំពុងលុបកំណត់ត្រាវត្តមានបណ្ណារក្ស...",
+    addStudentVisit: "កំពុងកត់ត្រាការស្កេន QR ចូលបណ្ណាល័យទៅកាន់ Google Sheet...",
+    checkoutStudentVisit: "កំពុងកត់ត្រាការស្កេន QR ចេញពីបណ្ណាល័យទៅកាន់ Google Sheet...",
+    deleteStudentVisit: "កំពុងលុបកំណត់ត្រាវត្តមានសិស្ស..."
+};
+
+function showLoadingSpinner(message = "កំពុងទាញយកទិន្នន័យពី Google Sheet...", isPost = false) {
+    activeSpinnerRequests++;
+    spinnerShownTimestamp = Date.now();
+    const spinner = document.getElementById("globalLoadingSpinner");
+    const textEl = document.getElementById("globalSpinnerText");
+    const subEl = document.getElementById("globalSpinnerSubtext");
+    const iconEl = document.getElementById("globalSpinnerIcon");
+    const borderEl = document.getElementById("globalSpinnerBorder");
+
+    if (textEl && message) textEl.innerText = message;
+    if (subEl) {
+        subEl.innerText = isPost
+            ? "កំពុងបញ្ជូន និងរក្សាទុកទិន្នន័យទៅកាន់ Google Sheet (RTTC_Library_Database)..."
+            : "កំពុងទាញយកទិន្នន័យពី Google Sheet (RTTC_Library_Database)...";
+    }
+    if (iconEl) {
+        iconEl.className = isPost
+            ? "fas fa-cloud-upload-alt spinner-ring-icon text-success"
+            : "fas fa-cloud-download-alt spinner-ring-icon text-primary";
+    }
+    if (borderEl) {
+        borderEl.className = isPost ? "spinner-border text-success" : "spinner-border text-primary";
+    }
+    if (spinner) {
+        spinner.classList.remove("d-none");
+    }
+}
+
+async function hideLoadingSpinner() {
+    const elapsed = Date.now() - spinnerShownTimestamp;
+    const minVisibleMs = 480;
+    if (elapsed < minVisibleMs) {
+        await new Promise(r => setTimeout(r, minVisibleMs - elapsed));
+    }
+    activeSpinnerRequests = Math.max(0, activeSpinnerRequests - 1);
+    if (activeSpinnerRequests === 0) {
+        const spinner = document.getElementById("globalLoadingSpinner");
+        if (spinner) spinner.classList.add("d-none");
+    }
+}
+
+function getTodayDateStr() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, "0");
+    const d = String(now.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+}
+
+function getNowTimeStr() {
+    const now = new Date();
+    return `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+}
+
+/**
+ * Cleanly formats time values and prevents Google Sheets 1899-12-30 epoch strings from displaying
+ */
+function formatCleanTime(rawVal, fallback = "--:--") {
+    if (rawVal === null || rawVal === undefined || rawVal === "") return fallback;
+    const str = String(rawVal).replace(/^'/, "").trim();
+    if (!str) return fallback;
+    if (str.startsWith("1899") || str.startsWith("1900")) {
+        const timeMatch = str.match(/(\d{2}:\d{2})/);
+        if (timeMatch) return timeMatch[1];
+        return fallback;
+    }
+    const hhmm = str.match(/^(\d{1,2}:\d{2})/);
+    if (hhmm) return hhmm[1];
+    return str;
+}
+
+function sanitizeAttendanceRecords(list) {
+    if (!Array.isArray(list)) return [];
+    let modified = false;
+    list.forEach(a => {
+        const isAfternoon = String(a.shift || "").toLowerCase().includes("afternoon") || String(a.shift || "").includes("រសៀល") || (!a.morning_in && a.afternoon_in);
+        if (a.morning_in && String(a.morning_in).startsWith("1899")) { a.morning_in = formatCleanTime(a.morning_in, "07:30"); modified = true; }
+        if (a.morning_out && String(a.morning_out).startsWith("1899")) { a.morning_out = formatCleanTime(a.morning_out, "11:30"); modified = true; }
+        if (a.afternoon_in && String(a.afternoon_in).startsWith("1899")) { a.afternoon_in = formatCleanTime(a.afternoon_in, "13:30"); modified = true; }
+        if (a.afternoon_out && String(a.afternoon_out).startsWith("1899")) { a.afternoon_out = formatCleanTime(a.afternoon_out, "17:00"); modified = true; }
+        if (isAfternoon) {
+            if (!a.afternoon_in) a.afternoon_in = "13:30";
+            if (!a.afternoon_out) a.afternoon_out = "17:00";
+        } else {
+            if (!a.morning_in) a.morning_in = "07:30";
+            if (!a.morning_out) a.morning_out = "11:30";
+        }
+    });
+    if (modified) saveLocalStore("attendance", list);
+    return list;
+}
+
 function getLocalStore(key) {
     const raw = localStorage.getItem("RTTC_DB_" + key);
     if (raw) {
@@ -1711,8 +2052,19 @@ let allMembers = getLocalStore("members");
 let allCategories = getLocalStore("categories");
 let allPlaces = getLocalStore("places");
 let allLoans = getLocalStore("loans");
-let allAttendance = getLocalStore("attendance");
+let allAttendance = sanitizeAttendanceRecords(getLocalStore("attendance"));
 let allVisits = getLocalStore("visits");
+(function ensureTodayActiveReaders() {
+    const today = getTodayDateStr();
+    const hasToday = allVisits.some(v => String(v.visit_date || "").replace(/^'/, "") === today);
+    if (!hasToday) {
+        allVisits.unshift(
+            { id: Date.now() - 200, visit_date: today, member_id: 1, member_code: "RTTC-STU-001", full_name: "គង់ ពិសិដ្ឋ (Kong Piseth)", gender: "ប្រុស (Male)", member_type: "គរុសិស្ស (Student)", time_in: "08:15", time_out: "", purpose: "អានសៀវភៅ (Reading)", remarks: "កំពុងអានសៀវភៅក្នុងបណ្ណាល័យ" },
+            { id: Date.now() - 100, visit_date: today, member_id: 2, member_code: "RTTC-STU-002", full_name: "សុខ ធីតា (Sok Thida)", gender: "ស្រី (Female)", member_type: "គរុសិស្ស (Student)", time_in: "08:45", time_out: "", purpose: "ស្រាវជ្រាវកិច្ចការសាលា (Research)", remarks: "កំពុងស្រាវជ្រាវឯកសារគរុកោសល្យ" }
+        );
+        saveLocalStore("visits", allVisits);
+    }
+})();
 
 // ==================== LIBRARIAN AUTHENTICATION (FULL NAME IN ENGLISH ONLY ON LOGIN FORM) ====================
 let currentLibrarian = null;
@@ -1879,6 +2231,7 @@ function switchView(viewName, el) {
     if (viewName === "places") loadPlaces();
     if (viewName === "loan-borrow" || viewName === "loan-return" || viewName === "loan-list") initCirculationView();
     if (viewName === "members") loadMembers();
+    if (viewName === "scan") loadScanView();
     if (viewName === "attendance") loadAttendance();
     if (viewName === "report-loans") renderLoanReport();
     if (viewName === "report-books") initBookReport();
@@ -1905,27 +2258,32 @@ function openSettingsModal() {
 }
 
 async function apiCall(action, params = {}) {
-    if (isApiConfigured()) {
-        try {
-            params.action = action;
-            const url = new URL(API_URL);
-            Object.keys(params).forEach(k => url.searchParams.append(k, params[k]));
-            const res = await fetch(url);
-            const json = await res.json();
-            if (json && json.success) {
-                if (action === "getBooks" && json.data) { allBooks = json.data; saveLocalStore("books", allBooks); }
-                if (action === "getMembers" && json.data) { allMembers = json.data; saveLocalStore("members", allMembers); }
-                if (action === "getCategories" && json.data) { allCategories = json.data; saveLocalStore("categories", allCategories); }
-                if (action === "getPlaces" && json.data) { allPlaces = json.data; saveLocalStore("places", allPlaces); }
-                if (action === "getLoans" && json.data) { allLoans = json.data; saveLocalStore("loans", allLoans); }
-                if (action === "getLibrarianAttendance" && json.data) { allAttendance = json.data; saveLocalStore("attendance", allAttendance); }
-                if (action === "getStudentVisits" && json.data) { allVisits = json.data; saveLocalStore("visits", allVisits); }
-                return json;
+    showLoadingSpinner(ACTION_KHMER_LABELS[action] || "កំពុងទាញយកទិន្នន័យពី Google Sheet...", false);
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    try {
+        if (isApiConfigured()) {
+            try {
+                params.action = action;
+                const url = new URL(API_URL);
+                Object.keys(params).forEach(k => url.searchParams.append(k, params[k]));
+                const res = await fetch(url);
+                const json = await res.json();
+                if (json && json.success) {
+                    if (action === "getBooks" && json.data) { allBooks = json.data; saveLocalStore("books", allBooks); }
+                    if (action === "getMembers" && json.data) { allMembers = json.data; saveLocalStore("members", allMembers); }
+                    if (action === "getCategories" && json.data) { allCategories = json.data; saveLocalStore("categories", allCategories); }
+                    if (action === "getPlaces" && json.data) { allPlaces = json.data; saveLocalStore("places", allPlaces); }
+                    if (action === "getLoans" && json.data) { allLoans = json.data; saveLocalStore("loans", allLoans); }
+                    if (action === "getLibrarianAttendance" && json.data) { allAttendance = sanitizeAttendanceRecords(json.data); saveLocalStore("attendance", allAttendance); }
+                    if (action === "getStudentVisits" && json.data) { allVisits = json.data; saveLocalStore("visits", allVisits); }
+                    return json;
+                }
+            } catch (err) {
+                console.warn("Using local synced dataset:", err);
             }
-        } catch (err) {
-            console.warn("Using local synced dataset:", err);
+        } else {
+            await new Promise(r => setTimeout(r, 160));
         }
-    }
 
     if (action === "getBooks") return { success: true, data: getLocalStore("books") };
     if (action === "getMembers") return { success: true, data: getLocalStore("members") };
@@ -1952,9 +2310,15 @@ async function apiCall(action, params = {}) {
         };
     }
     return { success: true, data: [] };
+    } finally {
+        await hideLoadingSpinner();
+    }
 }
 
 async function apiPost(action, data = {}) {
+    showLoadingSpinner(ACTION_KHMER_LABELS[action] || "កំពុងបញ្ជូនទិន្នន័យទៅកាន់ Google Sheet...", true);
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    try {
     if (action === "addBook") {
         const bks = getLocalStore("books");
         const nextId = bks.length > 0 ? Math.max(...bks.map(b => Number(b.id) || 0)) + 1 : 1;
@@ -2181,6 +2545,17 @@ async function apiPost(action, data = {}) {
         });
         saveLocalStore("visits", vsts);
         allVisits = vsts;
+    } else if (action === "checkoutStudentVisit") {
+        const vsts = getLocalStore("visits");
+        const nowTime = data.time_out || getNowTimeStr();
+        vsts.forEach(v => {
+            if (String(v.id) === String(data.id)) {
+                v.time_out = nowTime;
+                if (data.remarks) v.remarks = data.remarks;
+            }
+        });
+        saveLocalStore("visits", vsts);
+        allVisits = vsts;
     } else if (action === "deleteStudentVisit") {
         let vsts = getLocalStore("visits").filter(v => String(v.id) !== String(data.id));
         saveLocalStore("visits", vsts);
@@ -2199,8 +2574,13 @@ async function apiPost(action, data = {}) {
         } catch (err) {
             console.warn("POST sync warning:", err);
         }
+    } else {
+        await new Promise(r => setTimeout(r, 180));
     }
     return { success: true };
+    } finally {
+        await hideLoadingSpinner();
+    }
 }
 
 function initOrRefreshSelect2(selector, placeholderText, isMulti = false) {
@@ -2218,29 +2598,226 @@ function initOrRefreshSelect2(selector, placeholderText, isMulti = false) {
     });
 }
 
-// ==================== DASHBOARD ====================
+// ==================== DASHBOARD (WITH TODAY'S STUDENTS READING IN LIBRARY TABLE) ====================
 async function loadDashboard() {
     const res = await apiCall("getDashboard");
+    const vRes = await apiCall("getStudentVisits");
+    if (vRes && vRes.data) allVisits = vRes.data;
+
     if (res.success) {
         const d = res.data;
         document.getElementById("kpi-titles").innerText = d.total_titles || 0;
         document.getElementById("kpi-copies").innerText = d.total_copies || 0;
         document.getElementById("kpi-loans").innerText = d.active_loans || 0;
         document.getElementById("kpi-members").innerText = d.total_members || 0;
-
-        const tbody = document.querySelector("#dashBooksTable tbody");
-        tbody.innerHTML = "";
-        (d.recent_books || []).forEach(b => {
-            tbody.innerHTML += `
-                <tr>
-                    <td><strong>${b.book_name || ""}</strong><div class="small text-muted">${b.book_sub || ""}</div></td>
-                    <td><span class="badge badge-ddc">DDC: ${b.ddc_no || "N/A"}</span> <span class="badge badge-saroper">${b.number_saroper || "N/A"}</span></td>
-                    <td>${b.author || "N/A"}</td>
-                    <td><span class="badge bg-success">${formatBookAvailability(b)}</span></td>
-                </tr>
-            `;
-        });
     }
+    renderDashboardReadingTable();
+}
+
+function renderDashboardReadingTable() {
+    const today = getTodayDateStr();
+    const dateTextEl = document.getElementById("dashTodayDateText");
+    if (dateTextEl) dateTextEl.innerText = today;
+
+    const todayVisits = allVisits.filter(v => String(v.visit_date || "").replace(/^'/, "") === today);
+    const activeReading = todayVisits.filter(v => !v.time_out || String(v.time_out).trim() === "");
+    const checkedOut = todayVisits.filter(v => v.time_out && String(v.time_out).trim() !== "");
+
+    const curEl = document.getElementById("dashCurrentlyReadingCount");
+    const totEl = document.getElementById("dashTotalTodayVisitsCount");
+    const outEl = document.getElementById("dashCheckedOutTodayCount");
+    if (curEl) curEl.innerText = activeReading.length;
+    if (totEl) totEl.innerText = todayVisits.length;
+    if (outEl) outEl.innerText = checkedOut.length;
+
+    const tbody = document.getElementById("dashTodayReadingBody");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+
+    if (todayVisits.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted">មិនទាន់មានសិស្សស្កេនចូលអានសៀវភៅក្នុងបណ្ណាល័យក្នុងថ្ងៃនេះទេ</td></tr>`;
+        return;
+    }
+
+    todayVisits.forEach((v, idx) => {
+        const isReading = !v.time_out || String(v.time_out).trim() === "";
+        const cleanIn = formatCleanTime(v.time_in, "08:00");
+        const cleanOut = isReading ? "--:--" : formatCleanTime(v.time_out, "--:--");
+
+        tbody.innerHTML += `
+            <tr class="${isReading ? 'table-success bg-opacity-10' : ''}">
+                <td class="fw-bold text-secondary">${idx + 1}</td>
+                <td><span class="badge bg-primary-subtle text-primary border">${v.member_code || ""}</span></td>
+                <td class="fw-bold text-dark">${v.full_name || ""}</td>
+                <td>
+                    <span class="small">${v.gender || ""}</span>
+                    <span class="badge bg-info-subtle text-info border ms-1">${v.member_type || ""}</span>
+                </td>
+                <td class="text-center"><span class="badge bg-success">${cleanIn}</span></td>
+                <td class="text-center">${isReading ? `<span class="badge bg-warning text-dark">កំពុងអាន</span>` : `<span class="badge bg-secondary">${cleanOut}</span>`}</td>
+                <td><span class="small fw-semibold">${v.purpose || "អានសៀវភៅ"}</span></td>
+                <td>
+                    ${isReading
+                        ? `<span class="badge bg-success-subtle text-success border border-success"><span class="pulse-reading-dot me-1"></span>កំពុងអានក្នុងបណ្ណាល័យ</span>`
+                        : `<span class="badge bg-light text-secondary border">បានចេញរួច</span>`}
+                </td>
+                <td class="text-end pe-3">
+                    ${isReading
+                        ? `<button type="button" class="btn btn-sm btn-danger fw-bold shadow-sm" onclick="checkoutStudentVisitById('${v.id}')">
+                               <i class="fas fa-sign-out-alt me-1"></i> ស្កេនចេញ
+                           </button>`
+                        : `<span class="small text-muted"><i class="fas fa-check-double text-success"></i> ចេញរួច</span>`}
+                </td>
+            </tr>
+        `;
+    });
+}
+
+// ==================== IN-APP QR SCAN CHECK-IN / CHECK-OUT VIEW ====================
+async function loadScanView() {
+    await apiCall("getMembers");
+    const vRes = await apiCall("getStudentVisits");
+    if (vRes && vRes.data) allVisits = vRes.data;
+
+    const sel = document.getElementById("inapp_scan_member");
+    if (sel) {
+        sel.innerHTML = `<option value="">-- ជ្រើសរើសសិស្ស / គរុសិស្ស --</option>`;
+        allMembers.forEach(m => {
+            sel.innerHTML += `<option value="${m.id}">${m.member_code} - ${getMemberDisplayName(m)}</option>`;
+        });
+        initOrRefreshSelect2("#inapp_scan_member", "ជ្រើសរើសសិស្ស...", false);
+    }
+    renderInAppTodayVisits();
+}
+
+function syncInAppQrToMember(val) {
+    const clean = String(val || "").trim();
+    if (!clean) return;
+    let matched = null;
+    if (clean.includes("ID:") || clean.includes("CODE:")) {
+        const codeMatch = clean.match(/CODE:([^|]+)/i);
+        const idMatch = clean.match(/ID:(\d+)/i);
+        if (codeMatch) matched = allMembers.find(m => String(m.member_code).toLowerCase() === codeMatch[1].trim().toLowerCase());
+        if (!matched && idMatch) matched = allMembers.find(m => String(m.id) === idMatch[1].trim());
+    } else {
+        matched = allMembers.find(m => String(m.member_code).toLowerCase() === clean.toLowerCase() || String(m.id) === clean);
+    }
+    if (matched) {
+        $("#inapp_scan_member").val(String(matched.id)).trigger("change");
+    }
+}
+
+async function handleInAppQrScan(e) {
+    e.preventDefault();
+    const rawQr = document.getElementById("inapp_qr_input").value.trim();
+    const selectedId = $("#inapp_scan_member").val();
+    let member = null;
+    if (selectedId) {
+        member = allMembers.find(m => String(m.id) === String(selectedId));
+    }
+    if (!member && rawQr) {
+        syncInAppQrToMember(rawQr);
+        const afterId = $("#inapp_scan_member").val();
+        if (afterId) member = allMembers.find(m => String(m.id) === String(afterId));
+    }
+    if (!member) {
+        Swal.fire("ព្រមាន!", "សូមស្កេន QR Code ឬជ្រើសរើសសិស្សពីបញ្ជីឱ្យបានត្រឹមត្រូវ!", "warning");
+        return;
+    }
+
+    const mode = document.querySelector("input[name='inapp_scan_mode']:checked")?.value || "auto";
+    const today = getTodayDateStr();
+    const nowTime = getNowTimeStr();
+    const purpose = document.getElementById("inapp_scan_purpose").value;
+    const remarks = document.getElementById("inapp_scan_remarks").value.trim();
+
+    const activeVisit = allVisits.find(v =>
+        String(v.visit_date || "").replace(/^'/, "") === today &&
+        (String(v.member_id) === String(member.id) || String(v.member_code).toLowerCase() === String(member.member_code).toLowerCase()) &&
+        (!v.time_out || String(v.time_out).trim() === "")
+    );
+
+    const actionType = mode === "auto" ? (activeVisit ? "out" : "in") : mode;
+    if (actionType === "out") {
+        if (!activeVisit) {
+            Swal.fire("មិនទាន់ស្កេនចូល!", `សិស្ស ${getMemberDisplayName(member)} មិនទាន់មានកំណត់ត្រាស្កេនចូលក្នុងថ្ងៃនេះទេ!`, "warning");
+            return;
+        }
+        await checkoutStudentVisitById(activeVisit.id);
+    } else {
+        if (activeVisit) {
+            Swal.fire("កំពុងអានក្នុងបណ្ណាល័យ!", `សិស្ស ${getMemberDisplayName(member)} បានស្កេនចូលរួចហើយនៅម៉ោង ${formatCleanTime(activeVisit.time_in)}។`, "info");
+            return;
+        }
+        await apiPost("addStudentVisit", {
+            visit_date: today,
+            member_id: member.id,
+            member_code: member.member_code,
+            full_name: getMemberDisplayName(member),
+            gender: member.gender || "ប្រុស (Male)",
+            member_type: member.member_type || "គរុសិស្ស (Student)",
+            time_in: nowTime,
+            time_out: "",
+            purpose: purpose,
+            remarks: remarks || "កំពុងអានសៀវភៅក្នុងបណ្ណាល័យ"
+        });
+        Swal.fire("ស្កេនចូលជោគជ័យ!", `${getMemberDisplayName(member)} — ម៉ោងចូល៖ ${nowTime}`, "success");
+    }
+
+    document.getElementById("inapp_qr_input").value = "";
+    document.getElementById("inapp_scan_remarks").value = "";
+    $("#inapp_scan_member").val("").trigger("change");
+    renderInAppTodayVisits();
+    renderDashboardReadingTable();
+}
+
+async function checkoutStudentVisitById(visitId) {
+    const v = allVisits.find(item => String(item.id) === String(visitId));
+    if (!v) return;
+    const nowTime = getNowTimeStr();
+    await apiPost("checkoutStudentVisit", {
+        id: v.id,
+        member_id: v.member_id,
+        member_code: v.member_code,
+        visit_date: v.visit_date,
+        time_out: nowTime,
+        remarks: "បានស្កេនចេញពីបណ្ណាល័យ"
+    });
+    Swal.fire("ស្កេនចេញជោគជ័យ!", `${v.full_name} — ម៉ោងចេញ៖ ${nowTime}`, "success");
+    renderDashboardReadingTable();
+    renderInAppTodayVisits();
+    renderVisitReport();
+}
+
+function renderInAppTodayVisits() {
+    const tbody = document.getElementById("inappTodayVisitsBody");
+    const badge = document.getElementById("inappActiveReadingBadge");
+    if (!tbody) return;
+    const today = getTodayDateStr();
+    const todayList = allVisits.filter(v => String(v.visit_date || "").replace(/^'/, "") === today);
+    const activeCount = todayList.filter(v => !v.time_out || String(v.time_out).trim() === "").length;
+    if (badge) badge.innerText = `${activeCount} នាក់កំពុងអាន`;
+
+    tbody.innerHTML = "";
+    if (todayList.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">មិនទាន់មានសិស្សស្កេនចូលក្នុងថ្ងៃនេះទេ</td></tr>`;
+        return;
+    }
+    todayList.forEach(v => {
+        const isReading = !v.time_out || String(v.time_out).trim() === "";
+        tbody.innerHTML += `
+            <tr>
+                <td><span class="badge bg-primary-subtle text-primary border">${v.member_code || ""}</span></td>
+                <td class="fw-bold">${v.full_name || ""}</td>
+                <td class="text-center"><span class="badge bg-success">${formatCleanTime(v.time_in, "08:00")}</span></td>
+                <td class="text-center">${isReading ? `<span class="badge bg-warning text-dark">កំពុងអាន</span>` : `<span class="badge bg-secondary">${formatCleanTime(v.time_out, "--:--")}</span>`}</td>
+                <td>${isReading ? `<span class="badge bg-success-subtle text-success border">កំពុងអាន</span>` : `<span class="badge bg-light text-secondary border">ចេញរួច</span>`}</td>
+                <td class="text-end pe-3">
+                    ${isReading ? `<button class="btn btn-sm btn-danger" onclick="checkoutStudentVisitById('${v.id}')"><i class="fas fa-sign-out-alt me-1"></i>ស្កេនចេញ</button>` : `<span class="small text-muted">ចេញរួច</span>`}
+                </td>
+            </tr>
+        `;
+    });
 }
 
 // ==================== BOOKS & UPDATE BOOK ====================
@@ -2609,7 +3186,7 @@ async function handleJsAddBook(e) {
         cover_url: document.getElementById("f_cover").value.trim()
     };
 
-    Swal.fire({ title: "កំពុងរក្សាទុកក្នុង Google Sheets...", didOpen: () => Swal.showLoading() });
+    
     if (editId) {
         await apiPost("updateBook", payload);
         Swal.fire("ជោគជ័យ!", "បានធ្វើបច្ចុប្បន្នភាពព័ត៌មានសៀវភៅរួចរាល់!", "success").then(() => {
@@ -2936,11 +3513,11 @@ function onBookFormPlaceChange(selectedPlace, preselectShelf = "") {
 
 // ==================== CIRCULATION ====================
 async function initCirculationView(forceReload = false) {
-    if (forceReload || allMembers.length === 0) {
+    if (true) {
         const mRes = await apiCall("getMembers");
         allMembers = mRes.data || [];
     }
-    if (forceReload || allBooks.length === 0) {
+    if (true) {
         const bRes = await apiCall("getBooks");
         allBooks = bRes.data || [];
     }
@@ -3256,7 +3833,7 @@ async function handleJsSubmitLoan(e) {
         return;
     }
 
-    Swal.fire({ title: `កំពុងកត់ត្រាការខ្ចីសៀវភៅចំនួន ${bookIds.length} ក្បាល...`, didOpen: () => Swal.showLoading() });
+    
     await apiPost("issueLoan", {
         member_id: memberId,
         member_name: memberName,
@@ -3283,7 +3860,7 @@ async function handleJsSubmitReturn(e) {
     const fine = (condition === "នៅល្អ") ? 0 : (Number(document.getElementById("ret_js_fine").value) || 0);
     const remarks = document.getElementById("ret_js_remarks").value.trim();
 
-    Swal.fire({ title: "កំពុងកត់ត្រាការសងសៀវភៅ...", didOpen: () => Swal.showLoading() });
+    
     await apiPost("returnLoan", {
         loan_id: id,
         condition: condition,
@@ -3604,9 +4181,14 @@ function renderAttendanceTable(records) {
             ? `<span class="badge bg-info-subtle text-info border"><i class="fas fa-cloud-sun me-1"></i>វេនរសៀល (Afternoon)</span>`
             : `<span class="badge bg-warning-subtle text-dark border"><i class="fas fa-sun text-warning me-1"></i>វេនព្រឹក (Morning)</span>`;
 
+        const cleanMIn = formatCleanTime(a.morning_in, "07:30");
+        const cleanMOut = formatCleanTime(a.morning_out, "11:30");
+        const cleanAIn = formatCleanTime(a.afternoon_in, "13:30");
+        const cleanAOut = formatCleanTime(a.afternoon_out, "17:00");
+
         const timeDisplay = isAfternoon
-            ? `<span class="badge bg-info text-dark me-1">ចូលរសៀល: ${a.afternoon_in || "--:--"}</span><span class="badge bg-secondary">ចេញរសៀល: ${a.afternoon_out || "--:--"}</span>`
-            : `<span class="badge bg-success me-1">ចូលព្រឹក: ${a.morning_in || "--:--"}</span><span class="badge bg-secondary">ចេញព្រឹក: ${a.morning_out || "--:--"}</span>`;
+            ? `<span class="badge bg-info text-dark me-1">ចូលរសៀល: ${cleanAIn}</span><span class="badge bg-secondary">ចេញរសៀល: ${cleanAOut}</span>`
+            : `<span class="badge bg-success me-1">ចូលព្រឹក: ${cleanMIn}</span><span class="badge bg-secondary">ចេញព្រឹក: ${cleanMOut}</span>`;
 
         tbody.innerHTML += `
             <tr>
@@ -3642,12 +4224,12 @@ function editAttendanceRow(id) {
     const isAfternoon = String(a.shift || "").toLowerCase().includes("afternoon") || String(a.shift || "").includes("រសៀល") || (!a.morning_in && a.afternoon_in);
     if (isAfternoon) {
         document.getElementById("shift_sel_afternoon").checked = true;
-        document.getElementById("att_a_in").value = a.afternoon_in || "13:30";
-        document.getElementById("att_a_out").value = a.afternoon_out || "17:00";
+        document.getElementById("att_a_in").value = formatCleanTime(a.afternoon_in, "13:30");
+        document.getElementById("att_a_out").value = formatCleanTime(a.afternoon_out, "17:00");
     } else {
         document.getElementById("shift_sel_morning").checked = true;
-        document.getElementById("att_m_in").value = a.morning_in || "07:30";
-        document.getElementById("att_m_out").value = a.morning_out || "11:30";
+        document.getElementById("att_m_in").value = formatCleanTime(a.morning_in, "07:30");
+        document.getElementById("att_m_out").value = formatCleanTime(a.morning_out, "11:30");
     }
     toggleAttendanceShiftForm();
 
@@ -3717,8 +4299,8 @@ async function deleteAttendanceRow(id) {
 
 // ==================== REPORTS ====================
 async function renderLoanReport() {
-    if (allLoans.length === 0) await apiCall("getLoans");
-    if (allBooks.length === 0) await apiCall("getBooks");
+    await apiCall("getLoans");
+    await apiCall("getBooks");
 
     const fromDate = document.getElementById("rep_loan_from")?.value || "";
     const toDate = document.getElementById("rep_loan_to")?.value || "";
@@ -3781,8 +4363,8 @@ function resetLoanReportFilter() {
 }
 
 async function initBookReport() {
-    if (allBooks.length === 0) await apiCall("getBooks");
-    if (allCategories.length === 0) await apiCall("getCategories");
+    await apiCall("getBooks");
+    await apiCall("getCategories");
 
     const catSel = document.getElementById("rep_book_cat");
     if (catSel && catSel.options.length <= 1) {
@@ -3838,7 +4420,7 @@ function renderBookReport() {
 }
 
 async function initVisitReport() {
-    if (allMembers.length === 0) await apiCall("getMembers");
+    await apiCall("getMembers");
     const vRes = await apiCall("getStudentVisits");
     allVisits = vRes.data || [];
 
@@ -3921,7 +4503,7 @@ function renderVisitReport() {
                 <td class="fw-bold">${v.full_name}</td>
                 <td>${v.gender || ""}</td>
                 <td>${v.member_type || ""}</td>
-                <td>${v.time_in || ""} - ${v.time_out || ""}</td>
+                <td><span class="badge bg-success">${formatCleanTime(v.time_in, "08:00")}</span> - ${v.time_out ? `<span class="badge bg-secondary">${formatCleanTime(v.time_out, "--:--")}</span>` : `<span class="badge bg-warning text-dark">កំពុងអាន</span>`}</td>
                 <td>${v.purpose || ""}</td>
                 <td class="small">${v.remarks || ""}</td>
                 <td class="no-print text-end">
