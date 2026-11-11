@@ -554,6 +554,11 @@
         </li>
 
         <li class="mt-2 pt-2 border-top border-secondary">
+            <a href="books-catalog.html" target="_blank">
+                <span class="menu-label" style="color: #38bdf8 !important;"><i class="fas fa-globe text-info"></i> បញ្ជីសៀវភៅ Google Sites</span>
+            </a>
+        </li>
+        <li>
             <a href="https://docs.google.com/spreadsheets/d/13uiO2EIpeiVtUQAzv5ph46ziMy1d3m5dcVY7lxgMqVA/edit" target="_blank">
                 <span class="menu-label" style="color: #fbbf24 !important;"><i class="fas fa-external-link-alt text-warning"></i> បើក Google Sheet DB</span>
             </a>
@@ -2009,6 +2014,8 @@ const ACTION_KHMER_LABELS = {
     getPlaces: "កំពុងទាញយកទិន្នន័យទូ និងលេខDDCតាមទូ...",
     getMembers: "កំពុងទាញយកបញ្ជីសមាជិកបណ្ណាល័យ...",
     getLoans: "កំពុងទាញយកទិន្នន័យខ្ចី-សងសៀវភៅ...",
+    loginLibrarian: "កំពុងផ្ទៀងផ្ទាត់គណនីបណ្ណារក្សជាមួយ Google Sheet...",
+    getLibrarians: "កំពុងទាញយកបញ្ជីគណនីបណ្ណារក្ស...",
     getLibrarianAttendance: "កំពុងទាញយកសម្រង់វត្តមានបណ្ណារក្ស...",
     getStudentVisits: "កំពុងទាញយកបញ្ជីសិស្សចូលអានសៀវភៅ...",
     addBook: "កំពុងរក្សាទុកទិន្នន័យសៀវភៅថ្មី...",
@@ -2158,40 +2165,139 @@ function fillLoginDemo(enName) {
     document.getElementById("login_password").value = "123456";
 }
 
-function handleLibrarianLogin(e) {
+async function fetchLibrariansFromGoogleSheets() {
+    const SPREADSHEET_ID = "13uiO2EIpeiVtUQAzv5ph46ziMy1d3m5dcVY7lxgMqVA";
+    const gvizUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=tbl_librarians`;
+    try {
+        const res = await fetch(gvizUrl);
+        if (!res.ok) return null;
+        const text = await res.text();
+        const start = text.indexOf("{");
+        const end = text.lastIndexOf("}");
+        if (start === -1 || end === -1) return null;
+        const json = JSON.parse(text.substring(start, end + 1));
+        const table = json.table || {};
+        const cols = (table.cols || []).map(c => (c.label || c.id || "").trim());
+        const rows = table.rows || [];
+        let startRow = 0;
+        if (cols.length === 0 || !cols[0] || cols[0] === "A") {
+            if (rows.length > 0 && rows[0].c) {
+                for (let i = 0; i < rows[0].c.length; i++) {
+                    cols[i] = String(rows[0].c[i]?.v || "col_" + i).trim();
+                }
+                startRow = 1;
+            }
+        }
+        const libs = [];
+        for (let r = startRow; r < rows.length; r++) {
+            const rowData = rows[r].c || [];
+            const item = {};
+            for (let c = 0; c < cols.length; c++) {
+                const key = cols[c];
+                const cell = rowData[c];
+                item[key] = cell ? String(cell.v || "").trim() : "";
+            }
+            if (item.full_name_en || item.librarian_code) libs.push(item);
+        }
+        return libs;
+    } catch (e) {
+        return null;
+    }
+}
+
+async function handleLibrarianLogin(e) {
     e.preventDefault();
     const enName = document.getElementById("login_full_name_en").value.trim();
     const pass = document.getElementById("login_password").value.trim();
 
-    if (!enName) {
-        Swal.fire("ព្រមាន!", "សូមបញ្ចូល Full Name in English!", "warning");
+    if (!enName || !pass) {
+        Swal.fire("សូមបំពេញព័ត៌មាន!", "សូមបញ្ចូល Full Name in English និងលេខកូដសម្ងាត់ (Password)!", "warning");
         return;
     }
 
-    let matched = allLibrarians.find(l => String(l.full_name_en || "").toLowerCase() === enName.toLowerCase());
-    if (!matched) {
-        const nextId = allLibrarians.length > 0 ? Math.max(...allLibrarians.map(l => Number(l.id) || 0)) + 1 : 1;
-        matched = {
-            id: nextId,
-            librarian_code: "LIB-" + String(nextId).padStart(3, "0"),
-            full_name_en: enName,
-            khmer_name: enName,
-            role: "Librarian"
-        };
-        allLibrarians.push(matched);
-        saveLocalStore("librarians", allLibrarians);
+    showLoadingSpinner("កំពុងផ្ទៀងផ្ទាត់គណនីបណ្ណារក្សជាមួយ Google Sheet...", false);
+    let matched = null;
+
+    // Strategy 1: Verify directly with Google Apps Script Web App API
+    if (isApiConfigured()) {
+        try {
+            const url = new URL(API_URL);
+            url.searchParams.append("action", "loginLibrarian");
+            url.searchParams.append("full_name_en", enName);
+            url.searchParams.append("password", pass);
+            const res = await fetch(url);
+            const json = await res.json();
+            if (json && json.success && json.data) {
+                matched = json.data;
+            }
+        } catch (err) {
+            console.warn("Apps Script login verification notice:", err);
+        }
     }
 
-    currentLibrarian = matched;
+    // Strategy 2: If Apps Script API is not configured or failed, verify directly via Google Sheet GViz API
+    if (!matched) {
+        try {
+            const gvizLibs = await fetchLibrariansFromGoogleSheets();
+            if (Array.isArray(gvizLibs) && gvizLibs.length > 0) {
+                matched = gvizLibs.find(l => {
+                    const nameMatch = String(l.full_name_en || "").toLowerCase().trim() === enName.toLowerCase() ||
+                                      String(l.librarian_code || "").toLowerCase().trim() === enName.toLowerCase();
+                    const passMatch = String(l.password || "").trim() === pass;
+                    return nameMatch && passMatch;
+                });
+                if (matched) {
+                    allLibrarians = gvizLibs;
+                    saveLocalStore("librarians", allLibrarians);
+                }
+            }
+        } catch (err) {
+            console.warn("GViz login verification notice:", err);
+        }
+    }
+
+    // Strategy 3: Local cached librarians verification (strict check - NO dummy creation!)
+    if (!matched && allLibrarians && allLibrarians.length > 0) {
+        matched = allLibrarians.find(l => {
+            const nameMatch = String(l.full_name_en || "").toLowerCase().trim() === enName.toLowerCase() ||
+                              String(l.librarian_code || "").toLowerCase().trim() === enName.toLowerCase();
+            const passMatch = String(l.password || "").trim() === pass;
+            return nameMatch && passMatch;
+        });
+    }
+
+    await hideLoadingSpinner();
+
+    // STRICT REJECTION: If account name or password does not match, reject and stop!
+    if (!matched) {
+        Swal.fire({
+            icon: "error",
+            title: "ចូលប្រព័ន្ធមិនបានជោគជ័យ!",
+            text: "ឈ្មោះបណ្ណារក្ស (Full Name in English) ឬលេខកូដសម្ងាត់ (Password) មិនត្រឹមត្រូវឡើយ! សូមពិនិត្យមើលគណនីក្នុង Google Sheet (tbl_librarians)។",
+            confirmButtonText: "ព្យាយាមម្តងទៀត"
+        });
+        document.getElementById("login_password").value = "";
+        document.getElementById("login_password").focus();
+        return;
+    }
+
+    // Authenticated successfully with verified account info from Google Sheet
+    currentLibrarian = {
+        id: matched.id,
+        librarian_code: matched.librarian_code || "LIB-001",
+        full_name_en: matched.full_name_en,
+        khmer_name: matched.khmer_name || matched.full_name_en,
+        role: matched.role || "Librarian"
+    };
     localStorage.setItem("RTTC_LOGGED_IN_LIBRARIAN", JSON.stringify(currentLibrarian));
     applyLoggedInState();
     updateLibrarianCameraButtonsUI();
 
     Swal.fire({
         title: "ស្វាគមន៍ការចូលប្រព័ន្ធ!",
-        text: `${currentLibrarian.full_name_en} (${currentLibrarian.khmer_name || ""})`,
+        text: `${currentLibrarian.full_name_en} (${currentLibrarian.khmer_name})`,
         icon: "success",
-        timer: 1400,
+        timer: 1500,
         showConfirmButton: false
     });
 }
